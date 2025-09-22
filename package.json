@@ -1,0 +1,42 @@
+{
+  "name": "family-todo-calendar",
+  "version": "1.0.0",
+  "description": "Complete family organization app with task and meeting management - 5 themes, dark mode, calendar view",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'No build step needed for static files'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "family",
+    "todo",
+    "calendar",
+    "organizer",
+    "tasks",
+    "meetings",
+    "nodejs",
+    "express"
+  ],
+  "author": "hmanocha",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/happymanocha/family-todo-calendar.git"
+  },
+  "homepage": "https://github.com/happymanocha/family-todo-calendar#readme"
+}
