@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Todo & Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>Family Todo & Calendar</h1>
+            <div class="header-controls">
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="todo">Todo List</button>
+                    <button class="view-btn" data-view="calendar">Calendar</button>
+                </div>
+                <div class="styles-menu">
+                    <button class="styles-btn" onclick="app.toggleStylesMenu()">
+                        Styles
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                    </button>
+                    <div class="styles-dropdown" id="styles-dropdown">
+                        <div class="styles-section">
+                            <h4>Themes</h4>
+                            <div class="theme-options">
+                                <button class="theme-option active" data-theme="modern-blue">
+                                    <div class="theme-preview modern-blue-preview"></div>
+                                    Blue
+                                </button>
+                                <button class="theme-option" data-theme="warm-orange">
+                                    <div class="theme-preview warm-orange-preview"></div>
+                                    Orange
+                                </button>
+                                <button class="theme-option" data-theme="forest-green">
+                                    <div class="theme-preview forest-green-preview"></div>
+                                    Green
+                                </button>
+                                <button class="theme-option" data-theme="elegant-purple">
+                                    <div class="theme-preview elegant-purple-preview"></div>
+                                    Purple
+                                </button>
+                                <button class="theme-option" data-theme="minimalist-gray">
+                                    <div class="theme-preview minimalist-gray-preview"></div>
+                                    Gray
+                                </button>
+                            </div>
+                        </div>
+                        <div class="styles-section">
+                            <h4>Display Mode</h4>
+                            <div class="mode-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="dark-mode-toggle" onchange="app.toggleDarkMode()">
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Dark Mode</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Family Member Selector -->
+        <div class="family-selector">
+            <button class="family-btn active" data-member="all">All Family</button>
+            <button class="family-btn" data-member="joel">Joel</button>
+            <button class="family-btn" data-member="monika">Monika</button>
+            <button class="family-btn" data-member="happy">Happy</button>
+            <button class="family-btn" data-member="kiaan">Kiaan</button>
+        </div>
+
+        <!-- Todo View -->
+        <div class="view todo-view active">
+            <div class="todo-container">
+                <div class="add-todo-form">
+                    <div class="form-row">
+                        <select id="item-type" onchange="app.toggleItemType()">
+                            <option value="task">Task</option>
+                            <option value="meeting">Meeting</option>
+                        </select>
+                        <input type="text" id="todo-text" placeholder="Add a new task...">
+                        <select id="todo-member">
+                            <option value="joel">Joel</option>
+                            <option value="monika">Monika</option>
+                            <option value="happy">Happy</option>
+                            <option value="kiaan">Kiaan</option>
+                        </select>
+                    </div>
+
+                    <!-- Task Fields -->
+                    <div class="form-row task-fields">
+                        <input type="date" id="todo-date">
+                        <input type="time" id="todo-time">
+                    </div>
+
+                    <!-- Meeting Fields -->
+                    <div class="form-row meeting-fields" style="display: none;">
+                        <input type="date" id="meeting-date">
+                        <input type="time" id="meeting-start-time" placeholder="Start time">
+                        <input type="time" id="meeting-end-time" placeholder="End time">
+                    </div>
+
+                    <div class="form-row meeting-fields" style="display: none;">
+                        <textarea id="meeting-description" placeholder="Meeting description/agenda..."></textarea>
+                        <input type="url" id="meeting-link" placeholder="Meeting link (optional)">
+                    </div>
+
+                    <button id="add-todo-btn">Add <span id="add-btn-text">Task</span></button>
+                </div>
+
+                <div class="todo-lists">
+                    <div class="todo-column">
+                        <h3>Pending</h3>
+                        <div class="todo-list" id="pending-todos"></div>
+                    </div>
+                    <div class="todo-column">
+                        <h3>In Progress</h3>
+                        <div class="todo-list" id="progress-todos"></div>
+                    </div>
+                    <div class="todo-column">
+                        <h3>Completed</h3>
+                        <div class="todo-list" id="completed-todos"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="view calendar-view">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prev-month">&lt;</button>
+                    <h2 id="calendar-title">September 2025</h2>
+                    <button id="next-month">&gt;</button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-weekdays">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div class="calendar-days" id="calendar-days"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Item Modal -->
+        <div class="modal-overlay" id="edit-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="edit-modal-title">Edit Task</h3>
+                    <button class="modal-close" onclick="app.closeEditModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-task-form">
+                        <div class="form-group">
+                            <label for="edit-item-type">Type</label>
+                            <select id="edit-item-type" onchange="app.toggleEditItemType()">
+                                <option value="task">Task</option>
+                                <option value="meeting">Meeting</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-todo-text" id="edit-text-label">Task Description</label>
+                            <input type="text" id="edit-todo-text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-todo-member">Assigned To</label>
+                            <select id="edit-todo-member">
+                                <option value="joel">Joel</option>
+                                <option value="monika">Monika</option>
+                                <option value="happy">Happy</option>
+                                <option value="kiaan">Kiaan</option>
+                            </select>
+                        </div>
+
+                        <!-- Task Fields -->
+                        <div class="edit-task-fields">
+                            <div class="form-group">
+                                <label for="edit-todo-date">Due Date</label>
+                                <input type="date" id="edit-todo-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-todo-time">Due Time</label>
+                                <input type="time" id="edit-todo-time">
+                            </div>
+                        </div>
+
+                        <!-- Meeting Fields -->
+                        <div class="edit-meeting-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="edit-meeting-date">Meeting Date</label>
+                                <input type="date" id="edit-meeting-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-start-time">Start Time</label>
+                                <input type="time" id="edit-meeting-start-time">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-end-time">End Time</label>
+                                <input type="time" id="edit-meeting-end-time">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-description">Description/Agenda</label>
+                                <textarea id="edit-meeting-description" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-link">Meeting Link</label>
+                                <input type="url" id="edit-meeting-link" placeholder="https://...">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-todo-status">Status</label>
+                            <select id="edit-todo-status">
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="app.closeEditModal()">Cancel</button>
+                    <button class="btn btn-danger" onclick="app.deleteCurrentTask()">Delete <span id="delete-btn-text">Task</span></button>
+                    <button class="btn btn-primary" onclick="app.saveTaskEdit()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
