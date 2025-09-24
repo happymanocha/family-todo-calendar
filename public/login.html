@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minocha's Organizer - Login</title>
+    <link rel="stylesheet" href="css/login-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Background Animation -->
+        <div class="bg-animation">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+                <div class="shape shape-5"></div>
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1>Minocha's Organizer</h1>
+                </div>
+                <p class="welcome-text">Welcome back! Sign in to manage your family's tasks and meetings.</p>
+            </div>
+
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email address"
+                        autocomplete="username"
+                        required
+                    >
+                    <div class="input-hint">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Use family member email addresses</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="password-toggle" id="password-toggle-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-open">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-closed" class="hidden">
+                                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="input-hint">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Password: "family" for all accounts</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">Remember me for 30 days</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-button">
+                    <span class="button-text">Sign In</span>
+                    <div class="button-loader">
+                        <div class="loader-spinner"></div>
+                    </div>
+                    <svg class="button-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <div class="error-message" id="errorMessage">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span>Invalid family code or member selection</span>
+                </div>
+            </form>
+
+            <div class="login-footer">
+                <div class="features-preview">
+                    <h3>What's inside</h3>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <span>Task Management</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <span>Meeting Scheduler</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🎨</div>
+                            <span>5 Beautiful Themes</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🌙</div>
+                            <span>Dark Mode</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <span>Minocha's Organizer v1.0.0</span>
+            <span>•</span>
+            <span>Built with ❤️ for families</span>
+        </div>
+    </div>
+
+    <script src="js/api-config.js?v=auth-fix"></script>
+    <script src="js/login-script.js?v=auth-fix"></script>
+</body>
+</html>

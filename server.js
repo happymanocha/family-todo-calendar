@@ -37,7 +37,12 @@ app.use(express.static(__dirname, {
     lastModified: true,
     setHeaders: (res, path) => {
         // Set cache headers for static assets
-        if (path.endsWith('.css') || path.endsWith('.js')) {
+        if (process.env.NODE_ENV === 'development') {
+            // No caching in development
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        } else if (path.endsWith('.css') || path.endsWith('.js')) {
             res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
         } else if (path.endsWith('.html')) {
             res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour

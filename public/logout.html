@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout - Minocha's Organizer</title>
+    <link rel="stylesheet" href="css/logout-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="logout-container">
+        <!-- Background Animation -->
+        <div class="bg-animation">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+                <div class="shape shape-5"></div>
+            </div>
+        </div>
+
+        <!-- Logout Card -->
+        <div class="logout-card">
+            <div class="logout-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1>Minocha's Organizer</h1>
+                </div>
+                <p class="logout-text">Are you sure you want to logout?</p>
+            </div>
+
+            <div class="user-session-info">
+                <div class="session-details">
+                    <div class="user-avatar">
+                        <span id="user-initial">H</span>
+                    </div>
+                    <div class="user-details">
+                        <h3 id="current-user-name">Happy</h3>
+                        <p id="current-user-email">happymanocha@gmail.com</p>
+                        <small id="session-duration">Logged in for 2 hours</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="logout-actions">
+                <button class="cancel-btn" id="cancel-logout-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Cancel</span>
+                </button>
+
+                <button class="logout-btn" id="confirm-logout-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+
+            <div class="logout-footer">
+                <p>You can always log back in anytime.</p>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="version-info">
+            <span>Minocha's Organizer v1.0.0</span>
+            <span>•</span>
+            <span>Built with ❤️ for families</span>
+        </div>
+    </div>
+
+    <script src="js/api-config.js"></script>
+    <script src="js/logout-script.js"></script>
+</body>
+</html>

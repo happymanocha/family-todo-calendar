@@ -236,6 +236,61 @@ body.dark-mode {
     -webkit-text-fill-color: transparent;
 }
 
+/* Header Right Container */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* User Info */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.welcome-text {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.family-code {
+    color: var(--text-secondary);
+    font-size: 13px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border-color);
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: var(--cursor-shadow);
+}
+
+.logout-btn:hover {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 .view-toggle {
     display: flex;
     gap: 10px;
@@ -759,6 +814,43 @@ body.dark-mode {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
+.calendar-view-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.calendar-view-buttons {
+    display: flex;
+    gap: 2px;
+    background: var(--border-color);
+    border-radius: 10px;
+    padding: 4px;
+}
+
+.calendar-view-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.calendar-view-btn:hover {
+    background: var(--surface-color);
+    color: var(--text-primary);
+}
+
+.calendar-view-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
 .calendar-header {
     display: flex;
     justify-content: space-between;
@@ -897,6 +989,112 @@ body.dark-mode {
     font-size: 8px;
     opacity: 0.9;
     text-transform: capitalize;
+}
+
+/* Weekly View Styles */
+.calendar-weekly-view .calendar-weekdays {
+    display: none;
+}
+
+.calendar-weekly-view .calendar-days {
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: auto;
+}
+
+.calendar-weekly-view .calendar-day {
+    min-height: 200px;
+    border: 1px solid var(--border-color);
+}
+
+/* Daily View Styles */
+.calendar-daily-view .calendar-weekdays {
+    display: none;
+}
+
+.calendar-daily-view .calendar-days {
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+.calendar-daily-view .calendar-day {
+    min-height: 400px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 20px;
+}
+
+.calendar-daily-view .calendar-day-number {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.calendar-daily-view .calendar-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-daily-view .calendar-task {
+    padding: 8px 12px;
+    font-size: 0.95rem;
+}
+
+.calendar-daily-view .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.calendar-daily-view .task-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.calendar-daily-view .task-description {
+    margin-top: 5px;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.calendar-daily-view .no-tasks {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 20px;
+}
+
+.calendar-daily-view .task-time {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.calendar-daily-view .task-type {
+    font-size: 0.75rem;
+}
+
+/* Time slots for daily view */
+.daily-time-slots {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 10px;
+    align-items: start;
+}
+
+.time-slot {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: right;
+    padding-top: 5px;
+}
+
+.time-slot-content {
+    min-height: 60px;
+    border-bottom: 1px solid var(--border-color);
+    padding: 5px 0;
 }
 
 /* Responsive Design */

@@ -1,0 +1,365 @@
+service: minocha-organizer-serverless
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    TODOS_TABLE: ${self:service}-todos-${self:provider.stage}
+    USERS_TABLE: ${self:service}-users-${self:provider.stage}
+    JWT_SECRET: ${env:JWT_SECRET, 'your-secret-key-here'}
+    NODE_ENV: ${self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchGetItem
+            - dynamodb:BatchWriteItem
+          Resource:
+            - Fn::GetAtt: [TodosTable, Arn]
+            - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::Join:
+              - '/'
+              - - Fn::GetAtt: [TodosTable, Arn]
+                - 'index/*'
+            - Fn::Join:
+              - '/'
+              - - Fn::GetAtt: [UsersTable, Arn]
+                - 'index/*'
+
+package:
+  patterns:
+    - '!src/views/**'
+    - '!public/**'
+    - '!node_modules/nodemon/**'
+    - '!.git/**'
+    - '!README.md'
+    - '!package-lock.json'
+
+functions:
+  # Health and Info endpoints
+  health:
+    handler: src/lambda/api.health
+    events:
+      - http:
+          path: /api/health
+          method: get
+          cors: true
+
+  info:
+    handler: src/lambda/api.info
+    events:
+      - http:
+          path: /api/info
+          method: get
+          cors: true
+
+  # Authentication endpoints
+  login:
+    handler: src/lambda/auth.login
+    events:
+      - http:
+          path: /api/auth/login
+          method: post
+          cors: true
+
+  logout:
+    handler: src/lambda/auth.logout
+    events:
+      - http:
+          path: /api/auth/logout
+          method: post
+          cors: true
+
+  refreshToken:
+    handler: src/lambda/auth.refreshToken
+    events:
+      - http:
+          path: /api/auth/refresh
+          method: post
+          cors: true
+
+  profile:
+    handler: src/lambda/auth.profile
+    events:
+      - http:
+          path: /api/auth/profile
+          method: get
+          cors: true
+
+  validateToken:
+    handler: src/lambda/auth.validateToken
+    events:
+      - http:
+          path: /api/auth/validate
+          method: post
+          cors: true
+
+  familyMembers:
+    handler: src/lambda/auth.familyMembers
+    events:
+      - http:
+          path: /api/auth/family-members
+          method: get
+          cors: true
+
+  checkPermission:
+    handler: src/lambda/auth.checkPermission
+    events:
+      - http:
+          path: /api/auth/check-permission
+          method: post
+          cors: true
+
+  # Todo CRUD endpoints
+  getTodos:
+    handler: src/lambda/todos.getTodos
+    events:
+      - http:
+          path: /api/todos
+          method: get
+          cors: true
+
+  createTodo:
+    handler: src/lambda/todos.createTodo
+    events:
+      - http:
+          path: /api/todos
+          method: post
+          cors: true
+
+  getTodo:
+    handler: src/lambda/todos.getTodo
+    events:
+      - http:
+          path: /api/todos/{id}
+          method: get
+          cors: true
+
+  updateTodo:
+    handler: src/lambda/todos.updateTodo
+    events:
+      - http:
+          path: /api/todos/{id}
+          method: put
+          cors: true
+
+  deleteTodo:
+    handler: src/lambda/todos.deleteTodo
+    events:
+      - http:
+          path: /api/todos/{id}
+          method: delete
+          cors: true
+
+  updateTodoStatus:
+    handler: src/lambda/todos.updateTodoStatus
+    events:
+      - http:
+          path: /api/todos/{id}/status
+          method: patch
+          cors: true
+
+  addComment:
+    handler: src/lambda/todos.addComment
+    events:
+      - http:
+          path: /api/todos/{id}/comments
+          method: post
+          cors: true
+
+  searchTodos:
+    handler: src/lambda/todos.searchTodos
+    events:
+      - http:
+          path: /api/todos/search
+          method: get
+          cors: true
+
+  getStatistics:
+    handler: src/lambda/todos.getStatistics
+    events:
+      - http:
+          path: /api/todos/statistics
+          method: get
+          cors: true
+
+  getUpcoming:
+    handler: src/lambda/todos.getUpcoming
+    events:
+      - http:
+          path: /api/todos/upcoming
+          method: get
+          cors: true
+
+  bulkUpdate:
+    handler: src/lambda/todos.bulkUpdate
+    events:
+      - http:
+          path: /api/todos/bulk
+          method: patch
+          cors: true
+
+resources:
+  Resources:
+    # DynamoDB Tables
+    TodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: assignedTo
+            AttributeType: S
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: dueDate
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: AssignedToIndex
+            KeySchema:
+              - AttributeName: assignedTo
+                KeyType: HASH
+              - AttributeName: dueDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: StatusIndex
+            KeySchema:
+              - AttributeName: status
+                KeyType: HASH
+              - AttributeName: dueDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: EmailIndex
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
+    # S3 Bucket for static website hosting
+    WebsiteBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-website-${self:provider.stage}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: false
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: false
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: error.html
+
+    WebsiteBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref WebsiteBucket
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: '*'
+              Action: s3:GetObject
+              Resource: !Join ['', ['arn:aws:s3:::', !Ref WebsiteBucket, '/*']]
+
+  Outputs:
+    ApiGatewayUrl:
+      Description: API Gateway URL
+      Value:
+        Fn::Join:
+          - ''
+          - - 'https://'
+            - Ref: ApiGatewayRestApi
+            - '.execute-api.'
+            - ${self:provider.region}
+            - '.amazonaws.com/'
+            - ${self:provider.stage}
+
+    WebsiteURL:
+      Description: Website URL
+      Value: !GetAtt WebsiteBucket.WebsiteURL
+
+    TodosTableName:
+      Description: DynamoDB Todos Table Name
+      Value: !Ref TodosTable
+
+    UsersTableName:
+      Description: DynamoDB Users Table Name
+      Value: !Ref UsersTable
+
+plugins:
+  - serverless-offline
+  - serverless-s3-sync
+
+custom:
+  s3Sync:
+    - bucketName: ${self:service}-website-${self:provider.stage}
+      localDir: public
+      deleteRemoved: true
+      followSymlinks: true
+      defaultContentType: text/html
+      params:
+        - match: "*.html"
+          ContentType: "text/html"
+        - match: "*.css"
+          ContentType: "text/css"
+        - match: "*.js"
+          ContentType: "application/javascript"
+        - match: "*.json"
+          ContentType: "application/json"
+        - match: "*.png"
+          ContentType: "image/png"
+        - match: "*.jpg"
+          ContentType: "image/jpeg"
+        - match: "*.jpeg"
+          ContentType: "image/jpeg"
+        - match: "*.gif"
+          ContentType: "image/gif"
+        - match: "*.svg"
+          ContentType: "image/svg+xml"
