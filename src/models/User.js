@@ -8,11 +8,13 @@ const authConfig = require('../config/auth');
 
 class User {
     constructor(data = {}) {
-        this.id = data.id || null;
+        this.id = data.id || null; // Backward compatibility ID
+        this.uniqueId = data.uniqueId || null; // Proper unique ID (UUID)
         this.email = data.email || '';
         this.name = data.name || '';
         this.role = data.role || 'member';
         this.avatar = data.avatar || '';
+        this.phone = data.phone || '';
         this.password = data.password || '';
         this.isActive = data.isActive !== undefined ? data.isActive : true;
         this.loginAttempts = data.loginAttempts || 0;
@@ -112,10 +114,12 @@ class User {
     toJSON() {
         return {
             id: this.id,
+            uniqueId: this.uniqueId,
             email: this.email,
             name: this.name,
             role: this.role,
             avatar: this.avatar,
+            phone: this.phone,
             isActive: this.isActive,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt
@@ -130,10 +134,13 @@ class User {
         return Object.entries(authConfig.familyMembers).map(([email, data]) => {
             return new User({
                 id: data.id,
+                uniqueId: data.uniqueId,
                 email: email,
                 name: data.name,
                 role: data.role,
                 avatar: data.avatar,
+                phone: data.phone,
+                createdAt: data.createdAt,
                 password: 'family' // Default password for demo
             });
         });
@@ -150,10 +157,13 @@ class User {
 
         return new User({
             id: memberData.id,
+            uniqueId: memberData.uniqueId,
             email: email.toLowerCase(),
             name: memberData.name,
             role: memberData.role,
             avatar: memberData.avatar,
+            phone: memberData.phone,
+            createdAt: memberData.createdAt,
             password: 'family' // Default password for demo
         });
     }
@@ -172,10 +182,13 @@ class User {
         const [email, data] = entry;
         return new User({
             id: data.id,
+            uniqueId: data.uniqueId,
             email: email,
             name: data.name,
             role: data.role,
             avatar: data.avatar,
+            phone: data.phone,
+            createdAt: data.createdAt,
             password: 'family' // Default password for demo
         });
     }

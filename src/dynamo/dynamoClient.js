@@ -157,6 +157,10 @@ class DynamoService {
         );
     }
 
+    async getAllTodos() {
+        return await this.scan(this.todosTable);
+    }
+
     async getTodosByAssignee(assignedTo, dueDate = null) {
         let keyCondition = 'assignedTo = :assignedTo';
         let values = { ':assignedTo': assignedTo };

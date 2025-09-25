@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading State Management - Interactive Demo</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/button-components.css">
+    <script src="js/button-loading.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--background-color);
+            min-height: 100vh;
+        }
+
+        .demo-section {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .demo-section h3 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .form-demo {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--surface-color);
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-indicator {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .dark-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .controls {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--background-color);
+            border-radius: 0.5rem;
+        }
+
+        .controls label {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .controls input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .demo-item {
+            background: var(--background-color);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .demo-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .demo-item p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 1rem;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dark-toggle">
+        <button class="btn btn--ghost" onclick="toggleDarkMode()">
+            <span id="theme-icon">🌙</span>
+        </button>
+    </div>
+
+    <div class="demo-container">
+        <!-- Header -->
+        <div class="demo-section">
+            <h1 style="color: var(--text-primary); text-align: center; margin-bottom: 1rem;">
+                ⚡ Loading State Management Demo
+            </h1>
+            <p style="color: var(--text-secondary); text-align: center; margin-bottom: 2rem; font-size: 1.1rem;">
+                Interactive examples of async button operations with loading states, error handling, and accessibility
+            </p>
+
+            <div class="controls">
+                <label>
+                    <input type="checkbox" id="simulate-errors" />
+                    Simulate Random Errors (30% chance)
+                </label>
+                <label>
+                    <input type="checkbox" id="slow-operations" />
+                    Slow Operations (5 seconds)
+                </label>
+                <label>
+                    <input type="checkbox" id="announce-screen-reader" checked />
+                    Screen Reader Announcements
+                </label>
+            </div>
+        </div>
+
+        <!-- Loading Animation Styles -->
+        <div class="demo-section">
+            <h2>Loading Animation Styles</h2>
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <h4>Spinner (Default)</h4>
+                    <p>Classic rotating spinner animation</p>
+                    <button class="btn btn--primary" data-async data-loading-style="spinner" data-loading-text="Processing...">
+                        Process Payment
+                    </button>
+                </div>
+
+                <div class="demo-item">
+                    <h4>Pulse Animation</h4>
+                    <p>Subtle pulsing effect for less intrusive loading</p>
+                    <button class="btn btn--secondary" data-async data-loading-style="pulse" data-loading-text="Saving...">
+                        Save Changes
+                    </button>
+                </div>
+
+                <div class="demo-item">
+                    <h4>Dots Animation</h4>
+                    <p>Animated dots for a playful loading state</p>
+                    <button class="btn btn--outline" data-async data-loading-style="dots" data-loading-text="Loading">
+                        Load Content
+                    </button>
+                </div>
+
+                <div class="demo-item">
+                    <h4>Progress Bar</h4>
+                    <p>Sliding progress bar animation</p>
+                    <button class="btn btn--success" data-async data-loading-style="progress" data-loading-text="Uploading...">
+                        Upload File
+                    </button>
+                </div>
+            </div>
+
+            <div class="code-block">
+&lt;!-- HTML --&gt;
+&lt;button class="btn btn--primary" data-async data-loading-style="spinner"&gt;Process Payment&lt;/button&gt;
+&lt;button class="btn btn--secondary" data-async data-loading-style="pulse"&gt;Save Changes&lt;/button&gt;
+&lt;button class="btn btn--outline" data-async data-loading-style="dots"&gt;Load Content&lt;/button&gt;
+&lt;button class="btn btn--success" data-async data-loading-style="progress"&gt;Upload File&lt;/button&gt;
+
+&lt;!-- JavaScript --&gt;
+&lt;script&gt;
+ButtonLoading.enhance('#payment-btn', async () =&gt; {
+    const response = await fetch('/api/payment', { method: 'POST' });
+    return response.json();
+}, {
+    loadingStyle: 'spinner',
+    loadingText: 'Processing...',
+    successText: 'Payment Complete!'
+});
+&lt;/script&gt;
+            </div>
+        </div>
+
+        <!-- Login Form Demo -->
+        <div class="demo-section">
+            <h2>Login Form with Loading State</h2>
+            <div class="form-demo">
+                <form id="login-form" action="#" method="post">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="your@email.com" value="demo@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="••••••••" value="password123">
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--full" id="login-btn">
+                        Sign In
+                    </button>
+                </form>
+
+                <div id="login-status" class="status-indicator status-info" style="display: none;">
+                    Try logging in to see the loading state in action!
+                </div>
+            </div>
+
+            <div class="code-block">
+&lt;!-- HTML --&gt;
+&lt;form id="login-form"&gt;
+    &lt;input type="email" name="email" required /&gt;
+    &lt;input type="password" name="password" required /&gt;
+    &lt;button type="submit" class="btn btn--primary btn--full"&gt;Sign In&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;!-- JavaScript --&gt;
+&lt;script&gt;
+ButtonLoading.enhanceLogin('#login-form', async (data) =&gt; {
+    const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        throw new Error('Invalid credentials');
+    }
+
+    return response.json();
+}, {
+    loadingText: 'Signing In...',
+    successText: 'Welcome!',
+    errorText: 'Login Failed'
+});
+&lt;/script&gt;
+            </div>
+        </div>
+
+        <!-- Form Submission Demo -->
+        <div class="demo-section">
+            <h2>Contact Form with Validation</h2>
+            <div class="form-demo">
+                <form id="contact-form" action="#" method="post">
+                    <div class="form-group">
+                        <label for="contact-name">Full Name</label>
+                        <input type="text" id="contact-name" name="name" required placeholder="John Doe" value="John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact-email">Email Address</label>
+                        <input type="email" id="contact-email" name="email" required placeholder="john@example.com" value="john@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="4" required placeholder="Your message here...">Hello! This is a test message for the demo.</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--full" id="contact-submit">
+                        Send Message
+                    </button>
+                </form>
+
+                <div id="contact-status" class="status-indicator status-info" style="display: none;">
+                    Fill out the form and submit to test validation and loading states!
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Actions Demo -->
+        <div class="demo-section">
+            <h2>Delete Actions with Confirmation</h2>
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <h4>Delete User Account</h4>
+                    <p>Permanent action with confirmation dialog</p>
+                    <button class="btn btn--danger" id="delete-user" data-async="delete" data-loading-text="Deleting..." data-success-text="Deleted!">
+                        Delete Account
+                    </button>
+                </div>
+
+                <div class="demo-item">
+                    <h4>Remove File</h4>
+                    <p>File deletion with loading feedback</p>
+                    <button class="btn btn--outline btn--danger" id="delete-file" data-loading-text="Removing...">
+                        Remove File
+                    </button>
+                </div>
+
+                <div class="demo-item">
+                    <h4>Bulk Delete</h4>
+                    <p>Multiple items deletion</p>
+                    <button class="btn btn--secondary" id="bulk-delete" data-loading-text="Deleting Items...">
+                        Delete Selected (5)
+                    </button>
+                </div>
+            </div>
+
+            <div class="code-block">
+&lt;!-- HTML --&gt;
+&lt;button class="btn btn--danger" data-async="delete" data-loading-text="Deleting..."&gt;
+    Delete Account
+&lt;/button&gt;
+
+&lt;!-- JavaScript --&gt;
+&lt;script&gt;
+ButtonLoading.enhanceDelete('#delete-user', async () =&gt; {
+    const response = await fetch('/api/users/123', { method: 'DELETE' });
+    if (!response.ok) throw new Error('Delete failed');
+    return response.json();
+}, {
+    confirmMessage: 'Are you sure you want to delete your account? This cannot be undone.',
+    loadingText: 'Deleting Account...',
+    successText: 'Account Deleted',
+    errorText: 'Delete Failed'
+});
+&lt;/script&gt;
+            </div>
+        </div>
+
+        <!-- Button States Demo -->
+        <div class="demo-section">
+            <h2>Button States & Sizes</h2>
+
+            <h3>Different Sizes</h3>
+            <div class="button-row">
+                <button class="btn btn--primary btn--sm" data-async data-loading-text="Loading...">Small</button>
+                <button class="btn btn--primary btn--md" data-async data-loading-text="Loading...">Medium</button>
+                <button class="btn btn--primary btn--lg" data-async data-loading-text="Loading...">Large</button>
+                <button class="btn btn--primary btn--xl" data-async data-loading-text="Loading...">Extra Large</button>
+            </div>
+
+            <h3>Different Variants</h3>
+            <div class="button-row">
+                <button class="btn btn--primary" data-async data-loading-text="Processing...">Primary</button>
+                <button class="btn btn--secondary" data-async data-loading-text="Saving...">Secondary</button>
+                <button class="btn btn--outline" data-async data-loading-text="Loading...">Outline</button>
+                <button class="btn btn--ghost" data-async data-loading-text="Working...">Ghost</button>
+                <button class="btn btn--danger" data-async data-loading-text="Deleting...">Danger</button>
+                <button class="btn btn--success" data-async data-loading-text="Creating...">Success</button>
+            </div>
+
+            <h3>Manual State Control</h3>
+            <div class="button-row">
+                <button class="btn btn--primary" id="manual-loading">Start Loading</button>
+                <button class="btn btn--success" id="manual-success">Show Success</button>
+                <button class="btn btn--danger" id="manual-error">Show Error</button>
+                <button class="btn btn--secondary" id="manual-reset">Reset State</button>
+            </div>
+        </div>
+
+        <!-- Accessibility Demo -->
+        <div class="demo-section">
+            <h2>Accessibility Features</h2>
+            <div class="demo-item">
+                <h4>Screen Reader Support</h4>
+                <p>All loading states are announced to screen readers with proper ARIA attributes.</p>
+                <button class="btn btn--primary" data-async data-loading-text="Processing your request...">
+                    Process with Announcement
+                </button>
+
+                <div style="margin-top: 1rem;">
+                    <small style="color: var(--text-secondary);">
+                        <strong>Accessibility Features:</strong><br>
+                        • aria-live="polite" for status updates<br>
+                        • aria-busy="true" during loading<br>
+                        • Proper focus management<br>
+                        • Screen reader announcements<br>
+                        • Keyboard navigation support
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Reference -->
+        <div class="demo-section">
+            <h2>Quick API Reference</h2>
+            <div class="code-block">
+// Basic usage
+ButtonLoading.enhance('#my-button', async () => {
+    return await fetch('/api/endpoint').then(r => r.json());
+});
+
+// Form enhancement
+ButtonLoading.enhanceForm('#my-form', {
+    onSubmit: async (data) => {
+        return await submitForm(data);
+    }
+});
+
+// Login form
+ButtonLoading.enhanceLogin('#login-form', async (credentials) => {
+    return await authenticateUser(credentials);
+});
+
+// Delete with confirmation
+ButtonLoading.enhanceDelete('#delete-btn', async () => {
+    return await deleteResource();
+}, {
+    confirmMessage: 'Are you sure?'
+});
+
+// Manual control
+const asyncBtn = ButtonLoading.enhance('#btn', handler);
+asyncBtn.setLoading(true);  // Start loading
+asyncBtn.setLoading(false); // Stop loading
+asyncBtn.reset();          // Reset to original state
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo functionality
+        let manualButton = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced login form
+            ButtonLoading.enhanceLogin('#login-form', async (data) => {
+                const shouldFail = document.getElementById('simulate-errors')?.checked && Math.random() < 0.3;
+                const duration = document.getElementById('slow-operations')?.checked ? 5000 : 2000;
+
+                await ButtonLoading.simulateAsync(duration, !shouldFail);
+
+                const statusEl = document.getElementById('login-status');
+                if (statusEl) {
+                    statusEl.style.display = 'block';
+                    statusEl.className = shouldFail ? 'status-indicator status-error' : 'status-indicator status-success';
+                    statusEl.textContent = shouldFail ? '❌ Login failed - Invalid credentials' : '✅ Login successful! Welcome back.';
+                }
+
+                if (shouldFail) {
+                    throw new Error('Invalid credentials');
+                }
+
+                return { user: data.email, token: 'demo-token-123' };
+            });
+
+            // Enhanced contact form
+            ButtonLoading.enhanceForm('#contact-form', {
+                onSubmit: async (data) => {
+                    const shouldFail = document.getElementById('simulate-errors')?.checked && Math.random() < 0.3;
+                    const duration = document.getElementById('slow-operations')?.checked ? 5000 : 2500;
+
+                    await ButtonLoading.simulateAsync(duration, !shouldFail);
+
+                    const statusEl = document.getElementById('contact-status');
+                    if (statusEl) {
+                        statusEl.style.display = 'block';
+                        statusEl.className = shouldFail ? 'status-indicator status-error' : 'status-indicator status-success';
+                        statusEl.textContent = shouldFail ? '❌ Message failed to send' : '✅ Message sent successfully!';
+                    }
+
+                    if (shouldFail) {
+                        throw new Error('Network error occurred');
+                    }
+
+                    return { messageId: 'msg-123', status: 'sent' };
+                },
+                loadingText: 'Sending Message...',
+                successText: 'Message Sent!',
+                errorText: 'Send Failed'
+            });
+
+            // Delete file button
+            ButtonLoading.enhanceDelete('#delete-file', async () => {
+                const shouldFail = document.getElementById('simulate-errors')?.checked && Math.random() < 0.3;
+                const duration = document.getElementById('slow-operations')?.checked ? 4000 : 1500;
+
+                await ButtonLoading.simulateAsync(duration, !shouldFail);
+
+                if (shouldFail) {
+                    throw new Error('Permission denied');
+                }
+
+                return { deleted: true, fileId: 'file-123' };
+            }, {
+                confirmMessage: 'Are you sure you want to remove this file?'
+            });
+
+            // Bulk delete button
+            ButtonLoading.enhance('#bulk-delete', async () => {
+                const shouldFail = document.getElementById('simulate-errors')?.checked && Math.random() < 0.3;
+                const duration = document.getElementById('slow-operations')?.checked ? 6000 : 3000;
+
+                await ButtonLoading.simulateAsync(duration, !shouldFail);
+
+                if (shouldFail) {
+                    throw new Error('Some items could not be deleted');
+                }
+
+                return { deletedCount: 5 };
+            }, {
+                loadingText: 'Deleting 5 items...',
+                successText: '5 Items Deleted!',
+                errorText: 'Delete Failed'
+            });
+
+            // Manual state control buttons
+            manualButton = ButtonLoading.enhance('#manual-loading', async () => {
+                // This won't be called automatically
+            }, {
+                loadingText: 'Loading...',
+                successText: 'Success!',
+                errorText: 'Error!'
+            });
+
+            // Manual control handlers
+            document.getElementById('manual-loading').addEventListener('click', (e) => {
+                e.preventDefault();
+                manualButton.startLoading();
+                setTimeout(() => manualButton.stopLoading(), 3000);
+            });
+
+            document.getElementById('manual-success').addEventListener('click', (e) => {
+                e.preventDefault();
+                manualButton.showSuccess();
+            });
+
+            document.getElementById('manual-error').addEventListener('click', (e) => {
+                e.preventDefault();
+                manualButton.showError(new Error('Manual error triggered'));
+            });
+
+            document.getElementById('manual-reset').addEventListener('click', (e) => {
+                e.preventDefault();
+                manualButton.reset();
+            });
+        });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        }
+    </script>
+</body>
+</html>

@@ -20,31 +20,43 @@ const {
 
 const dynamoService = new DynamoService();
 
-// Family members configuration (same as original)
+// Family members configuration (enhanced with unique IDs and additional fields)
 const FAMILY_MEMBERS = {
     'happymanocha@gmail.com': {
-        id: 'happy',
+        id: 'happy', // Backward compatibility ID
+        uniqueId: 'usr-a1b2c3d4-e5f6-7890-abcd-ef1234567890', // Proper UUID
         name: 'Happy',
         role: 'admin',
-        avatar: 'H'
+        avatar: 'H',
+        phone: '+1-234-567-8900',
+        createdAt: '2024-01-01T00:00:00.000Z'
     },
     'joelminocha@gmail.com': {
-        id: 'joel',
+        id: 'joel', // Backward compatibility ID
+        uniqueId: 'usr-b2c3d4e5-f6g7-8901-bcde-f23456789012', // Proper UUID
         name: 'Joel',
         role: 'member',
-        avatar: 'J'
+        avatar: 'J',
+        phone: '+1-234-567-8901',
+        createdAt: '2024-01-01T00:00:00.000Z'
     },
     'upalmonika@gmail.com': {
-        id: 'monika',
+        id: 'monika', // Backward compatibility ID
+        uniqueId: 'usr-c3d4e5f6-g7h8-9012-cdef-345678901234', // Proper UUID
         name: 'Monika',
         role: 'member',
-        avatar: 'M'
+        avatar: 'M',
+        phone: '+1-234-567-8902',
+        createdAt: '2024-01-01T00:00:00.000Z'
     },
     'kiaanminocha@gmail.com': {
-        id: 'kiaan',
+        id: 'kiaan', // Backward compatibility ID
+        uniqueId: 'usr-d4e5f6g7-h8i9-0123-defg-456789012345', // Proper UUID
         name: 'Kiaan',
         role: 'member',
-        avatar: 'K'
+        avatar: 'K',
+        phone: '+1-234-567-8903',
+        createdAt: '2024-01-01T00:00:00.000Z'
     }
 };
 
@@ -56,6 +68,7 @@ const DEMO_PASSWORD = 'family'; // In production, this should be hashed per user
 const generateTokens = (user) => {
     const accessTokenPayload = {
         userId: user.id,
+        uniqueId: user.uniqueId,
         email: user.email,
         name: user.name,
         role: user.role
@@ -68,7 +81,10 @@ const generateTokens = (user) => {
     );
 
     const refreshToken = jwt.sign(
-        { userId: user.id },
+        {
+            userId: user.id,
+            uniqueId: user.uniqueId
+        },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
     );
@@ -93,12 +109,14 @@ const createOrUpdateUser = async (familyMember, email) => {
         // Create new user
         user = {
             id: userId,
+            uniqueId: familyMember.uniqueId,
             email: email,
             name: familyMember.name,
             role: familyMember.role,
             avatar: familyMember.avatar,
+            phone: familyMember.phone,
             isActive: true,
-            createdAt: new Date().toISOString(),
+            createdAt: familyMember.createdAt,
             updatedAt: new Date().toISOString(),
             loginAttempts: 0,
             lastLogin: null
@@ -106,22 +124,28 @@ const createOrUpdateUser = async (familyMember, email) => {
 
         await dynamoService.putUser(user);
     } else {
-        // Update existing user
+        // Update existing user with new fields if they don't exist
         await dynamoService.updateUser(
             userId,
-            'SET #updatedAt = :updatedAt, #lastLogin = :lastLogin',
+            'SET #updatedAt = :updatedAt, #lastLogin = :lastLogin, #uniqueId = if_not_exists(#uniqueId, :uniqueId), #phone = if_not_exists(#phone, :phone)',
             {
                 ':updatedAt': new Date().toISOString(),
-                ':lastLogin': new Date().toISOString()
+                ':lastLogin': new Date().toISOString(),
+                ':uniqueId': familyMember.uniqueId,
+                ':phone': familyMember.phone
             },
             {
                 '#updatedAt': 'updatedAt',
-                '#lastLogin': 'lastLogin'
+                '#lastLogin': 'lastLogin',
+                '#uniqueId': 'uniqueId',
+                '#phone': 'phone'
             }
         );
 
         user.updatedAt = new Date().toISOString();
         user.lastLogin = new Date().toISOString();
+        user.uniqueId = user.uniqueId || familyMember.uniqueId;
+        user.phone = user.phone || familyMember.phone;
     }
 
     return user;
@@ -167,10 +191,12 @@ const login = lambdaWrapper(async (event) => {
         return successResponse({
             user: {
                 id: user.id,
+                uniqueId: user.uniqueId,
                 email: user.email,
                 name: user.name,
                 role: user.role,
                 avatar: user.avatar,
+                phone: user.phone,
                 isActive: user.isActive,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
@@ -276,10 +302,12 @@ const profile = lambdaWrapper(async (event) => {
 
         return successResponse({
             id: userData.id,
+            uniqueId: userData.uniqueId,
             email: userData.email,
             name: userData.name,
             role: userData.role,
             avatar: userData.avatar,
+            phone: userData.phone,
             isActive: userData.isActive,
             createdAt: userData.createdAt,
             updatedAt: userData.updatedAt
@@ -305,6 +333,7 @@ const validateToken = lambdaWrapper(async (event) => {
         return successResponse({
             valid: true,
             userId: decoded.userId,
+            uniqueId: decoded.uniqueId,
             email: decoded.email,
             name: decoded.name,
             role: decoded.role,
@@ -326,10 +355,13 @@ const familyMembers = lambdaWrapper(async (event) => {
     try {
         const members = Object.entries(FAMILY_MEMBERS).map(([email, member]) => ({
             id: member.id,
+            uniqueId: member.uniqueId,
             name: member.name,
             email: email,
             role: member.role,
-            avatar: member.avatar
+            avatar: member.avatar,
+            phone: member.phone,
+            createdAt: member.createdAt
         }));
 
         return successResponse(members, 'Family members retrieved successfully');

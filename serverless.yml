@@ -269,12 +269,20 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: uniqueId
+            AttributeType: S
           - AttributeName: email
             AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
         GlobalSecondaryIndexes:
+          - IndexName: UniqueIdIndex
+            KeySchema:
+              - AttributeName: uniqueId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
           - IndexName: EmailIndex
             KeySchema:
               - AttributeName: email

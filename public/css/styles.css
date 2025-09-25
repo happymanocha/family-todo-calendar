@@ -52,25 +52,13 @@ body.dark-mode {
     position: relative;
 }
 
+/* Styles button now uses button component library */
 .styles-btn {
-    display: flex;
-    align-items: center;
     gap: 8px;
-    padding: 12px 20px;
-    background: var(--surface-color);
-    border: 2px solid var(--border-color);
-    border-radius: 25px;
-    color: var(--text-primary);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    font-size: 14px;
+    /* Remove custom border-radius to use button component defaults */
 }
 
-.styles-btn:hover {
-    border-color: var(--primary-color);
-    background: var(--background-color);
-}
+/* Remove custom hover styles - button component handles this */
 
 .styles-dropdown {
     position: absolute;
@@ -243,101 +231,252 @@ body.dark-mode {
     gap: 20px;
 }
 
-/* User Info */
-.user-info {
+/* Dark Mode Toggle */
+.dark-mode-btn {
+    position: relative;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 12px 20px;
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    justify-content: center;
 }
 
-.welcome-text {
-    color: var(--text-primary);
+.dark-mode-btn:hover {
+    background: var(--background-color) !important;
+}
+
+.dark-mode-icon {
+    transition: transform 0.3s ease;
+}
+
+body.dark-mode .dark-mode-icon {
+    transform: rotate(180deg);
+}
+
+/* User Menu */
+.user-menu {
+    position: relative;
+}
+
+.user-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px !important;
+    border-radius: 50px !important;
+    transition: all 0.2s ease;
+}
+
+.user-menu-btn:hover {
+    background: var(--background-color) !important;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
     font-weight: 600;
+    color: white;
+}
+
+.user-name {
+    color: var(--text-primary);
+    font-weight: 500;
     font-size: 14px;
 }
 
-.family-code {
-    color: var(--text-secondary);
-    font-size: 13px;
-    padding-left: 12px;
-    border-left: 1px solid var(--border-color);
+.chevron-icon {
+    transition: transform 0.2s ease;
 }
 
-.logout-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
+.user-menu-btn[aria-expanded="true"] .chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* User Dropdown */
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: var(--cursor-shadow);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    max-width: 320px;
+    z-index: 1000;
+    display: none;
+    margin-top: 8px;
+    overflow: hidden;
 }
 
-.logout-btn:hover {
-    background: var(--danger-color);
-    border-color: var(--danger-color);
+.user-dropdown.show {
+    display: block;
+    animation: dropdownSlideIn 0.3s ease;
+}
+
+.user-dropdown-header {
+    padding: 20px;
+    background: var(--background-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
     color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-display-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.user-email {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0;
+}
+
+.dropdown-section {
+    padding: 8px;
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 12px 16px !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 8px !important;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    justify-content: flex-start;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: var(--background-color) !important;
+}
+
+.styles-menu-item .chevron-down {
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.logout-item {
+    color: var(--danger-color) !important;
+}
+
+.logout-item:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: var(--danger-color) !important;
+}
+
+/* Styles Submenu - Modern expandable approach */
+.styles-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: var(--background-color);
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.styles-submenu.show {
+    max-height: 400px; /* Adjust based on content */
+}
+
+.submenu-content {
+    padding: 16px;
+}
+
+.styles-submenu .styles-section {
+    margin: 0;
+}
+
+.styles-submenu .styles-section h4 {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Theme options in submenu */
+.styles-submenu .theme-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.styles-submenu .theme-option {
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+    text-align: center;
+    justify-content: center;
+}
+
+.styles-submenu .theme-preview {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
 }
 
 .view-toggle {
     display: flex;
-    gap: 10px;
+    gap: 0; /* btn-group handles spacing */
 }
 
-.view-btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 25px;
-    background: var(--surface-color);
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: 2px solid var(--border-color);
-}
-
+/* View buttons now use button component library */
 .view-btn.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
 }
 
 /* Family Selector */
 .family-selector {
     display: flex;
-    gap: 15px;
+    gap: 0; /* btn-group handles spacing */
     margin-bottom: 30px;
     flex-wrap: wrap;
 }
 
-.family-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    background: var(--surface-color);
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: 2px solid var(--border-color);
-}
-
+/* Family buttons now use button component library */
 .family-btn.active {
-    background: var(--accent-color);
-    color: white;
-    border-color: var(--accent-color);
+    background: var(--accent-color) !important;
+    color: white !important;
+    border-color: var(--accent-color) !important;
 }
 
 /* Views */
@@ -406,19 +545,9 @@ body.dark-mode {
     min-width: 100px;
 }
 
+/* Add todo button now uses button component library */
 #add-todo-btn {
-    padding: 12px 24px;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
     font-weight: 600;
-    transition: background-color 0.3s ease;
-}
-
-#add-todo-btn:hover {
-    background: var(--secondary-color);
 }
 
 .todo-lists {
@@ -699,25 +828,16 @@ body.dark-mode {
     margin: 0;
 }
 
+/* Modal close button now uses button component library */
 .modal-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    padding: 0;
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
 }
 
 .modal-close:hover {
-    background: var(--background-color);
-    color: var(--text-primary);
+    background: var(--background-color) !important;
+    color: var(--text-primary) !important;
 }
 
 .modal-body {
@@ -764,47 +884,7 @@ body.dark-mode {
     gap: 10px;
 }
 
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: var(--secondary-color);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.btn-secondary {
-    background: var(--border-color);
-    color: var(--text-secondary);
-}
-
-.btn-secondary:hover {
-    background: var(--text-secondary);
-    color: white;
-}
-
-.btn-danger {
-    background: var(--danger-color);
-    color: white;
-}
-
-.btn-danger:hover {
-    background: #dc2626;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
+/* Old button styles removed - now using button component library from button-components.css */
 
 /* Calendar View */
 .calendar-container {
@@ -828,26 +908,10 @@ body.dark-mode {
     padding: 4px;
 }
 
-.calendar-view-btn {
-    padding: 10px 20px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.calendar-view-btn:hover {
-    background: var(--surface-color);
-    color: var(--text-primary);
-}
-
+/* Calendar view buttons now use button component library */
 .calendar-view-btn.active {
-    background: var(--primary-color);
-    color: white;
+    background: var(--primary-color) !important;
+    color: white !important;
     box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
 }
 
@@ -858,20 +922,7 @@ body.dark-mode {
     margin-bottom: 25px;
 }
 
-.calendar-header button {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-}
-
-.calendar-header button:hover {
-    background: var(--secondary-color);
-}
+/* Calendar header buttons now use button component library */
 
 #calendar-title {
     color: var(--text-primary);

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minocha's Organizer</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/button-components.css">
+    <script src="js/button-loading.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,77 +17,124 @@
         <header class="header">
             <h1>Minocha's Organizer</h1>
             <div class="header-right">
-                <div class="user-info">
-                    <span class="welcome-text">Welcome, <span id="current-user">Happy</span>!</span>
-                    <span class="family-code">Family: <span id="current-family">FAMILY</span></span>
-                    <button class="logout-btn" id="logout-button">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Logout
-                    </button>
-                </div>
                 <div class="header-controls">
-                <div class="view-toggle">
-                    <button class="view-btn active" data-view="todo">Todo List</button>
-                    <button class="view-btn" data-view="calendar">Calendar</button>
-                </div>
-                <div class="styles-menu">
-                    <button class="styles-btn" id="styles-button">
-                        Styles
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7 10l5 5 5-5z"/>
+                    <div class="view-toggle">
+                        <div class="btn-group">
+                            <button class="btn btn--secondary view-btn active" data-view="todo">Todo List</button>
+                            <button class="btn btn--secondary view-btn" data-view="calendar">Calendar</button>
+                        </div>
+                    </div>
+
+                    <!-- Dark Mode Toggle -->
+                    <button class="btn btn--ghost btn--icon dark-mode-btn" id="dark-mode-toggle" title="Toggle dark mode">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dark-mode-icon">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="m12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
                         </svg>
                     </button>
-                    <div class="styles-dropdown" id="styles-dropdown">
-                        <div class="styles-section">
-                            <h4>Themes</h4>
-                            <div class="theme-options">
-                                <button class="theme-option active" data-theme="modern-blue">
-                                    <div class="theme-preview modern-blue-preview"></div>
-                                    Blue
-                                </button>
-                                <button class="theme-option" data-theme="warm-orange">
-                                    <div class="theme-preview warm-orange-preview"></div>
-                                    Orange
-                                </button>
-                                <button class="theme-option" data-theme="forest-green">
-                                    <div class="theme-preview forest-green-preview"></div>
-                                    Green
-                                </button>
-                                <button class="theme-option" data-theme="elegant-purple">
-                                    <div class="theme-preview elegant-purple-preview"></div>
-                                    Purple
-                                </button>
-                                <button class="theme-option" data-theme="minimalist-gray">
-                                    <div class="theme-preview minimalist-gray-preview"></div>
-                                    Gray
-                                </button>
+
+                    <!-- User Menu -->
+                    <div class="user-menu">
+                        <button class="btn btn--ghost user-menu-btn" id="user-menu-button">
+                            <div class="user-avatar">
+                                <span id="user-avatar-text">H</span>
                             </div>
-                        </div>
-                        <div class="styles-section">
-                            <h4>Display Mode</h4>
-                            <div class="mode-toggle">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="dark-mode-toggle">
-                                    <span class="toggle-slider"></span>
-                                    <span class="toggle-label">Dark Mode</span>
-                                </label>
+                            <span class="user-name" id="current-user">Happy</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="chevron-icon">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </button>
+
+                        <div class="user-dropdown" id="user-dropdown">
+                            <div class="user-dropdown-header">
+                                <div class="user-avatar-large">
+                                    <span id="user-avatar-large-text">H</span>
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-display-name" id="user-display-name">Happy</div>
+                                    <div class="user-email" id="user-email">happymanocha@gmail.com</div>
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <div class="dropdown-section">
+                                <button class="btn btn--minimal dropdown-item styles-menu-item" id="styles-menu-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="13.5" cy="6.5" r=".5"/>
+                                        <circle cx="17.5" cy="10.5" r=".5"/>
+                                        <circle cx="8.5" cy="7.5" r=".5"/>
+                                        <circle cx="6.5" cy="11.5" r=".5"/>
+                                        <circle cx="12.5" cy="13.5" r=".5"/>
+                                        <circle cx="16.5" cy="17.5" r=".5"/>
+                                        <circle cx="8.5" cy="15.5" r=".5"/>
+                                        <path d="M21.7 8.02c-.53-.69-1.13-1.33-1.75-1.91L13.5 12.5 21 4.5c.38.34.72.7 1.04 1.08"/>
+                                        <path d="M8.2 21.7c.69-.53 1.33-1.13 1.91-1.75L3.5 13.5 11.5 21c-.34.38-.7.72-1.08 1.04"/>
+                                        <path d="M2.3 15.98c.53.69 1.13 1.33 1.75 1.91L10.5 11.5 3 19.5c-.38-.34-.72-.7-1.04-1.08"/>
+                                        <path d="M15.8 2.3c-.69.53-1.33 1.13-1.91 1.75L20.5 10.5 12.5 3c.34-.38.7-.72 1.08-1.04"/>
+                                    </svg>
+                                    Themes & Styles
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="chevron-down" id="styles-chevron">
+                                        <path d="M7 10l5 5 5-5z"/>
+                                    </svg>
+                                </button>
+
+                                <div class="styles-submenu" id="styles-submenu">
+                                    <div class="submenu-content">
+                                        <div class="styles-section">
+                                            <h4>Themes</h4>
+                                            <div class="theme-options">
+                                                <button class="btn btn--minimal theme-option active" data-theme="modern-blue">
+                                                    <div class="theme-preview modern-blue-preview"></div>
+                                                    Blue
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="warm-orange">
+                                                    <div class="theme-preview warm-orange-preview"></div>
+                                                    Orange
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="forest-green">
+                                                    <div class="theme-preview forest-green-preview"></div>
+                                                    Green
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="elegant-purple">
+                                                    <div class="theme-preview elegant-purple-preview"></div>
+                                                    Purple
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="minimalist-gray">
+                                                    <div class="theme-preview minimalist-gray-preview"></div>
+                                                    Gray
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <div class="dropdown-section">
+                                <button class="btn btn--minimal dropdown-item logout-item" id="logout-button">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+                                    </svg>
+                                    Logout
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            </div>
         </header>
 
         <!-- Family Member Selector -->
         <div class="family-selector">
-            <button class="family-btn active" data-member="all">All Family</button>
-            <button class="family-btn" data-member="joel">Joel</button>
-            <button class="family-btn" data-member="monika">Monika</button>
-            <button class="family-btn" data-member="happy">Happy</button>
-            <button class="family-btn" data-member="kiaan">Kiaan</button>
+            <div class="btn-group btn-group--mobile-stack">
+                <button class="btn btn--secondary family-btn active" data-member="all">All Family</button>
+                <button class="btn btn--secondary family-btn" data-member="joel">Joel</button>
+                <button class="btn btn--secondary family-btn" data-member="monika">Monika</button>
+                <button class="btn btn--secondary family-btn" data-member="happy">Happy</button>
+                <button class="btn btn--secondary family-btn" data-member="kiaan">Kiaan</button>
+            </div>
         </div>
 
         <!-- Todo View -->
@@ -124,7 +173,7 @@
                         <input type="url" id="meeting-link" placeholder="Meeting link (optional)">
                     </div>
 
-                    <button id="add-todo-btn">Add <span id="add-btn-text">Task</span></button>
+                    <button class="btn btn--primary btn--lg" id="add-todo-btn">Add <span id="add-btn-text">Task</span></button>
                 </div>
 
                 <div class="todo-lists">
@@ -149,15 +198,25 @@
             <div class="calendar-container">
                 <div class="calendar-view-controls">
                     <div class="calendar-view-buttons">
-                        <button class="calendar-view-btn active" data-view="monthly">Monthly</button>
-                        <button class="calendar-view-btn" data-view="weekly">Weekly</button>
-                        <button class="calendar-view-btn" data-view="daily">Daily</button>
+                        <div class="btn-group">
+                            <button class="btn btn--secondary calendar-view-btn active" data-view="monthly">Monthly</button>
+                            <button class="btn btn--secondary calendar-view-btn" data-view="weekly">Weekly</button>
+                            <button class="btn btn--secondary calendar-view-btn" data-view="daily">Daily</button>
+                        </div>
                     </div>
                 </div>
                 <div class="calendar-header">
-                    <button id="prev-period">&lt;</button>
+                    <button class="btn btn--icon btn--ghost" id="prev-period">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                    </button>
                     <h2 id="calendar-title">September 2025</h2>
-                    <button id="next-period">&gt;</button>
+                    <button class="btn btn--icon btn--ghost" id="next-period">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </button>
                 </div>
                 <div class="calendar-grid">
                     <div class="calendar-weekdays">
@@ -179,7 +238,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 id="edit-modal-title">Edit Task</h3>
-                    <button class="modal-close" id="modal-close-btn">&times;</button>
+                    <button class="btn btn--icon btn--minimal modal-close" id="modal-close-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-task-form">
@@ -251,9 +315,9 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
-                    <button class="btn btn-danger" id="modal-delete-btn">Delete <span id="delete-btn-text">Task</span></button>
-                    <button class="btn btn-primary" id="modal-save-btn">Save Changes</button>
+                    <button class="btn btn--secondary" id="modal-cancel-btn">Cancel</button>
+                    <button class="btn btn--danger" id="modal-delete-btn">Delete <span id="delete-btn-text">Task</span></button>
+                    <button class="btn btn--primary" id="modal-save-btn">Save Changes</button>
                 </div>
             </div>
         </div>

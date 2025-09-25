@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Button Component Library - Demo</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/button-components.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--background-color);
+            min-height: 100vh;
+        }
+
+        .demo-section {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .demo-section h3 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 1rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .dark-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* Responsive demo */
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 1rem;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .btn-group--mobile-stack {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dark-toggle">
+        <button class="btn btn--ghost" onclick="toggleDarkMode()">
+            <span id="theme-icon">🌙</span>
+        </button>
+    </div>
+
+    <div class="demo-container">
+        <div class="demo-section">
+            <h1 style="color: var(--text-primary); text-align: center; margin-bottom: 2rem;">
+                🎨 Modern Button Component Library
+            </h1>
+            <p style="color: var(--text-secondary); text-align: center; margin-bottom: 2rem;">
+                Responsive, accessible, and themeable button components with CSS Grid/Flexbox layout
+            </p>
+        </div>
+
+        <!-- Button Variants -->
+        <div class="demo-section">
+            <h2>Button Variants</h2>
+            <div class="button-row">
+                <button class="btn btn--primary">Primary Button</button>
+                <button class="btn btn--secondary">Secondary Button</button>
+                <button class="btn btn--outline">Outline Button</button>
+                <button class="btn btn--ghost">Ghost Button</button>
+                <button class="btn btn--danger">Danger Button</button>
+                <button class="btn btn--success">Success Button</button>
+            </div>
+
+            <div class="code-block">
+&lt;button class="btn btn--primary"&gt;Primary Button&lt;/button&gt;
+&lt;button class="btn btn--secondary"&gt;Secondary Button&lt;/button&gt;
+&lt;button class="btn btn--outline"&gt;Outline Button&lt;/button&gt;
+&lt;button class="btn btn--ghost"&gt;Ghost Button&lt;/button&gt;
+&lt;button class="btn btn--danger"&gt;Danger Button&lt;/button&gt;
+&lt;button class="btn btn--success"&gt;Success Button&lt;/button&gt;
+            </div>
+        </div>
+
+        <!-- Button Sizes -->
+        <div class="demo-section">
+            <h2>Button Sizes</h2>
+            <div class="button-row">
+                <button class="btn btn--primary btn--sm">Small</button>
+                <button class="btn btn--primary btn--md">Medium (Default)</button>
+                <button class="btn btn--primary btn--lg">Large</button>
+                <button class="btn btn--primary btn--xl">Extra Large</button>
+            </div>
+
+            <div class="code-block">
+&lt;button class="btn btn--primary btn--sm"&gt;Small&lt;/button&gt;
+&lt;button class="btn btn--primary btn--md"&gt;Medium (Default)&lt;/button&gt;
+&lt;button class="btn btn--primary btn--lg"&gt;Large&lt;/button&gt;
+&lt;button class="btn btn--primary btn--xl"&gt;Extra Large&lt;/button&gt;
+            </div>
+        </div>
+
+        <!-- Button States -->
+        <div class="demo-section">
+            <h2>Button States</h2>
+            <div class="button-row">
+                <button class="btn btn--primary">Normal</button>
+                <button class="btn btn--primary" disabled>Disabled</button>
+                <button class="btn btn--primary" data-loading="true">Loading</button>
+                <button class="btn btn--primary" style="background: var(--secondary-color);">Hover State</button>
+            </div>
+
+            <div class="code-block">
+&lt;button class="btn btn--primary"&gt;Normal&lt;/button&gt;
+&lt;button class="btn btn--primary" disabled&gt;Disabled&lt;/button&gt;
+&lt;button class="btn btn--primary" data-loading="true"&gt;Loading&lt;/button&gt;
+            </div>
+        </div>
+
+        <!-- Icon Buttons -->
+        <div class="demo-section">
+            <h2>Icon Buttons</h2>
+            <div class="button-row">
+                <button class="btn btn--primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5Z"/>
+                    </svg>
+                    With Icon
+                </button>
+
+                <button class="btn btn--icon btn--primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </button>
+
+                <button class="btn btn--icon btn--ghost">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="code-block">
+&lt;button class="btn btn--primary"&gt;
+    &lt;svg&gt;...&lt;/svg&gt;
+    With Icon
+&lt;/button&gt;
+&lt;button class="btn btn--icon btn--primary"&gt;&lt;svg&gt;...&lt;/svg&gt;&lt;/button&gt;
+            </div>
+        </div>
+
+        <!-- Button Groups -->
+        <div class="demo-section">
+            <h2>Button Groups</h2>
+
+            <h3>Desktop Button Group</h3>
+            <div class="btn-group">
+                <button class="btn btn--secondary">Todo List</button>
+                <button class="btn btn--secondary">Calendar</button>
+                <button class="btn btn--secondary">Reports</button>
+            </div>
+
+            <h3>Mobile Stack Group</h3>
+            <div class="btn-group btn-group--mobile-stack">
+                <button class="btn btn--secondary">All Family</button>
+                <button class="btn btn--secondary">Joel</button>
+                <button class="btn btn--secondary">Monika</button>
+                <button class="btn btn--secondary">Happy</button>
+                <button class="btn btn--secondary">Kiaan</button>
+            </div>
+
+            <div class="code-block">
+&lt;div class="btn-group"&gt;
+    &lt;button class="btn btn--secondary"&gt;Option 1&lt;/button&gt;
+    &lt;button class="btn btn--secondary"&gt;Option 2&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="btn-group btn-group--mobile-stack"&gt;
+    &lt;button class="btn btn--secondary"&gt;Mobile Stack 1&lt;/button&gt;
+    &lt;button class="btn btn--secondary"&gt;Mobile Stack 2&lt;/button&gt;
+&lt;/div&gt;
+            </div>
+        </div>
+
+        <!-- Full Width Buttons -->
+        <div class="demo-section">
+            <h2>Full Width Buttons</h2>
+            <button class="btn btn--primary btn--full">Full Width Primary</button>
+            <br><br>
+            <button class="btn btn--outline btn--full">Full Width Outline</button>
+
+            <div class="code-block">
+&lt;button class="btn btn--primary btn--full"&gt;Full Width Button&lt;/button&gt;
+            </div>
+        </div>
+
+        <!-- Accessibility Features -->
+        <div class="demo-section">
+            <h2>Accessibility Features</h2>
+            <div class="button-row">
+                <button class="btn btn--primary" aria-label="Save document">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17,21 17,13 7,13 7,21"/>
+                        <polyline points="7,3 7,8 15,8"/>
+                    </svg>
+                    Save
+                </button>
+
+                <button class="btn btn--secondary" tabindex="0">Keyboard Accessible</button>
+                <button class="btn btn--danger" aria-describedby="delete-help">Delete Item</button>
+            </div>
+            <p id="delete-help" style="color: var(--text-secondary); font-size: 0.875rem;">
+                This action cannot be undone
+            </p>
+
+            <div class="code-block">
+&lt;button class="btn btn--primary" aria-label="Save document"&gt;Save&lt;/button&gt;
+&lt;button class="btn btn--secondary" tabindex="0"&gt;Keyboard Accessible&lt;/button&gt;
+&lt;button class="btn btn--danger" aria-describedby="help-text"&gt;Action&lt;/button&gt;
+            </div>
+        </div>
+
+        <!-- Responsive Behavior -->
+        <div class="demo-section">
+            <h2>Responsive Behavior</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Resize your browser window or view on mobile to see responsive behavior:
+            </p>
+            <ul style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                <li>Larger touch targets on mobile (48px minimum)</li>
+                <li>Button groups stack vertically on mobile with btn-group--mobile-stack</li>
+                <li>Full-width buttons adapt to container width</li>
+                <li>Hover effects only on devices that support hover</li>
+                <li>Reduced motion support for accessibility</li>
+            </ul>
+
+            <div class="button-grid">
+                <button class="btn btn--primary">Responsive Button 1</button>
+                <button class="btn btn--secondary">Responsive Button 2</button>
+                <button class="btn btn--outline">Responsive Button 3</button>
+                <button class="btn btn--ghost">Responsive Button 4</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        }
+
+        // Demo loading state toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingBtn = document.querySelector('[data-loading="true"]');
+            if (loadingBtn) {
+                setTimeout(() => {
+                    loadingBtn.removeAttribute('data-loading');
+                    loadingBtn.textContent = 'Loaded!';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -42,8 +42,8 @@ const getTodos = lambdaWrapper(async (event) => {
             // Query by status
             todos = await dynamoService.getTodosByStatus(status, dueDate);
         } else {
-            // Get all todos for the user
-            todos = await dynamoService.getTodosByUser(user.userId);
+            // Get all family todos (family app - everyone can see all tasks)
+            todos = await dynamoService.getAllTodos();
         }
 
         // Apply search filter if provided

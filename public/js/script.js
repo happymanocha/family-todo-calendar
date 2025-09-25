@@ -163,6 +163,11 @@ class FamilyTodoApp {
         this.loadTheme();
         await this.loadTodos();
         this.renderTodos();
+
+        // Update user display after initialization with a small delay to ensure API data is loaded
+        setTimeout(() => {
+            this.updateUserDisplay();
+        }, 500);
         this.renderCalendar();
         this.checkReminders();
 
@@ -263,7 +268,16 @@ class FamilyTodoApp {
             btn.addEventListener('click', (e) => this.selectMember(e.target.dataset.member));
         });
 
-        document.getElementById('add-todo-btn').addEventListener('click', () => this.addTodo());
+        // Enhanced Add Todo button with loading states
+        ButtonLoading.enhance('#add-todo-btn', async () => {
+            return await this.addTodo();
+        }, {
+            loadingText: 'Adding...',
+            successText: 'Added!',
+            errorText: 'Failed to Add',
+            successDuration: 1500
+        });
+
         document.getElementById('todo-text').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addTodo();
         });
@@ -282,11 +296,8 @@ class FamilyTodoApp {
             logoutBtn.addEventListener('click', () => this.logout());
         }
 
-        // Styles button event listener
-        const stylesBtn = document.getElementById('styles-button');
-        if (stylesBtn) {
-            stylesBtn.addEventListener('click', () => this.toggleStylesMenu());
-        }
+        // User menu event listeners
+        this.setupUserMenuListeners();
 
         // Modal event listeners
         const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -301,18 +312,33 @@ class FamilyTodoApp {
 
         const modalDeleteBtn = document.getElementById('modal-delete-btn');
         if (modalDeleteBtn) {
-            modalDeleteBtn.addEventListener('click', () => this.deleteCurrentTask());
+            ButtonLoading.enhanceDelete(modalDeleteBtn, async () => {
+                return await this.deleteCurrentTask();
+            }, {
+                confirmMessage: 'Are you sure you want to delete this item permanently?',
+                loadingText: 'Deleting...',
+                successText: 'Deleted!',
+                errorText: 'Delete Failed',
+                successDuration: 1000
+            });
         }
 
         const modalSaveBtn = document.getElementById('modal-save-btn');
         if (modalSaveBtn) {
-            modalSaveBtn.addEventListener('click', () => this.saveTaskEdit());
+            ButtonLoading.enhance(modalSaveBtn, async () => {
+                return await this.saveTaskEdit();
+            }, {
+                loadingText: 'Saving...',
+                successText: 'Saved!',
+                errorText: 'Save Failed',
+                successDuration: 1500
+            });
         }
 
-        // Dark mode toggle event listener
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('change', () => this.toggleDarkMode());
+        // Dark mode toggle event listener (now a button, not checkbox)
+        const darkModeBtn = document.getElementById('dark-mode-toggle');
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener('click', () => this.toggleDarkMode());
         }
 
         // Item type select event listeners
@@ -353,19 +379,167 @@ class FamilyTodoApp {
 
         if (isDarkMode) {
             document.body.classList.add('dark-mode');
-            document.getElementById('dark-mode-toggle').checked = true;
         }
     }
 
-    toggleStylesMenu() {
-        const dropdown = document.getElementById('styles-dropdown');
-        this.stylesMenuOpen = !this.stylesMenuOpen;
+    setupUserMenuListeners() {
+        // User menu toggle
+        const userMenuBtn = document.getElementById('user-menu-button');
+        const userDropdown = document.getElementById('user-dropdown');
 
-        if (this.stylesMenuOpen) {
-            dropdown.classList.add('show');
-        } else {
-            dropdown.classList.remove('show');
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleUserMenu();
+            });
         }
+
+        // Styles submenu toggle
+        const stylesMenuItem = document.getElementById('styles-menu-item');
+        const stylesSubmenu = document.getElementById('styles-submenu');
+
+        if (stylesMenuItem && stylesSubmenu) {
+            stylesMenuItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleStylesSubmenu();
+            });
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                this.closeUserMenu();
+            }
+        });
+
+        // Update current user display
+        this.updateUserDisplay();
+    }
+
+    toggleUserMenu() {
+        const dropdown = document.getElementById('user-dropdown');
+        const userMenuBtn = document.getElementById('user-menu-button');
+
+        if (dropdown.classList.contains('show')) {
+            this.closeUserMenu();
+        } else {
+            dropdown.classList.add('show');
+            userMenuBtn.setAttribute('aria-expanded', 'true');
+            // Update user display when menu is opened
+            this.updateUserDisplay();
+        }
+    }
+
+    closeUserMenu() {
+        const dropdown = document.getElementById('user-dropdown');
+        const userMenuBtn = document.getElementById('user-menu-button');
+        const stylesSubmenu = document.getElementById('styles-submenu');
+        const stylesChevron = document.getElementById('styles-chevron');
+
+        if (dropdown) dropdown.classList.remove('show');
+        if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+        if (stylesSubmenu) stylesSubmenu.classList.remove('show');
+        if (stylesChevron) stylesChevron.style.transform = 'rotate(0deg)';
+    }
+
+    toggleStylesSubmenu() {
+        const stylesSubmenu = document.getElementById('styles-submenu');
+        const stylesChevron = document.getElementById('styles-chevron');
+
+        if (stylesSubmenu) {
+            const isExpanded = stylesSubmenu.classList.contains('show');
+
+            if (isExpanded) {
+                stylesSubmenu.classList.remove('show');
+                if (stylesChevron) stylesChevron.style.transform = 'rotate(0deg)';
+            } else {
+                stylesSubmenu.classList.add('show');
+                if (stylesChevron) stylesChevron.style.transform = 'rotate(180deg)';
+            }
+        }
+    }
+
+    updateUserDisplay() {
+        // Get current user info from stored session or API
+        const currentUser = this.getCurrentUserInfo();
+        console.log('🔄 Updating user display with:', currentUser);
+
+        // Force update even if no name - use email as fallback for name
+        const displayName = currentUser.name || currentUser.email?.split('@')[0] || 'User';
+        const displayEmail = currentUser.email || 'user@example.com';
+
+        // Update avatar text
+        const avatarText = document.getElementById('user-avatar-text');
+        const avatarLargeText = document.getElementById('user-avatar-large-text');
+        if (avatarText) {
+            const initial = displayName.charAt(0).toUpperCase();
+            console.log('🔄 Setting avatar initial to:', initial, 'from name:', displayName);
+            avatarText.textContent = initial;
+            if (avatarLargeText) avatarLargeText.textContent = initial;
+        }
+
+        // Update display name in dropdown
+        const dropdownDisplayName = document.getElementById('user-display-name');
+        if (dropdownDisplayName) {
+            console.log('🔄 Setting dropdown name to:', displayName);
+            dropdownDisplayName.textContent = displayName;
+        }
+
+        // Update name in header button
+        const currentUserSpan = document.getElementById('current-user');
+        if (currentUserSpan) {
+            console.log('🔄 Setting header name to:', displayName);
+            currentUserSpan.textContent = displayName;
+        }
+
+        // Update email
+        const userEmail = document.getElementById('user-email');
+        if (userEmail) {
+            console.log('🔄 Setting email to:', displayEmail);
+            userEmail.textContent = displayEmail;
+        }
+    }
+
+    getCurrentUserInfo() {
+        // Try to get from API client first (serverless auth)
+        if (window.apiClient) {
+            const apiUser = window.apiClient.getCurrentUser();
+            console.log('🔍 API User data:', apiUser);
+            if (apiUser && apiUser.email) {
+                // Use the name directly from API as it should already be properly formatted
+                const userName = apiUser.name || 'User';
+                console.log('🔍 Using API name directly:', userName);
+                return {
+                    name: userName,
+                    email: apiUser.email
+                };
+            }
+        }
+
+        // Fallback to local session data (for local fallback auth)
+        const familySession = JSON.parse(localStorage.getItem('familySession') || '{}');
+        const currentUserEmail = localStorage.getItem('currentUserEmail');
+        const currentFamilyMember = localStorage.getItem('currentFamilyMember');
+
+        if (familySession.email) {
+            return {
+                name: this.capitalizeName(familySession.memberName) || 'User',
+                email: familySession.email
+            };
+        }
+
+        if (currentUserEmail && currentFamilyMember) {
+            return {
+                name: this.capitalizeName(currentFamilyMember) || 'User',
+                email: currentUserEmail
+            };
+        }
+
+        // Final fallback
+        return {
+            name: 'User',
+            email: 'user@example.com'
+        };
     }
 
     closeStylesMenu() {
@@ -375,15 +549,15 @@ class FamilyTodoApp {
     }
 
     toggleDarkMode() {
-        const isDarkMode = document.getElementById('dark-mode-toggle').checked;
+        const currentlyDark = document.body.classList.contains('dark-mode');
 
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-        } else {
+        if (currentlyDark) {
             document.body.classList.remove('dark-mode');
+        } else {
+            document.body.classList.add('dark-mode');
         }
 
-        localStorage.setItem('darkMode', isDarkMode);
+        localStorage.setItem('darkMode', !currentlyDark);
     }
 
     changeView(view) {
@@ -410,6 +584,12 @@ class FamilyTodoApp {
         if (this.currentView === 'calendar') {
             this.renderCalendar();
         }
+    }
+
+    // Helper function to capitalize names properly
+    capitalizeName(name) {
+        if (!name) return '';
+        return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
     }
 
     // Helper function to format dates properly for display
@@ -445,10 +625,12 @@ class FamilyTodoApp {
         const text = document.getElementById('todo-text').value.trim();
         const member = document.getElementById('todo-member').value;
 
-        if (!text) return;
+        if (!text) {
+            throw new Error('Please enter a task description');
+        }
 
         try {
-            this.setLoading(true);
+            // Remove old setLoading - now handled by ButtonLoading
 
             let todoData = {
                 title: text,
@@ -500,9 +682,9 @@ class FamilyTodoApp {
         } catch (error) {
             console.error('Error creating todo:', error);
             this.showError('Failed to create todo');
-        } finally {
-            this.setLoading(false);
+            throw error; // Re-throw for ButtonLoading to handle
         }
+        // Remove finally block - ButtonLoading handles loading state
     }
 
     clearForm() {
@@ -564,8 +746,6 @@ class FamilyTodoApp {
 
     async deleteTodo(id) {
         try {
-            this.setLoading(true);
-
             console.log('API TESTING: Deleting todo via API...', id);
 
             const response = await window.apiClient.deleteTodo(id);
@@ -574,24 +754,25 @@ class FamilyTodoApp {
                 console.log('API TESTING: Todo deleted successfully');
                 await this.loadTodos(); // Reload todos from server
                 this.renderTodos();
+                return response; // Return success for ButtonLoading
             } else {
                 console.error('API TESTING: Failed to delete todo:', response);
-                this.showError(response?.message || 'Failed to delete todo');
+                const errorMsg = response?.message || 'Failed to delete todo';
+                this.showError(errorMsg);
+                throw new Error(errorMsg);
             }
 
         } catch (error) {
             console.error('API TESTING: Error deleting todo:', error);
             console.error('API TESTING: Error details:', error.message, error.stack);
             this.showError('Failed to delete todo: ' + error.message);
-        } finally {
-            this.setLoading(false);
+            throw error; // Re-throw for ButtonLoading to handle
         }
+        // Remove finally block - ButtonLoading handles loading state
     }
 
     async updateTodoStatus(id, status) {
         try {
-            this.setLoading(true);
-
             console.log('API TESTING: Updating todo status via API...', id, status);
 
             const response = await window.apiClient.updateTodoStatus(id, status);
@@ -600,18 +781,21 @@ class FamilyTodoApp {
                 console.log('API TESTING: Todo status updated successfully');
                 await this.loadTodos(); // Reload todos from server
                 this.renderTodos();
+                return response; // Return success for ButtonLoading
             } else {
                 console.error('API TESTING: Failed to update todo status:', response);
-                this.showError(response?.message || 'Failed to update todo status');
+                const errorMsg = response?.message || 'Failed to update todo status';
+                this.showError(errorMsg);
+                throw new Error(errorMsg);
             }
 
         } catch (error) {
             console.error('API TESTING: Error updating todo status:', error);
             console.error('API TESTING: Error details:', error.message, error.stack);
             this.showError('Failed to update todo status: ' + error.message);
-        } finally {
-            this.setLoading(false);
+            throw error; // Re-throw for ButtonLoading to handle
         }
+        // Remove finally block - ButtonLoading handles loading state
     }
 
     updateTodoMember(id, member) {
@@ -710,7 +894,7 @@ class FamilyTodoApp {
             </div>
             ${todo.type === 'meeting' && todo.description ? `<div class="meeting-description">${todo.description}</div>` : ''}
             <div class="todo-meta">
-                <span class="todo-member">${todo.member}</span>
+                <span class="todo-member">${this.capitalizeName(todo.member)}</span>
                 <span class="time-info">${timeInfo}</span>
             </div>
             ${todo.type === 'meeting' && todo.link ? `<div class="meeting-link"><a href="${todo.link}" target="_blank" rel="noopener">Join Meeting</a></div>` : ''}
@@ -730,18 +914,35 @@ class FamilyTodoApp {
 
         const deleteBtn = div.querySelector('.delete-btn');
         if (deleteBtn) {
-            deleteBtn.addEventListener('click', () => {
-                this.deleteTodo(todo.id);
+            ButtonLoading.enhanceDelete(deleteBtn, async () => {
+                return await this.deleteTodo(todo.id);
+            }, {
+                confirmMessage: 'Are you sure you want to delete this item?',
+                loadingText: 'Deleting...',
+                successText: 'Deleted!',
+                errorText: 'Delete Failed',
+                successDuration: 1000
             });
         }
 
-        // Add event listeners for action buttons (status updates)
+        // Enhanced action buttons with loading states
         const actionBtns = div.querySelectorAll('.todo-action-btn[data-new-status]');
         actionBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const todoId = btn.getAttribute('data-todo-id');
-                const newStatus = btn.getAttribute('data-new-status');
-                this.updateTodoStatus(todoId, newStatus);
+            const todoId = btn.getAttribute('data-todo-id');
+            const newStatus = btn.getAttribute('data-new-status');
+            const buttonText = btn.textContent.trim();
+
+            ButtonLoading.enhance(btn, async () => {
+                return await this.updateTodoStatus(todoId, newStatus);
+            }, {
+                loadingText: buttonText === 'Start' ? 'Starting...' :
+                           buttonText === 'Complete' ? 'Completing...' :
+                           buttonText === 'Reopen' ? 'Reopening...' : 'Updating...',
+                successText: buttonText === 'Start' ? 'Started!' :
+                           buttonText === 'Complete' ? 'Completed!' :
+                           buttonText === 'Reopen' ? 'Reopened!' : 'Updated!',
+                errorText: 'Failed',
+                successDuration: 1200
             });
         });
 
@@ -861,9 +1062,9 @@ class FamilyTodoApp {
                 <div class="calendar-tasks">
                     ${filteredDayTodos.map(todo => `
                         <div class="calendar-task calendar-task-${todo.member} ${todo.status === 'completed' ? 'completed' : ''}"
-                             title="${this.escapeHtml(todo.text)} - ${this.escapeHtml(todo.member)} (${todo.status})">
+                             title="${this.escapeHtml(todo.text)} - ${this.capitalizeName(todo.member)} (${todo.status})">
                             <div class="task-text">${todo.text.substring(0, 12)}${todo.text.length > 12 ? '...' : ''}</div>
-                            <div class="task-member">${todo.member}</div>
+                            <div class="task-member">${this.capitalizeName(todo.member)}</div>
                         </div>
                     `).join('')}
                 </div>
@@ -912,9 +1113,9 @@ class FamilyTodoApp {
                 <div class="calendar-tasks">
                     ${filteredDayTodos.map(todo => `
                         <div class="calendar-task calendar-task-${todo.member} ${todo.status === 'completed' ? 'completed' : ''}"
-                             title="${this.escapeHtml(todo.text)} - ${this.escapeHtml(todo.member)} (${todo.status})">
+                             title="${this.escapeHtml(todo.text)} - ${this.capitalizeName(todo.member)} (${todo.status})">
                             <div class="task-text">${todo.text}</div>
-                            <div class="task-member">${todo.member}</div>
+                            <div class="task-member">${this.capitalizeName(todo.member)}</div>
                             ${todo.dueTime ? `<div class="task-time">${todo.dueTime}</div>` : ''}
                         </div>
                     `).join('')}
@@ -965,13 +1166,13 @@ class FamilyTodoApp {
                 ${filteredDayTodos.length === 0 ? '<div class="no-tasks">No tasks or meetings for this day</div>' : ''}
                 ${filteredDayTodos.map(todo => `
                     <div class="calendar-task calendar-task-${todo.member} ${todo.status === 'completed' ? 'completed' : ''}"
-                         title="${this.escapeHtml(todo.text)} - ${this.escapeHtml(todo.member)} (${todo.status})">
+                         title="${this.escapeHtml(todo.text)} - ${this.capitalizeName(todo.member)} (${todo.status})">
                         <div class="task-header">
                             <div class="task-text">${todo.text}</div>
                             <div class="task-time">${todo.dueTime || todo.startTime || 'No time'}</div>
                         </div>
                         <div class="task-details">
-                            <span class="task-member">${todo.member}</span>
+                            <span class="task-member">${this.capitalizeName(todo.member)}</span>
                             <span class="task-type">${todo.type === 'meeting' ? '📅 Meeting' : '✓ Task'}</span>
                         </div>
                         ${todo.description ? `<div class="task-description">${todo.description}</div>` : ''}
@@ -1016,14 +1217,14 @@ class FamilyTodoApp {
     showReminder(todo) {
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(`Reminder: ${todo.text}`, {
-                body: `Due in 30 minutes - Assigned to ${todo.member}`,
+                body: `Due in 30 minutes - Assigned to ${this.capitalizeName(todo.member)}`,
                 icon: '/favicon.ico'
             });
         } else if ('Notification' in window && Notification.permission !== 'denied') {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
                     new Notification(`Reminder: ${todo.text}`, {
-                        body: `Due in 30 minutes - Assigned to ${todo.member}`,
+                        body: `Due in 30 minutes - Assigned to ${this.capitalizeName(todo.member)}`,
                         icon: '/favicon.ico'
                     });
                 }
@@ -1080,16 +1281,19 @@ class FamilyTodoApp {
         this.editingTodoId = null;
     }
 
-    saveTaskEdit() {
-        if (!this.editingTodoId) return;
+    async saveTaskEdit() {
+        if (!this.editingTodoId) {
+            throw new Error('No task selected for editing');
+        }
 
         const todo = this.todos.find(t => t.id == this.editingTodoId);
-        if (!todo) return;
+        if (!todo) {
+            throw new Error('Task not found');
+        }
 
         const text = document.getElementById('edit-todo-text').value.trim();
         if (!text) {
-            alert('Description is required!');
-            return;
+            throw new Error('Description is required!');
         }
 
         const itemType = document.getElementById('edit-item-type').value;
@@ -1120,21 +1324,27 @@ class FamilyTodoApp {
             todo.dueTime = document.getElementById('edit-todo-time').value;
         }
 
+        // Save locally for now (can be enhanced to use API later)
         this.saveTodos();
         this.renderTodos();
         if (this.currentView === 'calendar') {
             this.renderCalendar();
         }
         this.closeEditModal();
+
+        // Return success for ButtonLoading
+        return { success: true, todo: todo };
     }
 
-    deleteCurrentTask() {
-        if (!this.editingTodoId) return;
-
-        if (confirm('Are you sure you want to delete this task?')) {
-            this.deleteTodo(this.editingTodoId);
-            this.closeEditModal();
+    async deleteCurrentTask() {
+        if (!this.editingTodoId) {
+            throw new Error('No task selected for deletion');
         }
+
+        // Confirmation is handled by ButtonLoading.enhanceDelete, so we can proceed directly
+        const result = await this.deleteTodo(this.editingTodoId);
+        this.closeEditModal();
+        return result;
     }
 
     // Session Management

@@ -28,28 +28,44 @@ const authConfig = {
     // Family Members Configuration
     familyMembers: {
         'happymanocha@gmail.com': {
-            id: 'happy',
+            id: 'happy', // Backward compatibility ID
+            uniqueId: 'usr-a1b2c3d4-e5f6-7890-abcd-ef1234567890', // Proper UUID
             name: 'Happy',
             role: 'admin',
-            avatar: 'H'
+            avatar: 'H',
+            email: 'happymanocha@gmail.com',
+            phone: '+1-234-567-8900',
+            createdAt: '2024-01-01T00:00:00.000Z'
         },
         'joelminocha@gmail.com': {
-            id: 'joel',
+            id: 'joel', // Backward compatibility ID
+            uniqueId: 'usr-b2c3d4e5-f6g7-8901-bcde-f23456789012', // Proper UUID
             name: 'Joel',
             role: 'member',
-            avatar: 'J'
+            avatar: 'J',
+            email: 'joelminocha@gmail.com',
+            phone: '+1-234-567-8901',
+            createdAt: '2024-01-01T00:00:00.000Z'
         },
         'upalmonika@gmail.com': {
-            id: 'monika',
+            id: 'monika', // Backward compatibility ID
+            uniqueId: 'usr-c3d4e5f6-g7h8-9012-cdef-345678901234', // Proper UUID
             name: 'Monika',
             role: 'member',
-            avatar: 'M'
+            avatar: 'M',
+            email: 'upalmonika@gmail.com',
+            phone: '+1-234-567-8902',
+            createdAt: '2024-01-01T00:00:00.000Z'
         },
         'kiaanminocha@gmail.com': {
-            id: 'kiaan',
+            id: 'kiaan', // Backward compatibility ID
+            uniqueId: 'usr-d4e5f6g7-h8i9-0123-defg-456789012345', // Proper UUID
             name: 'Kiaan',
             role: 'member',
-            avatar: 'K'
+            avatar: 'K',
+            email: 'kiaanminocha@gmail.com',
+            phone: '+1-234-567-8903',
+            createdAt: '2024-01-01T00:00:00.000Z'
         }
     }
 };

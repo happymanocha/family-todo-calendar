@@ -80,6 +80,7 @@ class AuthService {
     generateTokens(user) {
         const payload = {
             userId: user.id,
+            uniqueId: user.uniqueId,
             email: user.email,
             name: user.name,
             role: user.role
@@ -92,7 +93,10 @@ class AuthService {
         );
 
         const refreshToken = jwt.sign(
-            { userId: user.id },
+            {
+                userId: user.id,
+                uniqueId: user.uniqueId
+            },
             authConfig.jwt.secret,
             { expiresIn: authConfig.jwt.refreshExpiresIn }
         );
