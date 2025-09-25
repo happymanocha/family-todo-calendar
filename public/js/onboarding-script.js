@@ -379,12 +379,31 @@ class OnboardingWizard {
 
         try {
             // Gather form data
+            const nameField = document.getElementById('user-name');
+            const emailField = document.getElementById('user-email');
+            const passwordField = document.getElementById('user-password');
+
+            console.log('Form fields found:', {
+                nameField: !!nameField,
+                emailField: !!emailField,
+                passwordField: !!passwordField
+            });
+
             const registrationData = {
-                name: document.getElementById('user-name').value.trim(),
-                email: document.getElementById('user-email').value.trim(),
-                password: document.getElementById('user-password').value,
+                name: nameField?.value.trim() || '',
+                email: emailField?.value.trim() || '',
+                password: passwordField?.value || '',
                 isCreatingFamily: this.selectedPath === 'create',
             };
+
+            console.log('Registration data:', registrationData);
+
+            // Validate required fields
+            if (!registrationData.name || !registrationData.email || !registrationData.password) {
+                this.showError('Please fill in all required fields: name, email, and password.');
+                this.setButtonLoading(completeBtn, false);
+                return;
+            }
 
             if (this.selectedPath === 'create') {
                 registrationData.familyName = document.getElementById('family-name').value.trim();
