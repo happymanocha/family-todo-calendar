@@ -378,6 +378,15 @@ class OnboardingWizard {
         this.setButtonLoading(completeBtn, true);
 
         try {
+            console.log('=== REGISTRATION DEBUG START ===');
+            console.log('Current step:', this.currentStep);
+            console.log('Selected path:', this.selectedPath);
+
+            // Check if we're on the right step
+            const currentStepElement = document.getElementById(`step-${this.currentStep}`);
+            console.log('Current step element:', currentStepElement);
+            console.log('Step 3 element exists:', !!document.getElementById('step-3'));
+
             // Gather form data
             const nameField = document.getElementById('user-name');
             const emailField = document.getElementById('user-email');
@@ -389,6 +398,10 @@ class OnboardingWizard {
                 passwordField: !!passwordField
             });
 
+            if (nameField) console.log('Name field value:', `"${nameField.value}"`);
+            if (emailField) console.log('Email field value:', `"${emailField.value}"`);
+            if (passwordField) console.log('Password field length:', passwordField.value.length);
+
             const registrationData = {
                 name: nameField?.value.trim() || '',
                 email: emailField?.value.trim() || '',
@@ -396,7 +409,8 @@ class OnboardingWizard {
                 isCreatingFamily: this.selectedPath === 'create',
             };
 
-            console.log('Registration data:', registrationData);
+            console.log('Registration data prepared:', registrationData);
+            console.log('=== REGISTRATION DEBUG END ===');
 
             // Validate required fields
             if (!registrationData.name || !registrationData.email || !registrationData.password) {
