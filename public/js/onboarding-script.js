@@ -747,3 +747,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Event handlers attached');
     }, 100);
 });
+
+// Initialize the onboarding wizard
+document.addEventListener('DOMContentLoaded', function() {
+    window.onboardingWizard = new OnboardingWizard();
+    console.log('OnboardingWizard initialized:', window.onboardingWizard);
+});
