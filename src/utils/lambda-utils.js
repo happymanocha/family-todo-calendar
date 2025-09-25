@@ -65,18 +65,28 @@ const validateRequiredFields = (body, requiredFields) => {
         }
     }
 
-    if (missingFields.length > 0) {
-        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
-    }
+    return {
+        isValid: missingFields.length === 0,
+        missingFields
+    };
 };
 
 /**
  * Parse request body safely
  */
-const parseBody = (event) => {
+const parseBody = (eventBody) => {
     try {
-        return event.body ? JSON.parse(event.body) : {};
+        if (!eventBody) return {};
+
+        // Handle if body is already an object (from serverless-offline or testing)
+        if (typeof eventBody === 'object') {
+            return eventBody;
+        }
+
+        // Parse JSON string
+        return JSON.parse(eventBody);
     } catch (error) {
+        console.error('Failed to parse request body:', error);
         throw new Error('Invalid JSON in request body');
     }
 };
