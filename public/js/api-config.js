@@ -214,6 +214,67 @@ class APIClient {
         });
     }
 
+    // Family methods
+    async createFamily(familyData) {
+        return await this.request('/families', {
+            method: 'POST',
+            body: JSON.stringify(familyData)
+        });
+    }
+
+    async getFamilyByCode(familyCode) {
+        return await this.request(`/families/code/${familyCode}`);
+    }
+
+    async getFamily(familyId) {
+        return await this.request(`/families/${familyId}`);
+    }
+
+    async getFamilyMembers(familyId) {
+        return await this.request(`/families/${familyId}/members`);
+    }
+
+    async register(userData) {
+        return await this.request('/auth/register', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+    }
+
+    // Generic HTTP methods
+    async get(endpoint) {
+        return await this.request(endpoint, {
+            method: 'GET'
+        });
+    }
+
+    async post(endpoint, data) {
+        return await this.request(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async put(endpoint, data) {
+        return await this.request(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    async delete(endpoint) {
+        return await this.request(endpoint, {
+            method: 'DELETE'
+        });
+    }
+
+    async patch(endpoint, data) {
+        return await this.request(endpoint, {
+            method: 'PATCH',
+            body: JSON.stringify(data)
+        });
+    }
+
     // Utility methods
     isAuthenticated() {
         // Always check localStorage for the latest token

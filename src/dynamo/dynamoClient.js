@@ -25,6 +25,7 @@ const dynamoDocClient = DynamoDBDocumentClient.from(dynamoClient);
 // Table names from environment variables
 const TODOS_TABLE = process.env.TODOS_TABLE;
 const USERS_TABLE = process.env.USERS_TABLE;
+const FAMILIES_TABLE = process.env.FAMILIES_TABLE;
 
 /**
  * DynamoDB Operations Wrapper
@@ -34,6 +35,7 @@ class DynamoService {
         this.docClient = dynamoDocClient;
         this.todosTable = TODOS_TABLE;
         this.usersTable = USERS_TABLE;
+        this.familiesTable = FAMILIES_TABLE;
     }
 
     // Generic operations
@@ -222,10 +224,56 @@ class DynamoService {
     async deleteUser(id) {
         return await this.delete(this.usersTable, { id });
     }
+
+    async getUsersByFamily(familyId) {
+        return await this.query(
+            this.usersTable,
+            'FamilyIndex',
+            'familyId = :familyId',
+            { ':familyId': familyId }
+        );
+    }
+
+    // Family-specific operations
+    async getFamily(familyId) {
+        return await this.get(this.familiesTable, { familyId });
+    }
+
+    async getFamilyByCode(familyCode) {
+        const families = await this.query(
+            this.familiesTable,
+            'FamilyCodeIndex',
+            'familyCode = :familyCode',
+            { ':familyCode': familyCode }
+        );
+        return families.length > 0 ? families[0] : null;
+    }
+
+    async createFamily(family) {
+        return await this.put(this.familiesTable, family);
+    }
+
+    async updateFamily(familyId, updateExpression, expressionAttributeValues, expressionAttributeNames = {}) {
+        return await this.update(this.familiesTable, { familyId }, updateExpression, expressionAttributeValues, expressionAttributeNames);
+    }
+
+    async deleteFamily(familyId) {
+        return await this.delete(this.familiesTable, { familyId });
+    }
+
+    async getFamiliesByAdmin(adminUserId) {
+        return await this.query(
+            this.familiesTable,
+            'AdminUserIndex',
+            'adminUserId = :adminUserId',
+            { ':adminUserId': adminUserId }
+        );
+    }
 }
 
 module.exports = {
     DynamoService,
     TODOS_TABLE,
-    USERS_TABLE
+    USERS_TABLE,
+    FAMILIES_TABLE
 };

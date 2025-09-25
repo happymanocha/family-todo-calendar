@@ -4,23 +4,41 @@
  */
 
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 const authConfig = require('../config/auth');
 
 class User {
     constructor(data = {}) {
-        this.id = data.id || null; // Backward compatibility ID
-        this.uniqueId = data.uniqueId || null; // Proper unique ID (UUID)
+        this.id = data.id || this.generateId();
+        this.uniqueId = data.uniqueId || this.generateUniqueId();
         this.email = data.email || '';
         this.name = data.name || '';
         this.role = data.role || 'member';
         this.avatar = data.avatar || '';
         this.phone = data.phone || '';
         this.password = data.password || '';
+        this.familyId = data.familyId || null;
         this.isActive = data.isActive !== undefined ? data.isActive : true;
         this.loginAttempts = data.loginAttempts || 0;
         this.lockedUntil = data.lockedUntil || null;
         this.createdAt = data.createdAt || new Date().toISOString();
         this.updatedAt = data.updatedAt || new Date().toISOString();
+    }
+
+    /**
+     * Generate short user ID
+     * @returns {string} User ID
+     */
+    generateId() {
+        return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    /**
+     * Generate unique UUID
+     * @returns {string} Unique ID
+     */
+    generateUniqueId() {
+        return uuidv4();
     }
 
     /**
@@ -120,6 +138,7 @@ class User {
             role: this.role,
             avatar: this.avatar,
             phone: this.phone,
+            familyId: this.familyId,
             isActive: this.isActive,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt

@@ -10,6 +10,7 @@ provider:
   environment:
     TODOS_TABLE: ${self:service}-todos-${self:provider.stage}
     USERS_TABLE: ${self:service}-users-${self:provider.stage}
+    FAMILIES_TABLE: ${self:service}-families-${self:provider.stage}
     JWT_SECRET: ${env:JWT_SECRET, 'your-secret-key-here'}
     NODE_ENV: ${self:provider.stage}
   iam:
@@ -28,6 +29,7 @@ provider:
           Resource:
             - Fn::GetAtt: [TodosTable, Arn]
             - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [FamiliesTable, Arn]
             - Fn::Join:
               - '/'
               - - Fn::GetAtt: [TodosTable, Arn]
@@ -35,6 +37,10 @@ provider:
             - Fn::Join:
               - '/'
               - - Fn::GetAtt: [UsersTable, Arn]
+                - 'index/*'
+            - Fn::Join:
+              - '/'
+              - - Fn::GetAtt: [FamiliesTable, Arn]
                 - 'index/*'
 
 package:
@@ -118,6 +124,64 @@ functions:
     events:
       - http:
           path: /api/auth/check-permission
+          method: post
+          cors: true
+
+  # Registration endpoints
+  register:
+    handler: src/lambda/auth.register
+    events:
+      - http:
+          path: /api/auth/register
+          method: post
+          cors: true
+
+  # Family management endpoints
+  createFamily:
+    handler: src/lambda/families.createFamily
+    events:
+      - http:
+          path: /api/families
+          method: post
+          cors: true
+
+  getFamily:
+    handler: src/lambda/families.getFamily
+    events:
+      - http:
+          path: /api/families/{familyId}
+          method: get
+          cors: true
+
+  getFamilyByCode:
+    handler: src/lambda/families.getFamilyByCode
+    events:
+      - http:
+          path: /api/families/code/{familyCode}
+          method: get
+          cors: true
+
+  updateFamily:
+    handler: src/lambda/families.updateFamily
+    events:
+      - http:
+          path: /api/families/{familyId}
+          method: put
+          cors: true
+
+  getFamilyMembers:
+    handler: src/lambda/families.getFamilyMembers
+    events:
+      - http:
+          path: /api/families/{familyId}/members
+          method: get
+          cors: true
+
+  generateFamilyInvite:
+    handler: src/lambda/families.generateInvite
+    events:
+      - http:
+          path: /api/families/{familyId}/invite
           method: post
           cors: true
 
@@ -213,6 +277,35 @@ functions:
 resources:
   Resources:
     # DynamoDB Tables
+    FamiliesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.FAMILIES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: familyId
+            AttributeType: S
+          - AttributeName: familyCode
+            AttributeType: S
+          - AttributeName: adminUserId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: familyId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: FamilyCodeIndex
+            KeySchema:
+              - AttributeName: familyCode
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: AdminUserIndex
+            KeySchema:
+              - AttributeName: adminUserId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+
     TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -273,6 +366,8 @@ resources:
             AttributeType: S
           - AttributeName: email
             AttributeType: S
+          - AttributeName: familyId
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
@@ -286,6 +381,12 @@ resources:
           - IndexName: EmailIndex
             KeySchema:
               - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: FamilyIndex
+            KeySchema:
+              - AttributeName: familyId
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
@@ -340,6 +441,10 @@ resources:
     UsersTableName:
       Description: DynamoDB Users Table Name
       Value: !Ref UsersTable
+
+    FamiliesTableName:
+      Description: DynamoDB Families Table Name
+      Value: !Ref FamiliesTable
 
 plugins:
   - serverless-offline

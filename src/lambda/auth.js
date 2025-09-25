@@ -152,6 +152,143 @@ const createOrUpdateUser = async (familyMember, email) => {
 };
 
 /**
+ * Register new user
+ * POST /api/auth/register
+ */
+const register = lambdaWrapper(async (event) => {
+    const body = parseBody(event.body);
+
+    // Validate required fields
+    const requiredFields = ['name', 'email', 'password'];
+    const validation = validateRequiredFields(body, requiredFields);
+    if (!validation.isValid) {
+        return errorResponse(400, 'Missing required fields', validation.missingFields);
+    }
+
+    const { name, email, password, familyId, familyCode, isCreatingFamily } = body;
+
+    try {
+        // Check if user already exists
+        const existingUser = await dynamoService.getUserByEmail(email.toLowerCase());
+        if (existingUser) {
+            return errorResponse(409, 'User with this email already exists');
+        }
+
+        let targetFamilyId = familyId;
+        let userRole = 'member';
+
+        // Handle family association
+        if (isCreatingFamily) {
+            // User is creating a new family
+            if (!body.familyName) {
+                return errorResponse(400, 'Family name is required when creating family');
+            }
+
+            // Create the family first
+            const Family = require('../models/Family');
+            const newFamily = Family.fromFormData(body, null); // Will set admin after user creation
+
+            // Save family
+            await dynamoService.createFamily(newFamily.toJSON());
+            targetFamilyId = newFamily.familyId;
+            userRole = 'admin';
+
+        } else if (familyCode) {
+            // User is joining existing family
+            const family = await dynamoService.getFamilyByCode(familyCode.toUpperCase());
+            if (!family) {
+                return errorResponse(404, 'Invalid family code');
+            }
+
+            const Family = require('../models/Family');
+            const familyObj = new Family(family);
+            if (!familyObj.canAcceptNewMembers()) {
+                return errorResponse(403, 'Family is not accepting new members');
+            }
+
+            targetFamilyId = family.familyId;
+
+        } else {
+            return errorResponse(400, 'Must specify family code to join or create new family');
+        }
+
+        // Create user
+        const User = require('../models/User');
+        const newUser = new User({
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
+            role: userRole,
+            familyId: targetFamilyId,
+            avatar: name.trim().charAt(0).toUpperCase(),
+            isActive: true
+        });
+
+        // Validate user data
+        const userValidation = newUser.validate();
+        if (!userValidation.isValid) {
+            return errorResponse(400, 'Invalid user data', userValidation.errors);
+        }
+
+        // Hash password
+        const hashedPassword = await newUser.hashPassword(password);
+
+        // Save user to database
+        const userData = {
+            ...newUser.toJSON(),
+            password: hashedPassword
+        };
+
+        await dynamoService.putUser(userData);
+
+        // Update family admin if creating family
+        if (isCreatingFamily) {
+            await dynamoService.updateFamily(
+                targetFamilyId,
+                'SET adminUserId = :adminUserId, memberCount = :memberCount, updatedAt = :updatedAt',
+                {
+                    ':adminUserId': newUser.id,
+                    ':memberCount': 1,
+                    ':updatedAt': new Date().toISOString()
+                }
+            );
+        } else {
+            // Increment member count for existing family
+            const family = await dynamoService.getFamily(targetFamilyId);
+            if (family) {
+                await dynamoService.updateFamily(
+                    targetFamilyId,
+                    'SET memberCount = :memberCount, updatedAt = :updatedAt',
+                    {
+                        ':memberCount': (family.memberCount || 0) + 1,
+                        ':updatedAt': new Date().toISOString()
+                    }
+                );
+            }
+        }
+
+        // Generate tokens
+        const tokens = generateTokens({
+            id: newUser.id,
+            uniqueId: newUser.uniqueId,
+            email: newUser.email,
+            name: newUser.name,
+            role: newUser.role,
+            familyId: targetFamilyId
+        });
+
+        // Return success response
+        return successResponse({
+            user: newUser.toJSON(),
+            ...tokens
+        }, 'Registration successful');
+
+    } catch (error) {
+        console.error('Registration error:', error);
+        return errorResponse(500, 'Registration failed');
+    }
+});
+
+/**
  * Login handler
  */
 const login = lambdaWrapper(async (event) => {
@@ -419,6 +556,7 @@ const checkPermission = lambdaWrapper(async (event) => {
 });
 
 module.exports = {
+    register,
     login,
     logout,
     refreshToken,

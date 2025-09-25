@@ -1,0 +1,677 @@
+/**
+ * Onboarding Wizard Styles
+ * Modern, multi-step registration flow
+ */
+
+/* ==========================================
+   ONBOARDING CONTAINER
+   ========================================== */
+
+.onboarding-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+}
+
+.onboarding-card {
+    background: var(--surface-color);
+    border-radius: 24px;
+    box-shadow:
+        0 32px 64px rgba(0, 0, 0, 0.12),
+        0 8px 32px rgba(0, 0, 0, 0.08);
+    padding: 3rem;
+    width: 100%;
+    max-width: 800px;
+    position: relative;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================
+   PROGRESS INDICATOR
+   ========================================== */
+
+.progress-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    border: 3px solid transparent;
+}
+
+.step-label {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-align: center;
+    transition: color 0.3s ease;
+}
+
+.progress-step.active .step-number {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.progress-step.active .step-label {
+    color: var(--primary-color);
+}
+
+.progress-step.completed .step-number {
+    background: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+.progress-step.completed .step-label {
+    color: var(--success-color);
+}
+
+.progress-line {
+    height: 3px;
+    width: 120px;
+    background: var(--border-color);
+    margin: 0 1rem;
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: var(--primary-color);
+    transition: width 0.5s ease;
+    border-radius: 2px;
+}
+
+.progress-step.active ~ .progress-line::after,
+.progress-step.completed ~ .progress-line::after {
+    width: 100%;
+}
+
+/* ==========================================
+   ONBOARDING STEPS
+   ========================================== */
+
+.onboarding-step {
+    display: none;
+    animation: fadeInUp 0.4s ease;
+}
+
+.onboarding-step.active {
+    display: block;
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.step-header h1,
+.step-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.step-header h1 {
+    font-size: 2rem;
+}
+
+.step-header h2 {
+    font-size: 1.75rem;
+}
+
+.step-description {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   PATH SELECTION (Step 1)
+   ========================================== */
+
+.path-selection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.path-option {
+    background: var(--background-color);
+    border: 3px solid var(--border-color);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.path-option:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+    box-shadow:
+        0 20px 40px rgba(59, 130, 246, 0.15),
+        0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.path-option.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg,
+        rgba(59, 130, 246, 0.05) 0%,
+        rgba(59, 130, 246, 0.1) 100%);
+    transform: translateY(-4px);
+    box-shadow:
+        0 20px 40px rgba(59, 130, 246, 0.2),
+        0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.path-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.path-option.selected::before {
+    transform: scaleX(1);
+}
+
+.path-icon {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.path-option h3 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.path-option p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.path-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.path-benefits span {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.path-benefits span:first-child {
+    border-top: none;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+}
+
+/* ==========================================
+   FAMILY FORMS (Step 2)
+   ========================================== */
+
+.family-form {
+    display: none;
+}
+
+.family-form.active {
+    display: block;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--background-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.input-hint {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ==========================================
+   FAMILY PREVIEW
+   ========================================== */
+
+.family-preview {
+    background: var(--background-color);
+    border: 2px solid var(--success-color);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+}
+
+.preview-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.preview-header h3 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.preview-header p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+.preview-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.member-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--surface-color);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.member-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.member-role {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: capitalize;
+}
+
+/* ==========================================
+   PASSWORD STRENGTH INDICATOR
+   ========================================== */
+
+.password-strength {
+    margin-top: 0.75rem;
+}
+
+.strength-bar {
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0;
+    background: var(--danger-color);
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.strength-fill.weak {
+    background: var(--danger-color);
+    width: 25%;
+}
+
+.strength-fill.fair {
+    background: #f59e0b;
+    width: 50%;
+}
+
+.strength-fill.good {
+    background: #10b981;
+    width: 75%;
+}
+
+.strength-fill.strong {
+    background: var(--success-color);
+    width: 100%;
+}
+
+.strength-label {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+}
+
+/* ==========================================
+   INPUT VALIDATION
+   ========================================== */
+
+.input-validation {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-validation.success {
+    color: var(--success-color);
+}
+
+.input-validation.error {
+    color: var(--danger-color);
+}
+
+.input-validation::before {
+    content: '✓';
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.input-validation.success::before {
+    opacity: 1;
+}
+
+.input-validation.error::before {
+    content: '✗';
+    opacity: 1;
+}
+
+/* ==========================================
+   STEP NAVIGATION
+   ========================================== */
+
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.step-navigation .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ==========================================
+   MESSAGE CONTAINERS
+   ========================================== */
+
+.message-container {
+    margin-top: 2rem;
+}
+
+.error-message,
+.success-message {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.error-message {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.success-message {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.error-message.show,
+.success-message.show {
+    display: flex;
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.onboarding-step.entering {
+    animation: slideInRight 0.4s ease;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 768px) {
+    .onboarding-container {
+        padding: 1rem;
+    }
+
+    .onboarding-card {
+        padding: 2rem 1.5rem;
+        max-width: none;
+        border-radius: 16px;
+    }
+
+    .progress-indicator {
+        margin-bottom: 2rem;
+    }
+
+    .progress-step {
+        transform: scale(0.9);
+    }
+
+    .progress-line {
+        width: 80px;
+        margin: 0 0.5rem;
+    }
+
+    .step-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .step-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .path-selection {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .step-navigation {
+        flex-direction: column-reverse;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .step-navigation .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .preview-members {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .member-preview {
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .progress-step .step-label {
+        font-size: 0.75rem;
+    }
+
+    .path-option {
+        padding: 2rem 1.5rem;
+    }
+
+    .path-option h3 {
+        font-size: 1.125rem;
+    }
+}
+
+/* ==========================================
+   DARK MODE ADAPTATIONS
+   ========================================== */
+
+body.dark-mode .path-option {
+    background: var(--surface-color);
+}
+
+body.dark-mode .path-option.selected {
+    background: linear-gradient(135deg,
+        rgba(59, 130, 246, 0.1) 0%,
+        rgba(59, 130, 246, 0.15) 100%);
+}
+
+body.dark-mode .family-preview {
+    background: var(--surface-color);
+    border-color: var(--success-color);
+}
+
+body.dark-mode .member-preview {
+    background: var(--background-color);
+}
