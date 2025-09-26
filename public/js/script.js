@@ -268,7 +268,12 @@ class FamilyTodoApp {
         // Update assign-to selects in the forms
         const assignSelects = document.querySelectorAll('select[id*="assign"], select[id*="member"]');
 
+        console.log('Found select elements:', assignSelects.length);
+        assignSelects.forEach(select => console.log('Select ID:', select.id));
+
         assignSelects.forEach(select => {
+            console.log(`Updating select: ${select.id} with ${members.length} members`);
+
             // Clear existing options
             select.innerHTML = '';
 
@@ -284,6 +289,7 @@ class FamilyTodoApp {
                 option.value = member.id;
                 option.textContent = member.name;
                 select.appendChild(option);
+                console.log(`Added option: ${member.name} (${member.id})`);
             });
         });
     }
