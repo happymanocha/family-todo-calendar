@@ -342,6 +342,146 @@ const getFamilyMembers = lambdaWrapper(async (event) => {
 });
 
 /**
+ * Regenerate family code
+ * POST /api/families/regenerate-code
+ */
+const regenerateFamilyCode = lambdaWrapper(async (event) => {
+    try {
+        // Get authenticated user
+        const authUser = getAuthenticatedUser(event);
+
+        // Get user data to find their family
+        const user = await dynamoService.getUserByEmail(authUser.email);
+        if (!user) {
+            return errorResponse(404, 'User not found');
+        }
+
+        if (!user.familyId) {
+            return errorResponse(404, 'User is not associated with any family');
+        }
+
+        // Get family data
+        const familyData = await dynamoService.getFamily(user.familyId);
+        if (!familyData) {
+            return errorResponse(404, 'Family not found');
+        }
+
+        const family = new Family(familyData);
+
+        // Check if user is admin
+        if (family.adminUserId !== user.id) {
+            return errorResponse(403, 'Only family admin can regenerate family code');
+        }
+
+        // Generate new family code
+        const oldCode = family.familyCode;
+        family.regenerateCode();
+
+        // Update family in database
+        await dynamoService.updateFamily(
+            user.familyId,
+            'SET familyCode = :familyCode, updatedAt = :updatedAt',
+            {
+                ':familyCode': family.familyCode,
+                ':updatedAt': family.updatedAt
+            }
+        );
+
+        console.log(`Family code regenerated for family ${user.familyId}: ${oldCode} -> ${family.familyCode}`);
+
+        return successResponse({
+            familyCode: family.familyCode,
+            previousCode: oldCode,
+            updatedAt: family.updatedAt
+        }, 'Family code regenerated successfully');
+
+    } catch (error) {
+        if (error.message.includes('Authorization header') ||
+            error.message.includes('Token') ||
+            error.message.includes('Invalid token')) {
+            return errorResponse(401, 'Authentication required');
+        }
+        console.error('Error regenerating family code:', error);
+        return errorResponse(500, 'Failed to regenerate family code');
+    }
+});
+
+/**
+ * Join a family using family code
+ * POST /api/families/join
+ */
+const joinFamily = lambdaWrapper(async (event) => {
+    const body = parseBody(event.body);
+
+    // Validate required fields
+    const requiredFields = ['familyCode'];
+    const validation = validateRequiredFields(body, requiredFields);
+    if (!validation.isValid) {
+        return errorResponse(400, 'Missing required fields', validation.missingFields);
+    }
+
+    try {
+        // Get authenticated user
+        const authUser = getAuthenticatedUser(event);
+
+        // Get user data
+        const user = await dynamoService.getUserByEmail(authUser.email);
+        if (!user) {
+            return errorResponse(404, 'User not found');
+        }
+
+        // Check if user is already in a family
+        if (user.familyId) {
+            return errorResponse(409, 'User is already a member of a family. Please leave current family first.');
+        }
+
+        // Find family by code
+        const familyCode = body.familyCode.toUpperCase().trim();
+        const familyData = await dynamoService.getFamilyByCode(familyCode);
+        if (!familyData) {
+            return errorResponse(404, 'Family not found with this code');
+        }
+
+        const family = new Family(familyData);
+
+        // Check if family can accept new members
+        if (!family.canAcceptNewMembers()) {
+            return errorResponse(403, 'Family is not accepting new members');
+        }
+
+        // Update user's familyId
+        await dynamoService.updateUser(
+            user.id,
+            'SET familyId = :familyId, updatedAt = :updatedAt',
+            {
+                ':familyId': family.familyId,
+                ':updatedAt': new Date().toISOString()
+            }
+        );
+
+        // Get updated family members count
+        const familyMembers = await dynamoService.getUsersByFamily(family.familyId);
+
+        console.log(`User ${user.email} joined family ${family.familyName} (${family.familyId})`);
+
+        return successResponse({
+            family: family.toPublicJSON(),
+            memberCount: familyMembers.length,
+            joinedAt: new Date().toISOString()
+        }, `Successfully joined family "${family.familyName}"`);
+
+    } catch (error) {
+        if (error.message.includes('Authorization header') ||
+            error.message.includes('Token') ||
+            error.message.includes('Invalid token')) {
+            return errorResponse(401, 'Authentication required');
+        }
+        console.error('Error joining family:', error);
+        return errorResponse(500, 'Failed to join family');
+    }
+});
+
+/**
  * Generate family invite data
  * POST /api/families/{familyId}/invite
  */
@@ -408,5 +548,7 @@ module.exports = {
     getFamilyByCode,
     updateFamily,
     getFamilyMembers,
+    regenerateFamilyCode,
+    joinFamily,
     generateInvite
 };

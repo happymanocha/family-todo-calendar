@@ -1,0 +1,329 @@
+/* Welcome Onboarding Modal Styles */
+
+.onboarding-content {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.onboarding-header {
+    text-align: center;
+    padding: 24px 24px 32px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.welcome-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--primary);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px auto;
+    color: white;
+}
+
+.onboarding-header h2 {
+    margin: 0 0 12px 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.onboarding-header p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.onboarding-body {
+    padding: 32px 24px 24px 24px;
+}
+
+.onboarding-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.onboarding-option {
+    background: var(--surface-light);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.onboarding-option:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow);
+}
+
+.onboarding-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.option-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--primary);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    color: white;
+    transition: transform 0.2s ease;
+}
+
+.onboarding-option:hover .option-icon {
+    transform: scale(1.1);
+}
+
+.onboarding-option.selected .option-icon {
+    background: var(--primary-dark);
+    transform: scale(1.1);
+}
+
+.onboarding-option h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.onboarding-option p {
+    margin: 0 0 16px 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.option-features {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.option-features span {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.family-code-input-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.family-code-input-section .form-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.family-code-input-section input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.family-code-input-section input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.family-preview {
+    margin-top: 16px;
+    animation: slideDown 0.3s ease;
+}
+
+.family-preview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.family-preview-card h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.family-preview-card p {
+    margin: 0 0 16px 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.family-preview-members {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.family-preview-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.family-preview-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.family-preview-name {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.onboarding-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.primary-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.onboarding-note {
+    margin-top: 24px;
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+}
+
+.onboarding-note p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .onboarding-content {
+        max-width: 95vw;
+        margin: 10px;
+    }
+
+    .onboarding-options {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .onboarding-option {
+        padding: 20px 16px;
+    }
+
+    .option-icon {
+        width: 56px;
+        height: 56px;
+    }
+
+    .welcome-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .onboarding-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .onboarding-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .primary-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .primary-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .family-code-input-section .form-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .family-code-input-section .btn {
+        width: 100%;
+    }
+}
+
+/* Dark Mode Support */
+.dark-mode .onboarding-option {
+    background: var(--surface-dark);
+    border-color: var(--border-dark);
+}
+
+.dark-mode .onboarding-option:hover {
+    border-color: var(--primary-light);
+}
+
+.dark-mode .family-preview-card {
+    background: var(--surface);
+    border-color: var(--border-dark);
+}
+
+.dark-mode .family-code-input-section {
+    border-color: var(--border-dark);
+}
+
+.dark-mode .family-code-input-section input {
+    background: var(--surface);
+    border-color: var(--border-dark);
+    color: var(--text-primary);
+}
+
+.dark-mode .onboarding-note {
+    border-color: var(--border-dark);
+}

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/button-components.css">
     <link rel="stylesheet" href="css/family-settings.css">
+    <link rel="stylesheet" href="css/onboarding-modal.css">
     <script src="js/button-loading.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -447,6 +448,81 @@
                                 Manage Permissions
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Onboarding Modal -->
+        <div class="modal-overlay" id="welcome-onboarding-modal">
+            <div class="modal-content onboarding-content">
+                <div class="onboarding-header">
+                    <div class="welcome-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <h2>Welcome to Minocha's Organizer!</h2>
+                    <p>Let's get you set up with your family organization system.</p>
+                </div>
+
+                <div class="onboarding-body">
+                    <div class="onboarding-options">
+                        <div class="onboarding-option create-family-option" id="onboarding-create-family">
+                            <div class="option-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="16"/>
+                                    <line x1="8" y1="12" x2="16" y2="12"/>
+                                </svg>
+                            </div>
+                            <h3>Create New Family</h3>
+                            <p>Start fresh with your own family organization system. You'll be the admin and can invite others.</p>
+                            <div class="option-features">
+                                <span>✓ You become the admin</span>
+                                <span>✓ Generate family invite code</span>
+                                <span>✓ Full control over settings</span>
+                            </div>
+                        </div>
+
+                        <div class="onboarding-option join-family-option" id="onboarding-join-family">
+                            <div class="option-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                                    <circle cx="8.5" cy="7" r="4"/>
+                                    <path d="M20 8v6"/>
+                                    <path d="M23 11h-6"/>
+                                </svg>
+                            </div>
+                            <h3>Join Existing Family</h3>
+                            <p>Have a family code? Join an existing family that someone has already set up.</p>
+                            <div class="family-code-input-section" style="display: none;">
+                                <div class="form-group">
+                                    <input type="text" id="onboarding-family-code" placeholder="Enter family code (e.g., ABC123)" maxlength="6">
+                                    <button class="btn btn--primary" id="verify-family-code-btn">Verify Code</button>
+                                </div>
+                                <div id="family-preview" class="family-preview" style="display: none;">
+                                    <div class="family-preview-card">
+                                        <h4 id="preview-family-name">Loading...</h4>
+                                        <p id="preview-family-info">Verifying family code...</p>
+                                        <div class="family-preview-members" id="preview-members"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="onboarding-actions">
+                        <button class="btn btn--outline" id="onboarding-skip-btn">Skip for Now</button>
+                        <div class="primary-actions" style="display: none;">
+                            <button class="btn btn--primary btn--lg" id="onboarding-create-btn">Create My Family</button>
+                            <button class="btn btn--primary btn--lg" id="onboarding-join-btn" style="display: none;">Join This Family</button>
+                        </div>
+                    </div>
+
+                    <div class="onboarding-note">
+                        <p><small>💡 You can always change these settings later from Family Settings</small></p>
                     </div>
                 </div>
             </div>

@@ -185,6 +185,22 @@ functions:
           method: get
           cors: true
 
+  regenerateFamilyCode:
+    handler: src/lambda/families.regenerateFamilyCode
+    events:
+      - http:
+          path: /api/families/regenerate-code
+          method: post
+          cors: true
+
+  joinFamily:
+    handler: src/lambda/families.joinFamily
+    events:
+      - http:
+          path: /api/families/join
+          method: post
+          cors: true
+
   generateFamilyInvite:
     handler: src/lambda/families.generateInvite
     events:

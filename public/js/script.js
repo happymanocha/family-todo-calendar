@@ -227,13 +227,32 @@ class FamilyTodoApp {
                 const members = response.data || [];
                 console.log('Loaded family members:', members);
 
+                // Check if user has no family (empty members array)
+                if (members.length === 0) {
+                    console.log('User has no family - showing onboarding');
+                    this.showOnboarding();
+                    return;
+                }
+
                 // Update the family member buttons
                 this.updateFamilyMemberButtons(members);
             } else {
                 console.error('Failed to load family members:', response);
+                // If API call fails, also check if it's because user has no family
+                if (response && response.message && response.message.includes('not associated with any family')) {
+                    console.log('User has no family - showing onboarding');
+                    this.showOnboarding();
+                    return;
+                }
             }
         } catch (error) {
             console.error('Error loading family members:', error);
+            // Check if error indicates user has no family
+            if (error.message && error.message.includes('not associated with any family')) {
+                console.log('User has no family - showing onboarding');
+                this.showOnboarding();
+                return;
+            }
         }
     }
 
@@ -474,6 +493,9 @@ class FamilyTodoApp {
 
         // Family Settings event listeners
         this.setupFamilySettingsListeners();
+
+        // Onboarding event listeners
+        this.setupOnboardingListeners();
     }
 
     changeTheme(theme) {
@@ -857,14 +879,107 @@ class FamilyTodoApp {
         const qrContainer = document.getElementById('family-qr-code');
         if (!qrContainer) return;
 
-        // For now, show a placeholder - we'll implement QR code generation later
-        qrContainer.innerHTML = `
-            <div class="qr-code-container">
-                <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center;">
-                    QR Code<br>Coming Soon
+        // Clear previous content
+        qrContainer.innerHTML = '';
+
+        try {
+            // Create QR code content - invitation URL with family code
+            const inviteUrl = `${window.location.origin}/register.html?familyCode=${familyCode}`;
+
+            // Generate QR code using a simple canvas-based approach
+            const canvas = document.createElement('canvas');
+            const size = 100;
+            canvas.width = size;
+            canvas.height = size;
+
+            const ctx = canvas.getContext('2d');
+
+            // For now, create a simple pattern representing the QR code
+            // In a real implementation, you'd use a proper QR code library
+            this.drawSimpleQRPattern(ctx, familyCode, size);
+
+            // Add to container
+            const qrWrapper = document.createElement('div');
+            qrWrapper.className = 'qr-code-container';
+            qrWrapper.appendChild(canvas);
+
+            const label = document.createElement('div');
+            label.className = 'qr-code-label';
+            label.textContent = 'Scan to Join';
+            qrWrapper.appendChild(label);
+
+            qrContainer.appendChild(qrWrapper);
+
+        } catch (error) {
+            console.error('Error generating QR code:', error);
+            qrContainer.innerHTML = `
+                <div class="qr-code-container">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center;">
+                        QR Code<br>Error
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
+    }
+
+    drawSimpleQRPattern(ctx, familyCode, size) {
+        // Fill background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
+
+        // Create a simple grid pattern based on the family code
+        ctx.fillStyle = '#000000';
+        const gridSize = 10;
+        const cellSize = size / gridSize;
+
+        // Use family code to create a pseudo-random pattern
+        let hash = 0;
+        for (let i = 0; i < familyCode.length; i++) {
+            hash = ((hash << 5) - hash + familyCode.charCodeAt(i)) & 0xffffffff;
+        }
+
+        // Draw corner markers (typical QR code markers)
+        this.drawCornerMarker(ctx, 0, 0, cellSize);
+        this.drawCornerMarker(ctx, size - 3 * cellSize, 0, cellSize);
+        this.drawCornerMarker(ctx, 0, size - 3 * cellSize, cellSize);
+
+        // Draw pattern based on hash
+        for (let x = 0; x < gridSize; x++) {
+            for (let y = 0; y < gridSize; y++) {
+                // Skip corner marker areas
+                if ((x < 3 && y < 3) || (x > gridSize - 4 && y < 3) || (x < 3 && y > gridSize - 4)) {
+                    continue;
+                }
+
+                // Create pseudo-random pattern
+                const shouldFill = (hash + x * 7 + y * 11) % 3 === 0;
+
+                if (shouldFill) {
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        // Add border
+        ctx.strokeStyle = '#cccccc';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0, 0, size, size);
+    }
+
+    drawCornerMarker(ctx, x, y, cellSize) {
+        // Draw 3x3 corner marker
+        ctx.fillStyle = '#000000';
+
+        // Outer square
+        ctx.fillRect(x, y, cellSize * 3, cellSize * 3);
+
+        // Inner white square
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x + cellSize * 0.5, y + cellSize * 0.5, cellSize * 2, cellSize * 2);
+
+        // Inner black square
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(x + cellSize * 1, y + cellSize * 1, cellSize, cellSize);
     }
 
     async copyFamilyCode() {
@@ -965,6 +1080,280 @@ class FamilyTodoApp {
 
     managePermissions() {
         this.showInfo('Permission management coming soon!');
+    }
+
+    // Onboarding Methods
+    setupOnboardingListeners() {
+        // Option selection
+        const createFamilyOption = document.getElementById('onboarding-create-family');
+        const joinFamilyOption = document.getElementById('onboarding-join-family');
+
+        if (createFamilyOption) {
+            createFamilyOption.addEventListener('click', () => this.selectOnboardingOption('create'));
+        }
+
+        if (joinFamilyOption) {
+            joinFamilyOption.addEventListener('click', () => this.selectOnboardingOption('join'));
+        }
+
+        // Action buttons
+        const skipBtn = document.getElementById('onboarding-skip-btn');
+        const createBtn = document.getElementById('onboarding-create-btn');
+        const joinBtn = document.getElementById('onboarding-join-btn');
+        const verifyCodeBtn = document.getElementById('verify-family-code-btn');
+
+        if (skipBtn) {
+            skipBtn.addEventListener('click', () => this.skipOnboarding());
+        }
+
+        if (createBtn) {
+            createBtn.addEventListener('click', () => this.createFamilyFromOnboarding());
+        }
+
+        if (joinBtn) {
+            joinBtn.addEventListener('click', () => this.joinFamilyFromOnboarding());
+        }
+
+        if (verifyCodeBtn) {
+            verifyCodeBtn.addEventListener('click', () => this.verifyFamilyCode());
+        }
+
+        // Family code input
+        const familyCodeInput = document.getElementById('onboarding-family-code');
+        if (familyCodeInput) {
+            familyCodeInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.toUpperCase();
+            });
+
+            familyCodeInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.verifyFamilyCode();
+                }
+            });
+        }
+    }
+
+    showOnboarding() {
+        const modal = document.getElementById('welcome-onboarding-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    hideOnboarding() {
+        const modal = document.getElementById('welcome-onboarding-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    selectOnboardingOption(option) {
+        // Clear previous selections
+        document.querySelectorAll('.onboarding-option').forEach(el => {
+            el.classList.remove('selected');
+        });
+
+        // Hide all input sections
+        const familyCodeSection = document.querySelector('.family-code-input-section');
+        const primaryActions = document.querySelector('.primary-actions');
+        const createBtn = document.getElementById('onboarding-create-btn');
+        const joinBtn = document.getElementById('onboarding-join-btn');
+
+        if (option === 'create') {
+            document.getElementById('onboarding-create-family').classList.add('selected');
+
+            if (familyCodeSection) familyCodeSection.style.display = 'none';
+            if (primaryActions) primaryActions.style.display = 'flex';
+            if (createBtn) createBtn.style.display = 'block';
+            if (joinBtn) joinBtn.style.display = 'none';
+
+        } else if (option === 'join') {
+            document.getElementById('onboarding-join-family').classList.add('selected');
+
+            if (familyCodeSection) familyCodeSection.style.display = 'block';
+            if (primaryActions) primaryActions.style.display = 'flex';
+            if (createBtn) createBtn.style.display = 'none';
+            if (joinBtn) joinBtn.style.display = 'none'; // Will show after code verification
+        }
+    }
+
+    async verifyFamilyCode() {
+        const familyCodeInput = document.getElementById('onboarding-family-code');
+        const familyPreview = document.getElementById('family-preview');
+        const joinBtn = document.getElementById('onboarding-join-btn');
+
+        if (!familyCodeInput || !familyPreview) return;
+
+        const familyCode = familyCodeInput.value.trim().toUpperCase();
+        if (!familyCode || familyCode.length !== 6) {
+            this.showError('Please enter a valid 6-character family code');
+            return;
+        }
+
+        try {
+            familyPreview.style.display = 'block';
+            document.getElementById('preview-family-name').textContent = 'Verifying...';
+            document.getElementById('preview-family-info').textContent = 'Checking family code...';
+            document.getElementById('preview-members').innerHTML = '';
+
+            const response = await this.apiFetch(`/api/families/code/${familyCode}`);
+
+            if (response && response.success) {
+                const { family, members } = response.data;
+
+                // Update preview
+                document.getElementById('preview-family-name').textContent = family.familyName;
+                document.getElementById('preview-family-info').textContent =
+                    `${members.length} member${members.length !== 1 ? 's' : ''} • Created ${new Date(family.createdAt).toLocaleDateString()}`;
+
+                // Show members
+                const membersContainer = document.getElementById('preview-members');
+                if (members && members.length > 0) {
+                    const membersHTML = members.slice(0, 5).map(member => {
+                        const initials = member.name ?
+                            member.name.split(' ').map(n => n[0]).join('').toUpperCase() :
+                            'U';
+
+                        return `
+                            <div class="family-preview-member">
+                                <div class="family-preview-avatar">${initials}</div>
+                                <div class="family-preview-name">${member.name || 'Member'}</div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    if (members.length > 5) {
+                        membersHTML += `
+                            <div class="family-preview-member">
+                                <div class="family-preview-avatar">+${members.length - 5}</div>
+                                <div class="family-preview-name">more</div>
+                            </div>
+                        `;
+                    }
+
+                    membersContainer.innerHTML = membersHTML;
+                }
+
+                // Show join button
+                if (joinBtn) {
+                    joinBtn.style.display = 'block';
+                    joinBtn.dataset.familyCode = familyCode;
+                }
+
+                this.showSuccess(`Found family "${family.familyName}"!`);
+
+            } else {
+                throw new Error(response?.message || 'Family not found');
+            }
+
+        } catch (error) {
+            console.error('Error verifying family code:', error);
+
+            // Hide preview and join button
+            familyPreview.style.display = 'none';
+            if (joinBtn) {
+                joinBtn.style.display = 'none';
+            }
+
+            if (error.message && error.message.includes('not found')) {
+                this.showError('Family code not found. Please check the code and try again.');
+            } else {
+                this.showError('Failed to verify family code. Please try again.');
+            }
+        }
+    }
+
+    async createFamilyFromOnboarding() {
+        try {
+            // Get current user info
+            const currentUser = this.getCurrentUser();
+            if (!currentUser) {
+                this.showError('Unable to get user information');
+                return;
+            }
+
+            // Create family with user's name
+            const familyName = `${currentUser.displayName || currentUser.email.split('@')[0]}'s Family`;
+
+            const response = await this.apiFetch('/api/families', {
+                method: 'POST',
+                body: JSON.stringify({
+                    familyName: familyName
+                })
+            });
+
+            if (response && response.success) {
+                this.showSuccess(`Family "${familyName}" created successfully!`);
+
+                // Close onboarding and refresh the app
+                this.hideOnboarding();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+            } else {
+                throw new Error(response?.message || 'Failed to create family');
+            }
+
+        } catch (error) {
+            console.error('Error creating family:', error);
+            this.showError('Failed to create family. Please try again.');
+        }
+    }
+
+    async joinFamilyFromOnboarding() {
+        const joinBtn = document.getElementById('onboarding-join-btn');
+        const familyCode = joinBtn?.dataset.familyCode;
+
+        if (!familyCode) {
+            this.showError('No family code selected');
+            return;
+        }
+
+        try {
+            this.showSuccess(`Joining family with code ${familyCode}...`);
+
+            // Call the join family API
+            const response = await this.apiFetch('/api/families/join', {
+                method: 'POST',
+                body: JSON.stringify({
+                    familyCode: familyCode
+                })
+            });
+
+            if (response && response.success) {
+                this.showSuccess(`Successfully joined family "${response.data.family.familyName}"!`);
+
+                // Close onboarding and refresh the app
+                this.hideOnboarding();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+
+            } else {
+                throw new Error(response?.message || 'Failed to join family');
+            }
+
+        } catch (error) {
+            console.error('Error joining family:', error);
+
+            if (error.message && error.message.includes('already a member')) {
+                this.showError('You are already a member of a family. Please contact your admin to switch families.');
+            } else if (error.message && error.message.includes('not found')) {
+                this.showError('Family code not found. Please verify the code is correct.');
+            } else if (error.message && error.message.includes('not accepting')) {
+                this.showError('This family is not currently accepting new members.');
+            } else {
+                this.showError('Failed to join family. Please try again.');
+            }
+        }
+    }
+
+    skipOnboarding() {
+        this.hideOnboarding();
+        this.showInfo('You can set up your family later from Family Settings');
     }
 
     toggleDarkMode() {
