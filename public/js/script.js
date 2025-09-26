@@ -265,32 +265,65 @@ class FamilyTodoApp {
     }
 
     updateFamilyMemberSelects(members) {
-        // Update assign-to selects in the forms
-        const assignSelects = document.querySelectorAll('select[id*="assign"], select[id*="member"]');
+        // Update assign-to selects in the forms - be more specific about which selects to target
+        const memberSelects = [
+            'todo-member',
+            'edit-todo-member',
+            'assign-to',
+            'member-select'
+        ];
 
-        console.log('Found select elements:', assignSelects.length);
-        assignSelects.forEach(select => console.log('Select ID:', select.id));
+        memberSelects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                console.log(`Updating select: ${selectId} with ${members.length} members`);
+
+                // Clear existing options
+                select.innerHTML = '';
+
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select member';
+                select.appendChild(defaultOption);
+
+                // Add options for each family member
+                members.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.textContent = member.name;
+                    select.appendChild(option);
+                    console.log(`Added option to ${selectId}: ${member.name} (${member.id})`);
+                });
+            } else {
+                console.log(`Select element not found: ${selectId}`);
+            }
+        });
+
+        // Also try the original selector as fallback
+        const assignSelects = document.querySelectorAll('select[id*="assign"], select[id*="member"]');
+        console.log('Fallback selector found:', assignSelects.length, 'elements');
 
         assignSelects.forEach(select => {
-            console.log(`Updating select: ${select.id} with ${members.length} members`);
+            if (!memberSelects.includes(select.id)) {
+                console.log(`Updating additional select: ${select.id}`);
+                // Clear existing options
+                select.innerHTML = '';
 
-            // Clear existing options
-            select.innerHTML = '';
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select member';
+                select.appendChild(defaultOption);
 
-            // Add default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Select member';
-            select.appendChild(defaultOption);
-
-            // Add options for each family member
-            members.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.id;
-                option.textContent = member.name;
-                select.appendChild(option);
-                console.log(`Added option: ${member.name} (${member.id})`);
-            });
+                // Add options for each family member
+                members.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.textContent = member.name;
+                    select.appendChild(option);
+                });
+            }
         });
     }
 
