@@ -654,8 +654,10 @@ class FamilyTodoApp {
     }
 
     closeStylesMenu() {
-        const dropdown = document.getElementById('styles-dropdown');
-        dropdown.classList.remove('show');
+        const dropdown = document.getElementById('styles-submenu');
+        if (dropdown) {
+            dropdown.classList.remove('show');
+        }
         this.stylesMenuOpen = false;
     }
 
