@@ -183,6 +183,27 @@ const register = lambdaWrapper(async (event) => {
 
         console.log('Processing family association - isCreatingFamily:', isCreatingFamily);
 
+        console.log('Creating user first...');
+        // Create user first
+        const User = require('../models/User');
+        const newUser = new User({
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
+            role: isCreatingFamily ? 'admin' : 'member',
+            familyId: null, // Will be set after family creation
+            avatar: name.trim().charAt(0).toUpperCase(),
+            isActive: true
+        });
+
+        // Validate user data
+        const userValidation = newUser.validate();
+        if (!userValidation.isValid) {
+            return errorResponse('Invalid user data', 400, 'VALIDATION_ERROR', userValidation.errors);
+        }
+
+        // Hash password
+        const hashedPassword = await newUser.hashPassword(password);
+
         // Handle family association
         if (isCreatingFamily) {
             // User is creating a new family
@@ -190,10 +211,10 @@ const register = lambdaWrapper(async (event) => {
                 return errorResponse('Family name is required when creating family', 400, 'VALIDATION_ERROR');
             }
 
-            // Create the family first
+            // Create the family with the user as admin
             console.log('Creating new family with name:', body.familyName);
             const Family = require('../models/Family');
-            const newFamily = Family.fromFormData(body, null); // Will set admin after user creation
+            const newFamily = Family.fromFormData(body, newUser.id); // Use the user's ID as admin
             console.log('Family object created:', newFamily);
 
             // Save family
@@ -202,6 +223,9 @@ const register = lambdaWrapper(async (event) => {
             targetFamilyId = newFamily.familyId;
             userRole = 'admin';
             console.log('Family saved successfully with ID:', targetFamilyId);
+
+            // Update user with family ID
+            newUser.familyId = targetFamilyId;
 
         } else if (familyCode) {
             // User is joining existing family
@@ -217,30 +241,13 @@ const register = lambdaWrapper(async (event) => {
             }
 
             targetFamilyId = family.familyId;
+            newUser.familyId = targetFamilyId;
 
         } else {
             return errorResponse('Must specify family code to join or create new family', 400, 'VALIDATION_ERROR');
         }
 
-        // Create user
-        const User = require('../models/User');
-        const newUser = new User({
-            name: name.trim(),
-            email: email.toLowerCase().trim(),
-            role: userRole,
-            familyId: targetFamilyId,
-            avatar: name.trim().charAt(0).toUpperCase(),
-            isActive: true
-        });
-
-        // Validate user data
-        const userValidation = newUser.validate();
-        if (!userValidation.isValid) {
-            return errorResponse('Invalid user data', 400, 'VALIDATION_ERROR', userValidation.errors);
-        }
-
-        // Hash password
-        const hashedPassword = await newUser.hashPassword(password);
+        console.log('Finalizing user creation...');
 
         // Save user to database
         const userData = {
@@ -248,19 +255,13 @@ const register = lambdaWrapper(async (event) => {
             password: hashedPassword
         };
 
+        console.log('Saving user to database...');
         await dynamoService.putUser(userData);
+        console.log('User saved successfully');
 
-        // Update family admin if creating family
+        // Update family member count
         if (isCreatingFamily) {
-            await dynamoService.updateFamily(
-                targetFamilyId,
-                'SET adminUserId = :adminUserId, memberCount = :memberCount, updatedAt = :updatedAt',
-                {
-                    ':adminUserId': newUser.id,
-                    ':memberCount': 1,
-                    ':updatedAt': new Date().toISOString()
-                }
-            );
+            console.log('Family already created with admin set');
         } else {
             // Increment member count for existing family
             const family = await dynamoService.getFamily(targetFamilyId);
