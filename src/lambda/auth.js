@@ -162,7 +162,7 @@ const register = lambdaWrapper(async (event) => {
     const requiredFields = ['name', 'email', 'password'];
     const validation = validateRequiredFields(body, requiredFields);
     if (!validation.isValid) {
-        return errorResponse(400, 'Missing required fields', validation.missingFields);
+        return errorResponse(`Missing required fields: ${validation.missingFields.join(', ')}`, 400, 'VALIDATION_ERROR');
     }
 
     const { name, email, password, familyId, familyCode, isCreatingFamily } = body;
@@ -171,7 +171,7 @@ const register = lambdaWrapper(async (event) => {
         // Check if user already exists
         const existingUser = await dynamoService.getUserByEmail(email.toLowerCase());
         if (existingUser) {
-            return errorResponse(409, 'User with this email already exists');
+            return errorResponse('User with this email already exists', 409, 'USER_EXISTS');
         }
 
         let targetFamilyId = familyId;
@@ -181,7 +181,7 @@ const register = lambdaWrapper(async (event) => {
         if (isCreatingFamily) {
             // User is creating a new family
             if (!body.familyName) {
-                return errorResponse(400, 'Family name is required when creating family');
+                return errorResponse('Family name is required when creating family', 400, 'VALIDATION_ERROR');
             }
 
             // Create the family first
@@ -197,19 +197,19 @@ const register = lambdaWrapper(async (event) => {
             // User is joining existing family
             const family = await dynamoService.getFamilyByCode(familyCode.toUpperCase());
             if (!family) {
-                return errorResponse(404, 'Invalid family code');
+                return errorResponse('Invalid family code', 404, 'INVALID_CODE');
             }
 
             const Family = require('../models/Family');
             const familyObj = new Family(family);
             if (!familyObj.canAcceptNewMembers()) {
-                return errorResponse(403, 'Family is not accepting new members');
+                return errorResponse('Family is not accepting new members', 403, 'FAMILY_CLOSED');
             }
 
             targetFamilyId = family.familyId;
 
         } else {
-            return errorResponse(400, 'Must specify family code to join or create new family');
+            return errorResponse('Must specify family code to join or create new family', 400, 'VALIDATION_ERROR');
         }
 
         // Create user
@@ -284,7 +284,7 @@ const register = lambdaWrapper(async (event) => {
 
     } catch (error) {
         console.error('Registration error:', error);
-        return errorResponse(500, 'Registration failed');
+        return errorResponse('Registration failed', 500, 'REGISTRATION_ERROR');
     }
 });
 
