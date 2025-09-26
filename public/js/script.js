@@ -269,12 +269,14 @@ class FamilyTodoApp {
         const assignSelects = document.querySelectorAll('select[id*="assign"], select[id*="member"]');
 
         assignSelects.forEach(select => {
-            // Keep the first option (usually "Select member" or similar)
-            const firstOption = select.querySelector('option');
+            // Clear existing options
             select.innerHTML = '';
-            if (firstOption) {
-                select.appendChild(firstOption);
-            }
+
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select member';
+            select.appendChild(defaultOption);
 
             // Add options for each family member
             members.forEach(member => {
