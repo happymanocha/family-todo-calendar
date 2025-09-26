@@ -530,9 +530,13 @@ const familyMembers = lambdaWrapper(async (event) => {
         // Get authenticated user
         let user;
         try {
-            user = getAuthenticatedUser(event);
-            console.log('Getting family members for user:', user?.email, 'familyId:', user?.familyId);
-            console.log('Full user data:', JSON.stringify(user, null, 2));
+            const tokenData = getAuthenticatedUser(event);
+            console.log('Token data:', tokenData?.email, 'tokenFamilyId:', tokenData?.familyId);
+
+            // Fetch fresh user data from database to get current familyId
+            user = await dynamoService.getUserByEmail(tokenData.email);
+            console.log('Fresh user data from DB:', user?.email, 'familyId:', user?.familyId);
+            console.log('Full fresh user data:', JSON.stringify(user, null, 2));
         } catch (authError) {
             console.error('Authentication failed:', authError.message);
             return errorResponse('Authentication required', 401, 'UNAUTHORIZED');
