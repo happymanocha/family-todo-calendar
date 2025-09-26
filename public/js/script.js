@@ -221,7 +221,7 @@ class FamilyTodoApp {
         try {
             console.log('Loading family members from API...');
 
-            const response = await window.apiClient.get('/api/auth/family-members');
+            const response = await window.apiClient.get('/auth/family-members');
 
             if (response && response.success) {
                 const members = response.data || [];

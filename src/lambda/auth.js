@@ -524,11 +524,19 @@ const validateToken = lambdaWrapper(async (event) => {
  */
 const familyMembers = lambdaWrapper(async (event) => {
     try {
-        // Get authenticated user
-        const user = getAuthenticatedUser(event);
-        console.log('Getting family members for user:', user.email, 'familyId:', user.familyId);
+        console.log('Family members endpoint called');
 
-        if (!user.familyId) {
+        // Get authenticated user
+        let user;
+        try {
+            user = getAuthenticatedUser(event);
+            console.log('Getting family members for user:', user?.email, 'familyId:', user?.familyId);
+        } catch (authError) {
+            console.error('Authentication failed:', authError.message);
+            return errorResponse('Authentication required', 401, 'UNAUTHORIZED');
+        }
+
+        if (!user || !user.familyId) {
             return errorResponse('User is not associated with any family', 400, 'NO_FAMILY');
         }
 
