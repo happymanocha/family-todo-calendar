@@ -308,28 +308,46 @@ const register = lambdaWrapper(async (event) => {
  * Login handler
  */
 const login = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
-    validateRequiredFields(body, ['email', 'password']);
+    const body = parseBody(event.body);
+
+    // Validate required fields
+    const validation = validateRequiredFields(body, ['email', 'password']);
+    if (!validation.isValid) {
+        return errorResponse(`Missing required fields: ${validation.missingFields.join(', ')}`, 400, 'VALIDATION_ERROR');
+    }
 
     const { email, password } = body;
 
-    // Check if email exists in family members
-    const familyMember = FAMILY_MEMBERS[email.toLowerCase()];
-    if (!familyMember) {
-        return errorResponse('Invalid email or password', 401, 'UNAUTHORIZED');
-    }
-
-    // Validate password (demo implementation)
-    if (password !== DEMO_PASSWORD) {
-        return errorResponse('Invalid email or password', 401, 'UNAUTHORIZED');
-    }
+    console.log('Login attempt for:', email);
 
     try {
-        // Create or update user in database
-        const user = await createOrUpdateUser(familyMember, email);
+        // Get user from database
+        const user = await dynamoService.getUserByEmail(email.toLowerCase());
+        if (!user) {
+            return errorResponse('Invalid email or password', 401, 'UNAUTHORIZED');
+        }
+
+        console.log('User found:', user.email);
+
+        // Validate password
+        const bcrypt = require('bcryptjs');
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+            console.log('Invalid password for user:', email);
+            return errorResponse('Invalid email or password', 401, 'UNAUTHORIZED');
+        }
+
+        console.log('Password validated for user:', email);
 
         // Generate tokens
-        const tokens = generateTokens(user);
+        const tokens = generateTokens({
+            id: user.id,
+            uniqueId: user.uniqueId,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            familyId: user.familyId
+        });
 
         // Create session data (compatible with frontend)
         const sessionData = {
