@@ -161,6 +161,7 @@ class FamilyTodoApp {
     async init() {
         this.setupEventListeners();
         this.loadTheme();
+        await this.loadFamilyMembers();
         await this.loadTodos();
         this.renderTodos();
 
@@ -214,6 +215,75 @@ class FamilyTodoApp {
         } finally {
             this.setLoading(false);
         }
+    }
+
+    async loadFamilyMembers() {
+        try {
+            console.log('Loading family members from API...');
+
+            const response = await window.apiClient.get('/api/auth/family-members');
+
+            if (response && response.success) {
+                const members = response.data || [];
+                console.log('Loaded family members:', members);
+
+                // Update the family member buttons
+                this.updateFamilyMemberButtons(members);
+            } else {
+                console.error('Failed to load family members:', response);
+            }
+        } catch (error) {
+            console.error('Error loading family members:', error);
+        }
+    }
+
+    updateFamilyMemberButtons(members) {
+        const familySelector = document.querySelector('.family-selector .btn-group');
+        if (!familySelector) {
+            console.error('Family selector not found');
+            return;
+        }
+
+        // Clear existing buttons except "All Family"
+        familySelector.innerHTML = '<button class="btn btn--secondary family-btn active" data-member="all">All Family</button>';
+
+        // Add buttons for each family member
+        members.forEach(member => {
+            const button = document.createElement('button');
+            button.className = 'btn btn--secondary family-btn';
+            button.setAttribute('data-member', member.id);
+            button.textContent = member.name;
+
+            // Add click event listener
+            button.addEventListener('click', (e) => this.selectMember(e.target.dataset.member));
+
+            familySelector.appendChild(button);
+        });
+
+        // Also update select dropdowns in modals
+        this.updateFamilyMemberSelects(members);
+    }
+
+    updateFamilyMemberSelects(members) {
+        // Update assign-to selects in the forms
+        const assignSelects = document.querySelectorAll('select[id*="assign"], select[id*="member"]');
+
+        assignSelects.forEach(select => {
+            // Keep the first option (usually "Select member" or similar)
+            const firstOption = select.querySelector('option');
+            select.innerHTML = '';
+            if (firstOption) {
+                select.appendChild(firstOption);
+            }
+
+            // Add options for each family member
+            members.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                select.appendChild(option);
+            });
+        });
     }
 
     setLoading(loading) {
