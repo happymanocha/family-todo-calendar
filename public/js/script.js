@@ -767,32 +767,39 @@ class FamilyTodoApp {
     async loadFamilyInfo() {
         try {
             // Load family information
-            const familyInfo = await this.apiFetch('/api/families/current');
+            const response = await window.apiClient.get('/families/current');
 
-            // Update family info display
-            const familyNameEl = document.getElementById('family-name');
-            const familyMemberCountEl = document.getElementById('family-member-count');
-            const familyCodeEl = document.getElementById('family-code-text');
+            if (response && response.success) {
+                const familyInfo = response.data;
 
-            if (familyNameEl && familyInfo.familyName) {
-                familyNameEl.textContent = familyInfo.familyName;
-            }
+                // Update family info display
+                const familyNameEl = document.getElementById('family-name');
+                const familyMemberCountEl = document.getElementById('family-member-count');
+                const familyCodeEl = document.getElementById('family-code-text');
 
-            if (familyCodeEl && familyInfo.familyCode) {
-                familyCodeEl.textContent = familyInfo.familyCode;
-                this.generateQRCode(familyInfo.familyCode);
-            }
-
-            // Load family members
-            await this.loadFamilyMembersForSettings();
-
-            // Show admin actions if user is admin
-            const currentUser = this.getCurrentUser();
-            if (familyInfo.adminUserId === currentUser?.id) {
-                const adminActions = document.getElementById('admin-actions');
-                if (adminActions) {
-                    adminActions.style.display = 'block';
+                if (familyNameEl && familyInfo.familyName) {
+                    familyNameEl.textContent = familyInfo.familyName;
                 }
+
+                if (familyCodeEl && familyInfo.familyCode) {
+                    familyCodeEl.textContent = familyInfo.familyCode;
+                    this.generateQRCode(familyInfo.familyCode);
+                }
+
+                // Load family members
+                await this.loadFamilyMembersForSettings();
+
+                // Show admin actions if user is admin
+                const currentUser = this.getCurrentUser();
+                if (familyInfo.isCurrentUserAdmin || familyInfo.adminUserId === currentUser?.id) {
+                    const adminActions = document.getElementById('admin-actions');
+                    if (adminActions) {
+                        adminActions.style.display = 'block';
+                    }
+                }
+
+            } else {
+                throw new Error(response?.message || 'Failed to load family information');
             }
 
         } catch (error) {
@@ -816,7 +823,7 @@ class FamilyTodoApp {
                 </div>
             `;
 
-            const response = await this.apiFetch('/api/auth/family-members');
+            const response = await window.apiClient.get('/auth/family-members');
             const members = response.members || [];
 
             // Update member count
@@ -1060,17 +1067,17 @@ class FamilyTodoApp {
         }
 
         try {
-            const response = await this.apiFetch('/api/families/regenerate-code', {
-                method: 'POST'
-            });
+            const response = await window.apiClient.post('/families/regenerate-code', {});
 
-            if (response.familyCode) {
+            if (response && response.success && response.data.familyCode) {
                 const familyCodeEl = document.getElementById('family-code-text');
                 if (familyCodeEl) {
-                    familyCodeEl.textContent = response.familyCode;
-                    this.generateQRCode(response.familyCode);
+                    familyCodeEl.textContent = response.data.familyCode;
+                    this.generateQRCode(response.data.familyCode);
                 }
                 this.showSuccess('Family code regenerated successfully!');
+            } else {
+                throw new Error(response?.message || 'Failed to regenerate family code');
             }
         } catch (error) {
             console.error('Failed to regenerate family code:', error);
@@ -1198,7 +1205,7 @@ class FamilyTodoApp {
             document.getElementById('preview-family-info').textContent = 'Checking family code...';
             document.getElementById('preview-members').innerHTML = '';
 
-            const response = await this.apiFetch(`/api/families/code/${familyCode}`);
+            const response = await window.apiClient.get(`/families/code/${familyCode}`);
 
             if (response && response.success) {
                 const { family, members } = response.data;
@@ -1277,11 +1284,8 @@ class FamilyTodoApp {
             // Create family with user's name
             const familyName = `${currentUser.displayName || currentUser.email.split('@')[0]}'s Family`;
 
-            const response = await this.apiFetch('/api/families', {
-                method: 'POST',
-                body: JSON.stringify({
-                    familyName: familyName
-                })
+            const response = await window.apiClient.post('/families', {
+                familyName: familyName
             });
 
             if (response && response.success) {
@@ -1316,11 +1320,8 @@ class FamilyTodoApp {
             this.showSuccess(`Joining family with code ${familyCode}...`);
 
             // Call the join family API
-            const response = await this.apiFetch('/api/families/join', {
-                method: 'POST',
-                body: JSON.stringify({
-                    familyCode: familyCode
-                })
+            const response = await window.apiClient.post('/families/join', {
+                familyCode: familyCode
             });
 
             if (response && response.success) {
