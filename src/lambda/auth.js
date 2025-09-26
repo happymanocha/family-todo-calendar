@@ -524,15 +524,34 @@ const validateToken = lambdaWrapper(async (event) => {
  */
 const familyMembers = lambdaWrapper(async (event) => {
     try {
-        const members = Object.entries(FAMILY_MEMBERS).map(([email, member]) => ({
+        // Get authenticated user
+        const user = getAuthenticatedUser(event);
+        console.log('Getting family members for user:', user.email, 'familyId:', user.familyId);
+
+        if (!user.familyId) {
+            return errorResponse('User is not associated with any family', 400, 'NO_FAMILY');
+        }
+
+        // Get all users in the same family from database
+        const familyUsers = await dynamoService.getUsersByFamily(user.familyId);
+        console.log('Found family users:', familyUsers?.length || 0);
+
+        if (!familyUsers || familyUsers.length === 0) {
+            return successResponse([], 'No family members found');
+        }
+
+        // Format members for frontend
+        const members = familyUsers.map(member => ({
             id: member.id,
             uniqueId: member.uniqueId,
             name: member.name,
-            email: email,
+            email: member.email,
             role: member.role,
             avatar: member.avatar,
-            phone: member.phone,
-            createdAt: member.createdAt
+            phone: member.phone || '',
+            isActive: member.isActive,
+            createdAt: member.createdAt,
+            updatedAt: member.updatedAt
         }));
 
         return successResponse(members, 'Family members retrieved successfully');
