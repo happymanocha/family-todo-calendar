@@ -85,6 +85,56 @@ const createFamily = lambdaWrapper(async (event) => {
 });
 
 /**
+ * Get current user's family information
+ * GET /api/families/current
+ */
+const getCurrentFamily = lambdaWrapper(async (event) => {
+    try {
+        // Get authenticated user
+        const authUser = getAuthenticatedUser(event);
+
+        // Get user data to find their family
+        const user = await dynamoService.getUserByEmail(authUser.email);
+        if (!user) {
+            return errorResponse(404, 'User not found');
+        }
+
+        if (!user.familyId) {
+            return errorResponse(404, 'User is not associated with any family');
+        }
+
+        // Get family data
+        const familyData = await dynamoService.getFamily(user.familyId);
+        if (!familyData) {
+            return errorResponse(404, 'Family not found');
+        }
+
+        const family = new Family(familyData);
+
+        // Check if user is admin
+        const isAdmin = family.adminUserId === user.id;
+
+        // Return family info with admin status
+        const responseData = {
+            ...family.toJSON(),
+            isCurrentUserAdmin: isAdmin,
+            currentUserId: user.id
+        };
+
+        return successResponse(responseData);
+
+    } catch (error) {
+        if (error.message.includes('Authorization header') ||
+            error.message.includes('Token') ||
+            error.message.includes('Invalid token')) {
+            return errorResponse(401, 'Authentication required');
+        }
+        console.error('Error getting current family:', error);
+        return errorResponse(500, 'Failed to get family information');
+    }
+});
+
+/**
  * Get family by ID
  * GET /api/families/{familyId}
  */
@@ -353,6 +403,7 @@ const generateInvite = lambdaWrapper(async (event) => {
 
 module.exports = {
     createFamily,
+    getCurrentFamily,
     getFamily,
     getFamilyByCode,
     updateFamily,

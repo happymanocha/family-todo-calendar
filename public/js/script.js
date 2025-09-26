@@ -471,6 +471,9 @@ class FamilyTodoApp {
                 this.closeStylesMenu();
             }
         });
+
+        // Family Settings event listeners
+        this.setupFamilySettingsListeners();
     }
 
     changeTheme(theme) {
@@ -659,6 +662,309 @@ class FamilyTodoApp {
             dropdown.classList.remove('show');
         }
         this.stylesMenuOpen = false;
+    }
+
+    // Family Settings Methods
+    setupFamilySettingsListeners() {
+        // Family Settings toggle button
+        const familySettingsToggle = document.getElementById('family-settings-toggle');
+        if (familySettingsToggle) {
+            familySettingsToggle.addEventListener('click', () => this.openFamilySettings());
+        }
+
+        // Family Settings modal close buttons
+        const familySettingsCloseBtn = document.getElementById('family-settings-close-btn');
+        if (familySettingsCloseBtn) {
+            familySettingsCloseBtn.addEventListener('click', () => this.closeFamilySettings());
+        }
+
+        // Copy family code button
+        const copyCodeBtn = document.getElementById('copy-family-code');
+        if (copyCodeBtn) {
+            copyCodeBtn.addEventListener('click', () => this.copyFamilyCode());
+        }
+
+        // Share buttons
+        const shareEmailBtn = document.getElementById('share-email');
+        if (shareEmailBtn) {
+            shareEmailBtn.addEventListener('click', () => this.shareViaEmail());
+        }
+
+        const shareSmsBtn = document.getElementById('share-sms');
+        if (shareSmsBtn) {
+            shareSmsBtn.addEventListener('click', () => this.shareViaSms());
+        }
+
+        const shareWhatsappBtn = document.getElementById('share-whatsapp');
+        if (shareWhatsappBtn) {
+            shareWhatsappBtn.addEventListener('click', () => this.shareViaWhatsapp());
+        }
+
+        const shareCopyLinkBtn = document.getElementById('share-copy-link');
+        if (shareCopyLinkBtn) {
+            shareCopyLinkBtn.addEventListener('click', () => this.shareCopyLink());
+        }
+
+        // Admin actions
+        const regenerateCodeBtn = document.getElementById('regenerate-code-btn');
+        if (regenerateCodeBtn) {
+            regenerateCodeBtn.addEventListener('click', () => this.regenerateFamilyCode());
+        }
+
+        const managePermissionsBtn = document.getElementById('manage-permissions-btn');
+        if (managePermissionsBtn) {
+            managePermissionsBtn.addEventListener('click', () => this.managePermissions());
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('family-settings-modal');
+            if (modal && e.target === modal) {
+                this.closeFamilySettings();
+            }
+        });
+    }
+
+    async openFamilySettings() {
+        const modal = document.getElementById('family-settings-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            await this.loadFamilyInfo();
+        }
+    }
+
+    closeFamilySettings() {
+        const modal = document.getElementById('family-settings-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    async loadFamilyInfo() {
+        try {
+            // Load family information
+            const familyInfo = await this.apiFetch('/api/families/current');
+
+            // Update family info display
+            const familyNameEl = document.getElementById('family-name');
+            const familyMemberCountEl = document.getElementById('family-member-count');
+            const familyCodeEl = document.getElementById('family-code-text');
+
+            if (familyNameEl && familyInfo.familyName) {
+                familyNameEl.textContent = familyInfo.familyName;
+            }
+
+            if (familyCodeEl && familyInfo.familyCode) {
+                familyCodeEl.textContent = familyInfo.familyCode;
+                this.generateQRCode(familyInfo.familyCode);
+            }
+
+            // Load family members
+            await this.loadFamilyMembersForSettings();
+
+            // Show admin actions if user is admin
+            const currentUser = this.getCurrentUser();
+            if (familyInfo.adminUserId === currentUser?.id) {
+                const adminActions = document.getElementById('admin-actions');
+                if (adminActions) {
+                    adminActions.style.display = 'block';
+                }
+            }
+
+        } catch (error) {
+            console.error('Failed to load family info:', error);
+            this.showError('Failed to load family information');
+        }
+    }
+
+    async loadFamilyMembersForSettings() {
+        try {
+            const membersListEl = document.getElementById('family-members-list');
+            const membersCountEl = document.getElementById('members-count-badge');
+
+            if (!membersListEl) return;
+
+            // Show loading state
+            membersListEl.innerHTML = `
+                <div class="loading-members">
+                    <div class="loader-spinner"></div>
+                    <span>Loading family members...</span>
+                </div>
+            `;
+
+            const response = await this.apiFetch('/api/auth/family-members');
+            const members = response.members || [];
+
+            // Update member count
+            if (membersCountEl) {
+                membersCountEl.textContent = members.length.toString();
+            }
+
+            const familyMemberCountEl = document.getElementById('family-member-count');
+            if (familyMemberCountEl) {
+                familyMemberCountEl.textContent = `${members.length} member${members.length !== 1 ? 's' : ''}`;
+            }
+
+            // Generate member list HTML
+            if (members.length === 0) {
+                membersListEl.innerHTML = `
+                    <div class="no-members">
+                        <span>No family members found</span>
+                    </div>
+                `;
+                return;
+            }
+
+            const membersHTML = members.map(member => {
+                const initials = member.displayName ?
+                    member.displayName.split(' ').map(n => n[0]).join('').toUpperCase() :
+                    member.email[0].toUpperCase();
+
+                const isAdmin = member.isAdmin || false;
+
+                return `
+                    <div class="family-member-item">
+                        <div class="member-avatar">${initials}</div>
+                        <div class="member-info">
+                            <div class="member-name">${member.displayName || member.email}</div>
+                            <div class="member-email">${member.email}</div>
+                        </div>
+                        <div class="member-role ${isAdmin ? 'admin' : ''}">
+                            ${isAdmin ? '👑 Admin' : '👤 Member'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            membersListEl.innerHTML = membersHTML;
+
+        } catch (error) {
+            console.error('Failed to load family members:', error);
+            const membersListEl = document.getElementById('family-members-list');
+            if (membersListEl) {
+                membersListEl.innerHTML = `
+                    <div class="error-members">
+                        <span>Failed to load family members</span>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    generateQRCode(familyCode) {
+        const qrContainer = document.getElementById('family-qr-code');
+        if (!qrContainer) return;
+
+        // For now, show a placeholder - we'll implement QR code generation later
+        qrContainer.innerHTML = `
+            <div class="qr-code-container">
+                <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center;">
+                    QR Code<br>Coming Soon
+                </div>
+            </div>
+        `;
+    }
+
+    async copyFamilyCode() {
+        const familyCodeEl = document.getElementById('family-code-text');
+        const copyBtn = document.getElementById('copy-family-code');
+
+        if (!familyCodeEl || !copyBtn) return;
+
+        const familyCode = familyCodeEl.textContent;
+
+        try {
+            await navigator.clipboard.writeText(familyCode);
+
+            // Show success feedback
+            copyBtn.classList.add('copy-success');
+            setTimeout(() => {
+                copyBtn.classList.remove('copy-success');
+            }, 1000);
+
+            this.showSuccess('Family code copied to clipboard!');
+        } catch (error) {
+            console.error('Failed to copy family code:', error);
+            this.showError('Failed to copy family code');
+        }
+    }
+
+    shareViaEmail() {
+        const familyCode = document.getElementById('family-code-text')?.textContent;
+        if (!familyCode) return;
+
+        const subject = encodeURIComponent('Join our family organizer');
+        const body = encodeURIComponent(
+            `Hi!\n\nYou've been invited to join our family organizer. Use the family code below to join:\n\n${familyCode}\n\nVisit: ${window.location.origin}\n\nBest regards!`
+        );
+
+        window.open(`mailto:?subject=${subject}&body=${body}`);
+    }
+
+    shareViaSms() {
+        const familyCode = document.getElementById('family-code-text')?.textContent;
+        if (!familyCode) return;
+
+        const message = encodeURIComponent(
+            `Join our family organizer! Use code: ${familyCode} at ${window.location.origin}`
+        );
+
+        window.open(`sms:?body=${message}`);
+    }
+
+    shareViaWhatsapp() {
+        const familyCode = document.getElementById('family-code-text')?.textContent;
+        if (!familyCode) return;
+
+        const message = encodeURIComponent(
+            `Join our family organizer! Use family code: ${familyCode} at ${window.location.origin}`
+        );
+
+        window.open(`https://wa.me/?text=${message}`);
+    }
+
+    shareCopyLink() {
+        const familyCode = document.getElementById('family-code-text')?.textContent;
+        if (!familyCode) return;
+
+        const link = `${window.location.origin}/register.html?familyCode=${familyCode}`;
+
+        navigator.clipboard.writeText(link).then(() => {
+            this.showSuccess('Invitation link copied to clipboard!');
+        }).catch((error) => {
+            console.error('Failed to copy link:', error);
+            this.showError('Failed to copy invitation link');
+        });
+    }
+
+    async regenerateFamilyCode() {
+        if (!confirm('Are you sure you want to regenerate the family code? The old code will no longer work.')) {
+            return;
+        }
+
+        try {
+            const response = await this.apiFetch('/api/families/regenerate-code', {
+                method: 'POST'
+            });
+
+            if (response.familyCode) {
+                const familyCodeEl = document.getElementById('family-code-text');
+                if (familyCodeEl) {
+                    familyCodeEl.textContent = response.familyCode;
+                    this.generateQRCode(response.familyCode);
+                }
+                this.showSuccess('Family code regenerated successfully!');
+            }
+        } catch (error) {
+            console.error('Failed to regenerate family code:', error);
+            this.showError('Failed to regenerate family code');
+        }
+    }
+
+    managePermissions() {
+        this.showInfo('Permission management coming soon!');
     }
 
     toggleDarkMode() {

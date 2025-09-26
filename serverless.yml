@@ -145,6 +145,14 @@ functions:
           method: post
           cors: true
 
+  getCurrentFamily:
+    handler: src/lambda/families.getCurrentFamily
+    events:
+      - http:
+          path: /api/families/current
+          method: get
+          cors: true
+
   getFamily:
     handler: src/lambda/families.getFamily
     events:
