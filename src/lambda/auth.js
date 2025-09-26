@@ -255,9 +255,10 @@ const register = lambdaWrapper(async (event) => {
             password: hashedPassword
         };
 
-        console.log('Saving user to database...');
+        console.log('Saving user to database with familyId:', userData.familyId);
+        console.log('User data being saved:', JSON.stringify(userData, null, 2));
         await dynamoService.putUser(userData);
-        console.log('User saved successfully');
+        console.log('User saved successfully with familyId:', userData.familyId);
 
         // Update family member count
         if (isCreatingFamily) {
@@ -531,6 +532,7 @@ const familyMembers = lambdaWrapper(async (event) => {
         try {
             user = getAuthenticatedUser(event);
             console.log('Getting family members for user:', user?.email, 'familyId:', user?.familyId);
+            console.log('Full user data:', JSON.stringify(user, null, 2));
         } catch (authError) {
             console.error('Authentication failed:', authError.message);
             return errorResponse('Authentication required', 401, 'UNAUTHORIZED');
