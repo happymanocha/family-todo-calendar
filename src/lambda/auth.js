@@ -168,14 +168,20 @@ const register = lambdaWrapper(async (event) => {
     const { name, email, password, familyId, familyCode, isCreatingFamily } = body;
 
     try {
+        console.log('Starting registration process for:', email);
+
         // Check if user already exists
+        console.log('Checking if user exists...');
         const existingUser = await dynamoService.getUserByEmail(email.toLowerCase());
         if (existingUser) {
+            console.log('User already exists:', email);
             return errorResponse('User with this email already exists', 409, 'USER_EXISTS');
         }
 
         let targetFamilyId = familyId;
         let userRole = 'member';
+
+        console.log('Processing family association - isCreatingFamily:', isCreatingFamily);
 
         // Handle family association
         if (isCreatingFamily) {
@@ -185,13 +191,17 @@ const register = lambdaWrapper(async (event) => {
             }
 
             // Create the family first
+            console.log('Creating new family with name:', body.familyName);
             const Family = require('../models/Family');
             const newFamily = Family.fromFormData(body, null); // Will set admin after user creation
+            console.log('Family object created:', newFamily);
 
             // Save family
+            console.log('Saving family to DynamoDB...');
             await dynamoService.createFamily(newFamily.toJSON());
             targetFamilyId = newFamily.familyId;
             userRole = 'admin';
+            console.log('Family saved successfully with ID:', targetFamilyId);
 
         } else if (familyCode) {
             // User is joining existing family
@@ -226,7 +236,7 @@ const register = lambdaWrapper(async (event) => {
         // Validate user data
         const userValidation = newUser.validate();
         if (!userValidation.isValid) {
-            return errorResponse(400, 'Invalid user data', userValidation.errors);
+            return errorResponse('Invalid user data', 400, 'VALIDATION_ERROR', userValidation.errors);
         }
 
         // Hash password
@@ -283,8 +293,13 @@ const register = lambdaWrapper(async (event) => {
         }, 'Registration successful');
 
     } catch (error) {
-        console.error('Registration error:', error);
-        return errorResponse('Registration failed', 500, 'REGISTRATION_ERROR');
+        console.error('Registration error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+            payload: body
+        });
+        return errorResponse(`Registration failed: ${error.message}`, 500, 'REGISTRATION_ERROR');
     }
 });
 
