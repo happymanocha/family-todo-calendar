@@ -998,7 +998,13 @@ class FamilyTodoApp {
         const familyCode = familyCodeEl.textContent;
 
         try {
-            await navigator.clipboard.writeText(familyCode);
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(familyCode);
+            } else {
+                // Fallback for older browsers or non-HTTPS contexts
+                this.fallbackCopyToClipboard(familyCode);
+            }
 
             // Show success feedback
             copyBtn.classList.add('copy-success');
@@ -1009,7 +1015,43 @@ class FamilyTodoApp {
             this.showSuccess('Family code copied to clipboard!');
         } catch (error) {
             console.error('Failed to copy family code:', error);
-            this.showError('Failed to copy family code');
+
+            // Try fallback method
+            try {
+                this.fallbackCopyToClipboard(familyCode);
+
+                // Show success feedback
+                copyBtn.classList.add('copy-success');
+                setTimeout(() => {
+                    copyBtn.classList.remove('copy-success');
+                }, 1000);
+
+                this.showSuccess('Family code copied to clipboard!');
+            } catch (fallbackError) {
+                console.error('Fallback copy also failed:', fallbackError);
+                this.showError(`Family code: ${familyCode} (copy failed - please copy manually)`);
+            }
+        }
+    }
+
+    fallbackCopyToClipboard(text) {
+        // Create a temporary textarea element
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+
+        // Select and copy the text
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+
+        if (!successful) {
+            throw new Error('Fallback copy method failed');
         }
     }
 
@@ -1053,12 +1095,33 @@ class FamilyTodoApp {
 
         const link = `${window.location.origin}/register.html?familyCode=${familyCode}`;
 
-        navigator.clipboard.writeText(link).then(() => {
-            this.showSuccess('Invitation link copied to clipboard!');
-        }).catch((error) => {
+        try {
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(() => {
+                    this.showSuccess('Invitation link copied to clipboard!');
+                }).catch((error) => {
+                    console.error('Failed to copy link:', error);
+                    this.tryFallbackCopyLink(link);
+                });
+            } else {
+                // Use fallback method
+                this.tryFallbackCopyLink(link);
+            }
+        } catch (error) {
             console.error('Failed to copy link:', error);
-            this.showError('Failed to copy invitation link');
-        });
+            this.tryFallbackCopyLink(link);
+        }
+    }
+
+    tryFallbackCopyLink(link) {
+        try {
+            this.fallbackCopyToClipboard(link);
+            this.showSuccess('Invitation link copied to clipboard!');
+        } catch (fallbackError) {
+            console.error('Fallback copy also failed:', fallbackError);
+            this.showError(`Invitation link: ${link} (copy failed - please copy manually)`);
+        }
     }
 
     async regenerateFamilyCode() {
