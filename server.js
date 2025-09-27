@@ -31,20 +31,20 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static files from the current directory
-app.use(express.static(__dirname, {
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public'), {
     etag: true,
     lastModified: true,
-    setHeaders: (res, path) => {
+    setHeaders: (res, filePath) => {
         // Set cache headers for static assets
         if (process.env.NODE_ENV === 'development') {
             // No caching in development
             res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.setHeader('Pragma', 'no-cache');
             res.setHeader('Expires', '0');
-        } else if (path.endsWith('.css') || path.endsWith('.js')) {
+        } else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
             res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
-        } else if (path.endsWith('.html')) {
+        } else if (filePath.endsWith('.html')) {
             res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
         }
     }
@@ -82,19 +82,19 @@ app.get('/api/info', (req, res) => {
     });
 });
 
-// Serve the main application
+// Serve the main application - redirect to onboarding for new users
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'onboarding.html'));
 });
 
-// Handle client-side routing (SPA fallback)
-app.get('*', (req, res) => {
-    // For any route that doesn't match static files or API, serve index.html
-    if (!req.path.startsWith('/api/')) {
-        res.sendFile(path.join(__dirname, 'index.html'));
-    } else {
-        res.status(404).json({ error: 'API endpoint not found' });
-    }
+// Handle client-side routing for app routes only
+app.get('/app/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API 404 handler
+app.get('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
 });
 
 // Error handling middleware

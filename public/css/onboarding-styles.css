@@ -255,9 +255,9 @@ body {
     width: 100%;
     justify-content: center;
     gap: 0.5rem;
-    pointer-events: auto;
-    z-index: 10;
-    position: relative;
+    pointer-events: auto !important;
+    z-index: 999 !important;
+    position: relative !important;
     display: inline-flex;
     align-items: center;
     padding: 12px 24px;
@@ -265,7 +265,7 @@ body {
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease;
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .option-card .btn--primary {
