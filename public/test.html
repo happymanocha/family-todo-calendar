@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background: #f0f0f0;
+        }
+        .test-card {
+            background: white;
+            border: 2px solid #000;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: block;
+            text-decoration: none;
+            color: black;
+            cursor: pointer;
+        }
+        .test-card:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Link Test</h1>
+
+    <p>Test these simple links:</p>
+
+    <a href="login.html" style="color: blue; text-decoration: underline;">Simple Login Link</a><br><br>
+
+    <a href="register.html" style="color: blue; text-decoration: underline;">Simple Register Link</a><br><br>
+
+    <a href="index.html" style="color: blue; text-decoration: underline;">Simple Index Link</a><br><br>
+
+    <h2>Card Test:</h2>
+
+    <a href="login.html" class="test-card">
+        <h3>Card Link to Login</h3>
+        <p>This entire card should be clickable</p>
+    </a>
+
+    <a href="register.html" class="test-card">
+        <h3>Card Link to Register</h3>
+        <p>This entire card should also be clickable</p>
+    </a>
+
+    <script>
+        console.log('Test page loaded');
+        document.addEventListener('click', function(e) {
+            console.log('Click detected on:', e.target);
+        });
+    </script>
+</body>
+</html>

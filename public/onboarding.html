@@ -121,5 +121,23 @@
             <span>Built with ❤️ for families</span>
         </div>
     </div>
+
+    <script>
+        console.log('Onboarding page loaded');
+        console.log('Total option cards found:', document.querySelectorAll('.option-card').length);
+
+        // Add click event to document to catch all clicks
+        document.addEventListener('click', function(e) {
+            console.log('Click detected on:', e.target.tagName, e.target.className);
+            console.log('Click target:', e.target);
+            console.log('Parent element:', e.target.parentElement);
+        });
+
+        // Check if cards are actually links
+        const cards = document.querySelectorAll('.option-card');
+        cards.forEach((card, index) => {
+            console.log(`Card ${index + 1}:`, card.tagName, card.href);
+        });
+    </script>
 </body>
 </html>
