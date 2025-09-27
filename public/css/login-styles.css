@@ -705,4 +705,14 @@ body {
     .checkmark {
         border-color: rgba(255, 255, 255, 0.2);
     }
+
+    .footer-text,
+    .signup-link,
+    .separator {
+        color: #94a3b8;
+    }
+
+    .signup-link:hover {
+        color: #c7d2fe;
+    }
 }

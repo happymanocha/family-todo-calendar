@@ -53,7 +53,7 @@ class FamilyTodoApp {
         const currentPath = window.location.pathname;
         console.log('🌐 Current page path:', currentPath);
 
-        if (currentPath.includes('login.html') || currentPath.includes('logout.html')) {
+        if (currentPath.includes('login.html') || currentPath.includes('logout.html') || currentPath.includes('onboarding.html')) {
             console.log('✅ On auth page, skipping auth check');
             return;
         }
@@ -125,27 +125,22 @@ class FamilyTodoApp {
     }
 
     redirectToLogin() {
-        // Only redirect if not already on login page
+        // Only redirect if not already on login or onboarding page
         const currentPath = window.location.pathname;
-        console.log('🔄 REDIRECT TO LOGIN TRIGGERED!');
+        console.log('🔄 REDIRECT TO ONBOARDING TRIGGERED!');
         console.log('🔄 Current path:', currentPath);
 
-        // DEBUGGER: This will pause execution so you can inspect what's happening
-        console.log('🚨 STOPPING EXECUTION - Check localStorage in DevTools!');
-        debugger; // This will pause the browser
-
-        if (!currentPath.includes('login.html')) {
-            console.log('🔄 Redirecting to login page...');
+        if (!currentPath.includes('login.html') && !currentPath.includes('onboarding.html')) {
+            console.log('🔄 Redirecting to onboarding page...');
             console.log('🔄 Will redirect in 100ms...');
 
             // Small delay to prevent rapid redirects and allow logging
             setTimeout(() => {
-                console.log('🔄 Executing redirect now...');
-                debugger; // Another pause right before redirect
-                window.location.href = '/login.html';
+                console.log('🔄 Executing redirect to onboarding now...');
+                window.location.href = '/onboarding.html';
             }, 100);
         } else {
-            console.log('✅ Already on login page, skipping redirect');
+            console.log('✅ Already on login or onboarding page, skipping redirect');
         }
     }
 
@@ -2429,7 +2424,7 @@ class FamilyTodoApp {
 function initializeApp() {
     // Don't initialize on login/logout pages
     const currentPath = window.location.pathname;
-    if (currentPath.includes('login.html') || currentPath.includes('logout.html')) {
+    if (currentPath.includes('login.html') || currentPath.includes('logout.html') || currentPath.includes('onboarding.html')) {
         console.log('🚫 Main script detected on auth page, skipping app initialization');
         return;
     }
