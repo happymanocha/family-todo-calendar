@@ -595,6 +595,50 @@ class FamilyTodoApp {
         }
     }
 
+    getCurrentUserInfo() {
+        // Get user info from localStorage or decode from token
+        try {
+            const userInfo = localStorage.getItem('userInfo');
+            if (userInfo) {
+                return JSON.parse(userInfo);
+            }
+
+            // Fallback: try to get from token
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // Basic token decode (assumes JWT structure)
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    return {
+                        email: payload.email,
+                        name: payload.displayName || payload.name,
+                        id: payload.userId || payload.id
+                    };
+                } catch (e) {
+                    console.warn('Could not decode token:', e);
+                }
+            }
+
+            // Final fallback
+            return {
+                email: 'user@example.com',
+                name: 'User',
+                id: null
+            };
+        } catch (error) {
+            console.error('Error getting user info:', error);
+            return {
+                email: 'user@example.com',
+                name: 'User',
+                id: null
+            };
+        }
+    }
+
+    getCurrentUser() {
+        return this.getCurrentUserInfo();
+    }
+
     updateUserDisplay() {
         // Get current user info from stored session or API
         const currentUser = this.getCurrentUserInfo();
