@@ -716,3 +716,73 @@ body {
         color: #c7d2fe;
     }
 }
+
+/* Registration Page Specific Styles */
+.mode-indicator {
+    background: var(--cursor-bg-secondary);
+    border: 2px solid var(--cursor-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.mode-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--cursor-secondary), var(--cursor-accent));
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.mode-text h3 {
+    color: var(--cursor-text);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.mode-text p {
+    color: var(--cursor-text-light);
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.form-section {
+    margin-bottom: 24px;
+}
+
+.section-title {
+    color: var(--cursor-text);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--cursor-border);
+}
+
+/* Dark mode adjustments for registration */
+body.dark-mode .mode-indicator {
+    background: var(--cursor-primary-light);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .mode-text h3 {
+    color: #f1f5f9;
+}
+
+body.dark-mode .mode-text p {
+    color: #94a3b8;
+}
+
+body.dark-mode .section-title {
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.1);
+}

@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Join Minocha's Organizer</title>
-    <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/login-styles.css">
-    <link rel="stylesheet" href="css/onboarding-styles.css">
-    <link rel="stylesheet" href="css/family-sharing.css">
     <link rel="stylesheet" href="css/button-components.css">
     <script src="js/button-loading.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="onboarding-container">
+    <div class="login-container">
         <!-- Background Animation -->
         <div class="bg-animation">
             <div class="floating-shapes">
@@ -27,249 +24,162 @@
             </div>
         </div>
 
-        <!-- Onboarding Card -->
-        <div class="onboarding-card">
-            <!-- Progress Indicator -->
-            <div class="progress-indicator">
-                <div class="progress-step active" data-step="1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">Choose Path</div>
+        <!-- Registration Card -->
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1>Minocha's Organizer</h1>
                 </div>
-                <div class="progress-line"></div>
-                <div class="progress-step" data-step="2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">Family Info</div>
-                </div>
-                <div class="progress-line"></div>
-                <div class="progress-step" data-step="3">
-                    <div class="step-number">3</div>
-                    <div class="step-label">Your Profile</div>
-                </div>
+                <p class="welcome-text" id="page-subtitle">Join your family's organization</p>
             </div>
 
-            <!-- Step 1: Choose Path -->
-            <div class="onboarding-step active" id="step-1">
-                <div class="step-header">
-                    <div class="logo">
-                        <div class="logo-icon">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <form class="login-form" id="registrationForm">
+                <!-- Mode Indicator -->
+                <div class="mode-indicator" id="mode-indicator">
+                    <div class="mode-icon" id="mode-icon">👑</div>
+                    <div class="mode-text">
+                        <h3 id="mode-title">Create New Family</h3>
+                        <p id="mode-description">You'll be the admin and can invite family members</p>
+                    </div>
+                </div>
+
+                <!-- Family Information Section -->
+                <div class="form-section" id="family-section">
+                    <div class="form-group" id="family-name-group">
+                        <label for="familyName">Family Name</label>
+                        <input
+                            type="text"
+                            id="familyName"
+                            name="familyName"
+                            placeholder="Enter your family name"
+                            required
+                        >
+                        <div class="input-hint">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
+                            <span>This will be visible to all family members</span>
                         </div>
-                        <h1>Welcome to Minocha's Organizer!</h1>
                     </div>
-                    <p class="step-description">Let's get you set up. Are you creating a new family or joining an existing one?</p>
-                </div>
 
-                <div class="path-selection">
-                    <div class="path-option" data-path="create">
-                        <div class="path-icon">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/>
+                    <div class="form-group" id="family-code-group" style="display: none;">
+                        <label for="familyCode">Family Code</label>
+                        <input
+                            type="text"
+                            id="familyCode"
+                            name="familyCode"
+                            placeholder="Enter 6-character family code"
+                            maxlength="6"
+                            style="text-transform: uppercase;"
+                        >
+                        <div class="input-hint">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                        </div>
-                        <h3>Create New Family</h3>
-                        <p>Start fresh with your own family organization space</p>
-                        <div class="path-benefits">
-                            <span>✨ You'll be the admin</span>
-                            <span>🏠 Set up your family name</span>
-                            <span>🔗 Get a family code to share</span>
-                        </div>
-                    </div>
-
-                    <div class="path-option" data-path="join">
-                        <div class="path-icon">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="8.5" cy="7" r="4"/>
-                                <path d="M20 8v6M23 11h-6"/>
-                            </svg>
-                        </div>
-                        <h3>Join Existing Family</h3>
-                        <p>Connect with your family using their invitation code</p>
-                        <div class="path-benefits">
-                            <span>🔑 Enter your family code</span>
-                            <span>👥 See who you'll join</span>
-                            <span>🎯 Start organizing together</span>
+                            <span>Ask your family admin for this code</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="step-navigation">
-                    <button class="btn btn--secondary" onclick="goToLogin()">Already have an account?</button>
-                    <button class="btn btn--primary" id="step1-continue-btn" disabled onclick="nextStepSimple()">
-                        Continue
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9,18 15,12 9,6"></polyline>
-                        </svg>
-                    </button>
-                </div>
-            </div>
+                <!-- Personal Information Section -->
+                <div class="form-section">
+                    <h4 class="section-title">Your Information</h4>
 
-            <!-- Step 2: Family Info -->
-            <div class="onboarding-step" id="step-2">
-                <!-- Create Family Form -->
-                <div class="family-form create-family-form">
-                    <div class="step-header">
-                        <h2>Create Your Family</h2>
-                        <p class="step-description">Give your family a name and we'll create your organization space</p>
-                    </div>
-
-                    <form id="create-family-form">
-                        <div class="form-group">
-                            <label for="family-name">Family Name</label>
-                            <input type="text" id="family-name" name="familyName" placeholder="e.g., The Johnsons" required>
-                            <div class="input-hint">This will be shown to all family members</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="family-description">Description (Optional)</label>
-                            <textarea id="family-description" name="description" placeholder="Tell us about your family..." rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Join Family Form -->
-                <div class="family-form join-family-form">
-                    <div class="step-header">
-                        <h2>Join Your Family</h2>
-                        <p class="step-description">Enter the 6-digit family code you received</p>
-                    </div>
-
-                    <form id="join-family-form">
-                        <div class="form-group">
-                            <label for="family-code">Family Code</label>
-                            <input type="text" id="family-code" name="familyCode" placeholder="ABC123" maxlength="6" required>
-                            <div class="input-hint">Ask your family admin for this code</div>
-                        </div>
-
-                        <button type="button" class="btn btn--secondary btn--sm" id="verify-family-btn">
-                            Verify Family
-                        </button>
-
-                        <!-- Family Preview -->
-                        <div class="family-preview" id="family-preview" style="display: none;">
-                            <div class="preview-header">
-                                <h3 id="preview-family-name">Loading...</h3>
-                                <p id="preview-member-count">0 members</p>
-                            </div>
-                            <div class="preview-members" id="preview-members">
-                                <!-- Members will be populated here -->
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="step-navigation">
-                    <button class="btn btn--ghost" onclick="previousStep()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="15,18 9,12 15,6"></polyline>
-                        </svg>
-                        Back
-                    </button>
-                    <button class="btn btn--primary" onclick="nextStep()" id="family-next-btn" disabled>
-                        Continue
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9,18 15,12 9,6"></polyline>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Step 3: User Profile -->
-            <div class="onboarding-step" id="step-3">
-                <div class="step-header">
-                    <h2>Create Your Profile</h2>
-                    <p class="step-description">Set up your account to start organizing with your family</p>
-                </div>
-
-                <form id="user-profile-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="user-name">Your Name</label>
-                            <input type="text" id="user-name" name="name" placeholder="John Doe" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="user-email">Email Address</label>
-                            <input type="email" id="user-email" name="email" placeholder="john@example.com" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="user-password">Password</label>
-                            <div class="password-input">
-                                <input type="password" id="user-password" name="password" placeholder="Create a secure password" required>
-                                <button type="button" class="password-toggle" id="password-toggle-btn">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-open">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
-                                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                                    </svg>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-closed" class="hidden">
-                                        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="password-strength">
-                                <div class="strength-bar">
-                                    <div class="strength-fill" id="strength-fill"></div>
-                                </div>
-                                <span class="strength-label" id="strength-label">Password strength</span>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="confirm-password">Confirm Password</label>
-                            <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm your password" required>
-                            <div class="input-validation" id="password-match"></div>
-                        </div>
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            placeholder="Enter your full name"
+                            required
+                        >
                     </div>
 
                     <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="terms-agreement" required>
-                            <span class="checkmark"></span>
-                            <span class="checkbox-text">I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a></span>
-                        </label>
+                        <label for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email address"
+                            autocomplete="username"
+                            required
+                        >
                     </div>
-                </form>
 
-                <div class="step-navigation">
-                    <button class="btn btn--ghost" onclick="previousStep()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="15,18 9,12 15,6"></polyline>
-                        </svg>
-                        Back
-                    </button>
-                    <button class="btn btn--primary" onclick="completeRegistration()" id="complete-registration-btn">
-                        <span class="button-text">Create Account</span>
-                        <div class="button-loader">
-                            <div class="loader-spinner"></div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Create a password"
+                                autocomplete="new-password"
+                                required
+                            >
+                            <button type="button" class="password-toggle" id="password-toggle-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-open">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-closed" class="hidden">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
                         </div>
-                    </button>
+                        <div class="input-hint">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>At least 8 characters recommended</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Error/Success Messages -->
-            <div class="message-container">
-                <div class="error-message" id="error-message">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-button">
+                    <span class="button-text" id="submit-text">Create Family</span>
+                    <div class="button-loader">
+                        <div class="loader-spinner"></div>
+                    </div>
+                    <svg class="button-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <div class="error-message" id="errorMessage">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                         <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
                         <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
                     </svg>
-                    <span id="error-text"></span>
+                    <span id="errorText">Registration failed. Please try again.</span>
                 </div>
+            </form>
 
-                <div class="success-message" id="success-message">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    <span id="success-text"></span>
+            <div class="login-footer">
+                <div class="new-user-links">
+                    <p class="footer-text">Already have an account?</p>
+                    <div class="signup-links">
+                        <a href="login.html" class="signup-link">Sign In</a>
+                        <span class="separator">or</span>
+                        <a href="onboarding.html" class="signup-link">Back to Options</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -283,6 +193,161 @@
     </div>
 
     <script src="js/api-config.js"></script>
-    <script src="js/onboarding-script.js"></script>
+    <script>
+        // Handle URL parameters and mode switching
+        class RegistrationManager {
+            constructor() {
+                this.mode = this.getModeFromURL();
+                this.initializePage();
+                this.setupEventListeners();
+            }
+
+            getModeFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('mode') || 'create';
+            }
+
+            initializePage() {
+                if (this.mode === 'join') {
+                    this.switchToJoinMode();
+                } else {
+                    this.switchToCreateMode();
+                }
+            }
+
+            switchToCreateMode() {
+                this.mode = 'create';
+                document.getElementById('mode-icon').textContent = '👑';
+                document.getElementById('mode-title').textContent = 'Create New Family';
+                document.getElementById('mode-description').textContent = "You'll be the admin and can invite family members";
+                document.getElementById('page-subtitle').textContent = 'Create your family organization';
+                document.getElementById('submit-text').textContent = 'Create Family';
+
+                document.getElementById('family-name-group').style.display = 'block';
+                document.getElementById('family-code-group').style.display = 'none';
+                document.getElementById('familyName').required = true;
+                document.getElementById('familyCode').required = false;
+            }
+
+            switchToJoinMode() {
+                this.mode = 'join';
+                document.getElementById('mode-icon').textContent = '🏠';
+                document.getElementById('mode-title').textContent = 'Join Existing Family';
+                document.getElementById('mode-description').textContent = 'Connect with your family using their invitation code';
+                document.getElementById('page-subtitle').textContent = 'Join your family organization';
+                document.getElementById('submit-text').textContent = 'Join Family';
+
+                document.getElementById('family-name-group').style.display = 'none';
+                document.getElementById('family-code-group').style.display = 'block';
+                document.getElementById('familyName').required = false;
+                document.getElementById('familyCode').required = true;
+
+                // Pre-fill family code if provided in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const familyCode = urlParams.get('familyCode') || urlParams.get('code');
+                if (familyCode) {
+                    document.getElementById('familyCode').value = familyCode.toUpperCase();
+                }
+            }
+
+            setupEventListeners() {
+                // Password toggle
+                const toggleBtn = document.getElementById('password-toggle-btn');
+                const passwordInput = document.getElementById('password');
+                const eyeOpen = document.getElementById('eye-open');
+                const eyeClosed = document.getElementById('eye-closed');
+
+                toggleBtn.addEventListener('click', () => {
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    eyeOpen.classList.toggle('hidden', isPassword);
+                    eyeClosed.classList.toggle('hidden', !isPassword);
+                });
+
+                // Family code formatting
+                const familyCodeInput = document.getElementById('familyCode');
+                familyCodeInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+
+                // Form submission
+                document.getElementById('registrationForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleRegistration();
+                });
+            }
+
+            async handleRegistration() {
+                const submitBtn = document.querySelector('.login-button');
+                const errorDiv = document.getElementById('errorMessage');
+
+                // Show loading state
+                submitBtn.classList.add('loading');
+                errorDiv.style.display = 'none';
+
+                try {
+                    const formData = this.getFormData();
+
+                    // Validate form
+                    if (!this.validateForm(formData)) {
+                        throw new Error('Please fill in all required fields');
+                    }
+
+                    // TODO: Replace with actual API call
+                    console.log('Registration data:', formData);
+
+                    // Simulate API call
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    // Success - redirect to main app
+                    window.location.href = '/index.html';
+
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    document.getElementById('errorText').textContent = error.message;
+                    errorDiv.style.display = 'flex';
+                } finally {
+                    submitBtn.classList.remove('loading');
+                }
+            }
+
+            getFormData() {
+                return {
+                    mode: this.mode,
+                    familyName: document.getElementById('familyName').value.trim(),
+                    familyCode: document.getElementById('familyCode').value.trim(),
+                    fullName: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    password: document.getElementById('password').value,
+                    terms: document.getElementById('terms').checked
+                };
+            }
+
+            validateForm(data) {
+                if (!data.fullName || !data.email || !data.password || !data.terms) {
+                    return false;
+                }
+
+                if (this.mode === 'create' && !data.familyName) {
+                    return false;
+                }
+
+                if (this.mode === 'join' && !data.familyCode) {
+                    return false;
+                }
+
+                if (data.password.length < 6) {
+                    throw new Error('Password must be at least 6 characters long');
+                }
+
+                return true;
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.registrationManager = new RegistrationManager();
+        });
+    </script>
 </body>
 </html>
