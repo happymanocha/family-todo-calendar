@@ -385,6 +385,70 @@ class FamilyTodoApp {
         }, 5000);
     }
 
+    showSuccess(message) {
+        console.log('✅', message);
+
+        // Create success toast
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-toast';
+        successDiv.textContent = message;
+        successDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 300px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        `;
+
+        document.body.appendChild(successDiv);
+
+        // Remove the success message after 3 seconds
+        setTimeout(() => {
+            if (successDiv.parentNode) {
+                successDiv.parentNode.removeChild(successDiv);
+            }
+        }, 3000);
+    }
+
+    showInfo(message) {
+        console.log('ℹ️', message);
+
+        // Create info toast
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'info-toast';
+        infoDiv.textContent = message;
+        infoDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 300px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        `;
+
+        document.body.appendChild(infoDiv);
+
+        // Remove the info message after 4 seconds
+        setTimeout(() => {
+            if (infoDiv.parentNode) {
+                infoDiv.parentNode.removeChild(infoDiv);
+            }
+        }, 4000);
+    }
+
     setupEventListeners() {
         document.querySelectorAll('.theme-option').forEach(btn => {
             btn.addEventListener('click', (e) => this.changeTheme(e.currentTarget.dataset.theme));
