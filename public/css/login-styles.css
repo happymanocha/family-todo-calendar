@@ -449,18 +449,44 @@ body {
     border-top: 1px solid var(--cursor-border);
 }
 
-.signup-prompt {
+/* New User Section Styles */
+.new-user-section {
+    margin-bottom: 2rem;
+}
+
+.new-user-section h3 {
     text-align: center;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+    margin: 0 0 8px 0;
+    color: var(--cursor-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.new-user-section > p {
+    text-align: center;
+    margin: 0 0 24px 0;
+    color: var(--cursor-text-light);
+    font-size: 0.95rem;
+}
+
+.signup-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.signup-option {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.15);
     border-radius: 12px;
-    border: 2px solid rgba(139, 92, 246, 0.2);
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
     position: relative;
     overflow: hidden;
 }
 
-.signup-prompt::before {
+.signup-option::before {
     content: '';
     position: absolute;
     top: 0;
@@ -468,29 +494,94 @@ body {
     width: 100%;
     height: 3px;
     background: linear-gradient(90deg, var(--cursor-accent), var(--cursor-secondary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.signup-prompt p {
+.signup-option:hover {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+}
+
+.signup-option:hover::before {
+    opacity: 1;
+}
+
+.option-content {
+    text-align: center;
+}
+
+.option-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.2));
+}
+
+.signup-option h4 {
+    margin: 0 0 8px 0;
     color: var(--cursor-text);
-    margin-bottom: 1rem;
-    font-size: 0.9375rem;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
-.signup-prompt .btn {
-    min-width: 160px;
-    background: linear-gradient(135deg, var(--cursor-accent) 0%, var(--cursor-secondary) 100%);
-    border: none;
-    color: white;
+.signup-option p {
+    margin: 0 0 16px 0;
+    color: var(--cursor-text-light);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.signup-option .btn {
+    width: 100%;
+    justify-content: center;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    font-size: 0.9rem;
+    padding: 12px 20px;
     transition: all 0.3s ease;
 }
 
-.signup-prompt .btn:hover {
+.signup-option .btn--primary {
+    background: linear-gradient(135deg, var(--cursor-accent) 0%, var(--cursor-secondary) 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.signup-option .btn--primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
-    background: linear-gradient(135deg, #7c3aed 0%, var(--cursor-secondary) 100%);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.signup-option .btn--outline {
+    background: transparent;
+    border: 2px solid var(--cursor-accent);
+    color: var(--cursor-accent);
+}
+
+.signup-option .btn--outline:hover {
+    background: var(--cursor-accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+}
+
+/* Responsive design for signup options */
+@media (max-width: 768px) {
+    .signup-options {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .signup-option {
+        padding: 16px;
+    }
+
+    .option-icon {
+        font-size: 2rem;
+    }
 }
 
 .features-preview h3 {
