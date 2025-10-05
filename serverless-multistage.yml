@@ -1,0 +1,688 @@
+service: nest-family-organizer
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+
+  # Environment-specific configuration
+  environment:
+    STAGE: ${self:provider.stage}
+    NODE_ENV: ${self:custom.environments.${self:provider.stage}.nodeEnv}
+    TODOS_TABLE: ${self:service}-todos-${self:provider.stage}
+    USERS_TABLE: ${self:service}-users-${self:provider.stage}
+    FAMILIES_TABLE: ${self:service}-families-${self:provider.stage}
+    JWT_SECRET: ${self:custom.secrets.${self:provider.stage}.jwtSecret}
+    LOG_LEVEL: ${self:custom.environments.${self:provider.stage}.logLevel}
+    ENABLE_DEBUG: ${self:custom.environments.${self:provider.stage}.enableDebug}
+
+  # Tags for cost tracking and organization
+  tags:
+    Environment: ${self:provider.stage}
+    Project: nest-family-organizer
+    ManagedBy: serverless
+
+  # Stack tags for CloudFormation
+  stackTags:
+    Environment: ${self:provider.stage}
+    Project: nest-family-organizer
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchGetItem
+            - dynamodb:BatchWriteItem
+          Resource:
+            - Fn::GetAtt: [TodosTable, Arn]
+            - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [FamiliesTable, Arn]
+            - Fn::Join:
+              - '/'
+              - - Fn::GetAtt: [TodosTable, Arn]
+                - 'index/*'
+            - Fn::Join:
+              - '/'
+              - - Fn::GetAtt: [UsersTable, Arn]
+                - 'index/*'
+            - Fn::Join:
+              - '/'
+              - - Fn::GetAtt: [FamiliesTable, Arn]
+                - 'index/*'
+        # Secrets Manager access for production stages
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - arn:aws:secretsmanager:${self:provider.region}:*:secret:${self:service}/${self:provider.stage}/*
+
+# Custom variables for different environments
+custom:
+  # Environment-specific settings
+  environments:
+    dev:
+      nodeEnv: development
+      logLevel: debug
+      enableDebug: 'true'
+      lambdaMemory: 256
+      lambdaTimeout: 30
+      logRetention: 7
+    qa:
+      nodeEnv: qa
+      logLevel: debug
+      enableDebug: 'true'
+      lambdaMemory: 256
+      lambdaTimeout: 30
+      logRetention: 7
+    staging:
+      nodeEnv: staging
+      logLevel: info
+      enableDebug: 'false'
+      lambdaMemory: 512
+      lambdaTimeout: 30
+      logRetention: 30
+    uat:
+      nodeEnv: uat
+      logLevel: info
+      enableDebug: 'false'
+      lambdaMemory: 512
+      lambdaTimeout: 30
+      logRetention: 30
+    prod:
+      nodeEnv: production
+      logLevel: warn
+      enableDebug: 'false'
+      lambdaMemory: 1024
+      lambdaTimeout: 30
+      logRetention: 90
+
+  # Secrets configuration (use AWS Secrets Manager for non-dev environments)
+  secrets:
+    dev:
+      jwtSecret: ${env:JWT_SECRET, 'dev-secret-change-me'}
+    qa:
+      jwtSecret: ${env:JWT_SECRET, 'qa-secret-change-me'}
+    staging:
+      jwtSecret: ${ssm:/nest-family-organizer/staging/jwt-secret}
+    uat:
+      jwtSecret: ${ssm:/nest-family-organizer/uat/jwt-secret}
+    prod:
+      jwtSecret: ${ssm:/nest-family-organizer/prod/jwt-secret}
+
+  # S3 Sync configuration
+  s3Sync:
+    - bucketName: ${self:service}-website-${self:provider.stage}
+      localDir: public
+      deleteRemoved: true
+      followSymlinks: true
+      defaultContentType: text/html
+      params:
+        - match: "*.html"
+          ContentType: "text/html"
+          CacheControl: "max-age=300"
+        - match: "*.css"
+          ContentType: "text/css"
+          CacheControl: "max-age=86400"
+        - match: "*.js"
+          ContentType: "application/javascript"
+          CacheControl: "max-age=86400"
+        - match: "*.json"
+          ContentType: "application/json"
+        - match: "*.png"
+          ContentType: "image/png"
+          CacheControl: "max-age=2592000"
+        - match: "*.jpg"
+          ContentType: "image/jpeg"
+          CacheControl: "max-age=2592000"
+        - match: "*.jpeg"
+          ContentType: "image/jpeg"
+          CacheControl: "max-age=2592000"
+        - match: "*.gif"
+          ContentType: "image/gif"
+          CacheControl: "max-age=2592000"
+        - match: "*.svg"
+          ContentType: "image/svg+xml"
+          CacheControl: "max-age=2592000"
+
+  # CloudWatch Logs retention
+  logRetentionInDays: ${self:custom.environments.${self:provider.stage}.logRetention}
+
+package:
+  patterns:
+    - '!src/views/**'
+    - '!public/**'
+    - '!node_modules/nodemon/**'
+    - '!.git/**'
+    - '!README.md'
+    - '!package-lock.json'
+    - '!.github/**'
+    - '!docs/**'
+    - '!tests/**'
+
+functions:
+  # Health and Info endpoints
+  health:
+    handler: src/lambda/api.health
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/health
+          method: get
+          cors: true
+
+  info:
+    handler: src/lambda/api.info
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/info
+          method: get
+          cors: true
+
+  # Authentication endpoints
+  login:
+    handler: src/lambda/auth.login
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/login
+          method: post
+          cors: true
+
+  logout:
+    handler: src/lambda/auth.logout
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/logout
+          method: post
+          cors: true
+
+  refreshToken:
+    handler: src/lambda/auth.refreshToken
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/refresh
+          method: post
+          cors: true
+
+  profile:
+    handler: src/lambda/auth.profile
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/profile
+          method: get
+          cors: true
+
+  validateToken:
+    handler: src/lambda/auth.validateToken
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/validate
+          method: post
+          cors: true
+
+  familyMembers:
+    handler: src/lambda/auth.familyMembers
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/family-members
+          method: get
+          cors: true
+
+  checkPermission:
+    handler: src/lambda/auth.checkPermission
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/check-permission
+          method: post
+          cors: true
+
+  # Registration endpoints
+  register:
+    handler: src/lambda/auth.register
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/auth/register
+          method: post
+          cors: true
+
+  # Family management endpoints
+  createFamily:
+    handler: src/lambda/families.createFamily
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families
+          method: post
+          cors: true
+
+  getCurrentFamily:
+    handler: src/lambda/families.getCurrentFamily
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/current
+          method: get
+          cors: true
+
+  getFamily:
+    handler: src/lambda/families.getFamily
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/{familyId}
+          method: get
+          cors: true
+
+  getFamilyByCode:
+    handler: src/lambda/families.getFamilyByCode
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/code/{familyCode}
+          method: get
+          cors: true
+
+  updateFamily:
+    handler: src/lambda/families.updateFamily
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/{familyId}
+          method: put
+          cors: true
+
+  getFamilyMembers:
+    handler: src/lambda/families.getFamilyMembers
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/{familyId}/members
+          method: get
+          cors: true
+
+  regenerateFamilyCode:
+    handler: src/lambda/families.regenerateFamilyCode
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/regenerate-code
+          method: post
+          cors: true
+
+  joinFamily:
+    handler: src/lambda/families.joinFamily
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/join
+          method: post
+          cors: true
+
+  generateFamilyInvite:
+    handler: src/lambda/families.generateInvite
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/families/{familyId}/invite
+          method: post
+          cors: true
+
+  # Todo CRUD endpoints
+  getTodos:
+    handler: src/lambda/todos.getTodos
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos
+          method: get
+          cors: true
+
+  createTodo:
+    handler: src/lambda/todos.createTodo
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos
+          method: post
+          cors: true
+
+  getTodo:
+    handler: src/lambda/todos.getTodo
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/{id}
+          method: get
+          cors: true
+
+  updateTodo:
+    handler: src/lambda/todos.updateTodo
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/{id}
+          method: put
+          cors: true
+
+  deleteTodo:
+    handler: src/lambda/todos.deleteTodo
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/{id}
+          method: delete
+          cors: true
+
+  updateTodoStatus:
+    handler: src/lambda/todos.updateTodoStatus
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/{id}/status
+          method: patch
+          cors: true
+
+  addComment:
+    handler: src/lambda/todos.addComment
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/{id}/comments
+          method: post
+          cors: true
+
+  searchTodos:
+    handler: src/lambda/todos.searchTodos
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/search
+          method: get
+          cors: true
+
+  getStatistics:
+    handler: src/lambda/todos.getStatistics
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/statistics
+          method: get
+          cors: true
+
+  getUpcoming:
+    handler: src/lambda/todos.getUpcoming
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/upcoming
+          method: get
+          cors: true
+
+  bulkUpdate:
+    handler: src/lambda/todos.bulkUpdate
+    memorySize: ${self:custom.environments.${self:provider.stage}.lambdaMemory}
+    timeout: ${self:custom.environments.${self:provider.stage}.lambdaTimeout}
+    events:
+      - http:
+          path: /api/todos/bulk
+          method: patch
+          cors: true
+
+resources:
+  Resources:
+    # DynamoDB Tables
+    FamiliesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.FAMILIES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: familyId
+            AttributeType: S
+          - AttributeName: familyCode
+            AttributeType: S
+          - AttributeName: adminUserId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: familyId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: FamilyCodeIndex
+            KeySchema:
+              - AttributeName: familyCode
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: AdminUserIndex
+            KeySchema:
+              - AttributeName: adminUserId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: ${self:custom.environments.${self:provider.stage}.enablePITR, false}
+        Tags:
+          - Key: Environment
+            Value: ${self:provider.stage}
+          - Key: ManagedBy
+            Value: serverless
+
+    TodosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: assignedTo
+            AttributeType: S
+          - AttributeName: status
+            AttributeType: S
+          - AttributeName: dueDate
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: AssignedToIndex
+            KeySchema:
+              - AttributeName: assignedTo
+                KeyType: HASH
+              - AttributeName: dueDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: StatusIndex
+            KeySchema:
+              - AttributeName: status
+                KeyType: HASH
+              - AttributeName: dueDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: ${self:custom.environments.${self:provider.stage}.enablePITR, false}
+        Tags:
+          - Key: Environment
+            Value: ${self:provider.stage}
+          - Key: ManagedBy
+            Value: serverless
+
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: uniqueId
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: familyId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: UniqueIdIndex
+            KeySchema:
+              - AttributeName: uniqueId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: EmailIndex
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: FamilyIndex
+            KeySchema:
+              - AttributeName: familyId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: ${self:custom.environments.${self:provider.stage}.enablePITR, false}
+        Tags:
+          - Key: Environment
+            Value: ${self:provider.stage}
+          - Key: ManagedBy
+            Value: serverless
+
+    # S3 Bucket for static website hosting
+    WebsiteBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-website-${self:provider.stage}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: false
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: false
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: error.html
+        Tags:
+          - Key: Environment
+            Value: ${self:provider.stage}
+          - Key: ManagedBy
+            Value: serverless
+
+    WebsiteBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref WebsiteBucket
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: '*'
+              Action: s3:GetObject
+              Resource: !Join ['', ['arn:aws:s3:::', !Ref WebsiteBucket, '/*']]
+
+  Outputs:
+    ApiGatewayUrl:
+      Description: API Gateway URL
+      Value:
+        Fn::Join:
+          - ''
+          - - 'https://'
+            - Ref: ApiGatewayRestApi
+            - '.execute-api.'
+            - ${self:provider.region}
+            - '.amazonaws.com/'
+            - ${self:provider.stage}
+      Export:
+        Name: ${self:service}-${self:provider.stage}-ApiUrl
+
+    WebsiteURL:
+      Description: Website URL
+      Value: !GetAtt WebsiteBucket.WebsiteURL
+      Export:
+        Name: ${self:service}-${self:provider.stage}-WebsiteUrl
+
+    TodosTableName:
+      Description: DynamoDB Todos Table Name
+      Value: !Ref TodosTable
+      Export:
+        Name: ${self:service}-${self:provider.stage}-TodosTable
+
+    UsersTableName:
+      Description: DynamoDB Users Table Name
+      Value: !Ref UsersTable
+      Export:
+        Name: ${self:service}-${self:provider.stage}-UsersTable
+
+    FamiliesTableName:
+      Description: DynamoDB Families Table Name
+      Value: !Ref FamiliesTable
+      Export:
+        Name: ${self:service}-${self:provider.stage}-FamiliesTable
+
+plugins:
+  - serverless-offline
+  - serverless-s3-sync

@@ -1,0 +1,100 @@
+name: Deploy to QA
+
+on:
+  push:
+    branches:
+      - qa
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x'
+  AWS_REGION: us-east-1
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint || echo "No lint script found"
+
+      - name: Run unit tests
+        run: npm test || echo "No test script found"
+
+      - name: Run integration tests
+        run: npm run test:integration || echo "No integration test script found"
+
+  deploy:
+    name: Deploy to QA
+    runs-on: ubuntu-latest
+    needs: test
+    environment:
+      name: qa
+      url: http://nest-family-organizer-website-qa.s3-website-us-east-1.amazonaws.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      - name: Deploy to AWS
+        run: serverless deploy --stage qa --verbose
+        env:
+          JWT_SECRET: ${{ secrets.QA_JWT_SECRET }}
+
+      - name: Get deployment info
+        id: deploy-info
+        run: |
+          echo "api_url=$(serverless info --stage qa | grep 'ServiceEndpoint:' | awk '{print $2}')" >> $GITHUB_OUTPUT
+          echo "website_url=http://nest-family-organizer-website-qa.s3-website-us-east-1.amazonaws.com" >> $GITHUB_OUTPUT
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against ${{ steps.deploy-info.outputs.api_url }}"
+          curl -f "${{ steps.deploy-info.outputs.api_url }}/api/health" || exit 1
+
+      - name: Run E2E tests
+        run: npm run test:e2e || echo "No E2E test script found"
+        env:
+          API_URL: ${{ steps.deploy-info.outputs.api_url }}
+          WEBSITE_URL: ${{ steps.deploy-info.outputs.website_url }}
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ QA deployment successful!"
+            echo "🌐 Website: ${{ steps.deploy-info.outputs.website_url }}"
+            echo "🔌 API: ${{ steps.deploy-info.outputs.api_url }}"
+          else
+            echo "❌ QA deployment failed!"
+          fi

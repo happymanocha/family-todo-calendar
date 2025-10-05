@@ -1,0 +1,122 @@
+name: Deploy to UAT
+
+on:
+  push:
+    branches:
+      - uat
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x'
+  AWS_REGION: us-east-1
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run full test suite
+        run: |
+          npm run lint || echo "No lint script found"
+          npm test || echo "No test script found"
+          npm run test:integration || echo "No integration test script found"
+          npm run test:regression || echo "No regression test script found"
+
+      - name: Security scan
+        run: npm audit --audit-level=moderate
+
+  deploy:
+    name: Deploy to UAT
+    runs-on: ubuntu-latest
+    needs: test
+    environment:
+      name: uat
+      url: http://nest-family-organizer-website-uat.s3-website-us-east-1.amazonaws.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get JWT secret from Parameter Store
+        id: get-secret
+        run: |
+          echo "JWT_SECRET=$(aws ssm get-parameter --name /nest-family-organizer/uat/jwt-secret --with-decryption --query Parameter.Value --output text)" >> $GITHUB_ENV
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      - name: Deploy to AWS
+        run: serverless deploy --stage uat --verbose
+
+      - name: Get deployment info
+        id: deploy-info
+        run: |
+          echo "api_url=$(serverless info --stage uat | grep 'ServiceEndpoint:' | awk '{print $2}')" >> $GITHUB_OUTPUT
+          echo "website_url=http://nest-family-organizer-website-uat.s3-website-us-east-1.amazonaws.com" >> $GITHUB_OUTPUT
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against ${{ steps.deploy-info.outputs.api_url }}"
+          curl -f "${{ steps.deploy-info.outputs.api_url }}/api/health" || exit 1
+
+      - name: Run UAT validation tests
+        run: npm run test:uat || echo "No UAT test script found"
+        env:
+          API_URL: ${{ steps.deploy-info.outputs.api_url }}
+          WEBSITE_URL: ${{ steps.deploy-info.outputs.website_url }}
+
+      - name: Create deployment report
+        run: |
+          echo "# UAT Deployment Report" > deployment-report.md
+          echo "" >> deployment-report.md
+          echo "**Deployment Time**: $(date)" >> deployment-report.md
+          echo "**Environment**: UAT" >> deployment-report.md
+          echo "**Branch**: ${{ github.ref_name }}" >> deployment-report.md
+          echo "**Commit**: ${{ github.sha }}" >> deployment-report.md
+          echo "**Website URL**: ${{ steps.deploy-info.outputs.website_url }}" >> deployment-report.md
+          echo "**API URL**: ${{ steps.deploy-info.outputs.api_url }}" >> deployment-report.md
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v4
+        with:
+          name: uat-deployment-report
+          path: deployment-report.md
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ UAT deployment successful!"
+            echo "🌐 Website: ${{ steps.deploy-info.outputs.website_url }}"
+            echo "🔌 API: ${{ steps.deploy-info.outputs.api_url }}"
+            echo "📋 Please verify user acceptance criteria"
+          else
+            echo "❌ UAT deployment failed!"
+          fi

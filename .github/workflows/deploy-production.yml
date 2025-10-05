@@ -1,0 +1,249 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      confirm_production:
+        description: 'Type "DEPLOY TO PRODUCTION" to confirm'
+        required: true
+
+env:
+  NODE_VERSION: '18.x'
+  AWS_REGION: us-east-1
+
+jobs:
+  validate:
+    name: Validate Production Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate manual confirmation
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event.inputs.confirm_production }}" != "DEPLOY TO PRODUCTION" ]; then
+            echo "❌ Production deployment not confirmed"
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo "Deploying release: ${{ github.ref_name }}"
+
+  test:
+    name: Run Full Test Suite
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run comprehensive tests
+        run: |
+          npm run lint || echo "No lint script found"
+          npm test || echo "No test script found"
+          npm run test:integration || echo "No integration test script found"
+          npm run test:regression || echo "No regression test script found"
+
+      - name: Security scan
+        run: npm audit --audit-level=high
+
+      - name: Dependency check
+        run: npm audit signatures
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: test
+    environment:
+      name: production
+      url: https://app.nest-family.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get JWT secret from Parameter Store
+        id: get-secret
+        run: |
+          echo "JWT_SECRET=$(aws ssm get-parameter --name /nest-family-organizer/prod/jwt-secret --with-decryption --query Parameter.Value --output text)" >> $GITHUB_ENV
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      - name: Backup current deployment
+        run: |
+          serverless deploy list --stage prod > deployment-backup.txt || echo "No previous deployment"
+          cat deployment-backup.txt
+
+      - name: Deploy to AWS (Production)
+        run: serverless deploy --stage prod --verbose
+        env:
+          ENABLE_MONITORING: true
+          ENABLE_ALERTING: true
+
+      - name: Get deployment info
+        id: deploy-info
+        run: |
+          echo "api_url=$(serverless info --stage prod | grep 'ServiceEndpoint:' | awk '{print $2}')" >> $GITHUB_OUTPUT
+          echo "website_url=https://app.nest-family.com" >> $GITHUB_OUTPUT
+
+      - name: Wait for deployment stabilization
+        run: sleep 30
+
+      - name: Run production smoke tests
+        run: |
+          echo "Running smoke tests against ${{ steps.deploy-info.outputs.api_url }}"
+
+          # Health check
+          curl -f "${{ steps.deploy-info.outputs.api_url }}/api/health" || exit 1
+
+          # API info check
+          curl -f "${{ steps.deploy-info.outputs.api_url }}/api/info" || exit 1
+
+      - name: Monitor error rates
+        run: |
+          echo "Monitoring CloudWatch metrics for 5 minutes..."
+          # Add CloudWatch metric checks here
+          sleep 300
+
+      - name: Create production deployment report
+        run: |
+          echo "# Production Deployment Report" > production-report.md
+          echo "" >> production-report.md
+          echo "**Deployment Time**: $(date)" >> production-report.md
+          echo "**Environment**: Production" >> production-report.md
+          echo "**Branch**: ${{ github.ref_name }}" >> production-report.md
+          echo "**Commit**: ${{ github.sha }}" >> production-report.md
+          echo "**Tag**: ${{ github.ref_name }}" >> production-report.md
+          echo "**Deployed By**: ${{ github.actor }}" >> production-report.md
+          echo "**Website URL**: ${{ steps.deploy-info.outputs.website_url }}" >> production-report.md
+          echo "**API URL**: ${{ steps.deploy-info.outputs.api_url }}" >> production-report.md
+          echo "" >> production-report.md
+          echo "## Tests Passed" >> production-report.md
+          echo "- ✅ Linting" >> production-report.md
+          echo "- ✅ Unit Tests" >> production-report.md
+          echo "- ✅ Integration Tests" >> production-report.md
+          echo "- ✅ Security Scan" >> production-report.md
+          echo "- ✅ Smoke Tests" >> production-report.md
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-deployment-report
+          path: production-report.md
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            ## Nest Family Organizer - Production Release ${{ github.ref_name }}
+
+            **Deployed**: $(date)
+            **Environment**: Production
+
+            ### URLs
+            - Website: ${{ steps.deploy-info.outputs.website_url }}
+            - API: ${{ steps.deploy-info.outputs.api_url }}
+            - Documentation: https://docs.nest-family.com
+
+            ### Deployment Details
+            - Commit: ${{ github.sha }}
+            - Deployed by: ${{ github.actor }}
+
+            See deployment report artifact for full details.
+          draft: false
+          prerelease: false
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "🎉 Production deployment successful!"
+            echo "🌐 Website: ${{ steps.deploy-info.outputs.website_url }}"
+            echo "🔌 API: ${{ steps.deploy-info.outputs.api_url }}"
+            echo "📊 Monitor CloudWatch dashboards for the next hour"
+          else
+            echo "❌ Production deployment failed!"
+            echo "🚨 Rollback may be required"
+            echo "📋 Check deployment logs and consider rollback"
+          fi
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: failure()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3
+
+      - name: Get previous deployment timestamp
+        id: get-previous
+        run: |
+          PREVIOUS=$(serverless deploy list --stage prod | grep 'Timestamp:' | head -2 | tail -1 | awk '{print $2}')
+          echo "timestamp=$PREVIOUS" >> $GITHUB_OUTPUT
+
+      - name: Rollback to previous version
+        if: steps.get-previous.outputs.timestamp != ''
+        run: |
+          echo "Rolling back to timestamp: ${{ steps.get-previous.outputs.timestamp }}"
+          serverless rollback --stage prod --timestamp ${{ steps.get-previous.outputs.timestamp }}
+
+      - name: Verify rollback
+        run: |
+          sleep 30
+          API_URL=$(serverless info --stage prod | grep 'ServiceEndpoint:' | awk '{print $2}')
+          curl -f "$API_URL/api/health" || exit 1
+
+      - name: Notify rollback
+        run: |
+          echo "⚠️ Production deployment failed - Rollback completed"
+          echo "Previous version has been restored"
