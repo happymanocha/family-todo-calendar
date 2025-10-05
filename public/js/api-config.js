@@ -5,7 +5,7 @@
 
 class APIClient {
     constructor() {
-        this.baseURL = 'https://f17wqosx7l.execute-api.us-east-1.amazonaws.com/dev/api';
+        this.baseURL = 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
         this.token = localStorage.getItem('authToken');
     }
 

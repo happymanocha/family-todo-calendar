@@ -3,141 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minocha's Organizer - Login</title>
+    <title>Sign In - Nest | Organize Your Family, Beautifully</title>
+    <meta name="description" content="Sign in to Nest - Your beautiful family organizer. Manage tasks, meetings, and bring your family together.">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/nest-brand.css">
     <link rel="stylesheet" href="css/login-styles.css">
     <link rel="stylesheet" href="css/button-components.css">
+    <link rel="stylesheet" href="css/validation.css">
+
+    <!-- Scripts -->
     <script src="js/button-loading.js"></script>
+    <script src="js/validation.js"></script>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- Background Animation -->
+    <div class="nest-login-container">
+        <!-- Animated Background Shapes -->
         <div class="bg-animation">
             <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
-                <div class="shape shape-4"></div>
-                <div class="shape shape-5"></div>
+                <div class="shape shape-1" style="background: linear-gradient(135deg, #FFE5F0, #FF4785);"></div>
+                <div class="shape shape-2" style="background: linear-gradient(135deg, #E0005A, #FF4785);"></div>
+                <div class="shape shape-3" style="background: linear-gradient(135deg, #FFE5F0, #E0005A);"></div>
             </div>
         </div>
 
         <!-- Login Card -->
-        <div class="login-card">
-            <div class="login-header">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <h1>Minocha's Organizer</h1>
+        <div class="nest-login-card">
+            <!-- Header with Logo -->
+            <div class="nest-login-header">
+                <div class="nest-logo">
+                    <img src="images/nest-icon.svg" alt="Nest Logo" class="nest-logo-icon">
+                    <span class="nest-logo-text">Nest</span>
                 </div>
-                <p class="welcome-text">Welcome back! Sign in to manage your family's tasks and meetings.</p>
+                <h1>Welcome Back</h1>
+                <p class="nest-welcome-text">Organize Your Family, Beautifully</p>
             </div>
 
+            <!-- Login Form -->
             <form class="login-form" id="loginForm" role="form" aria-label="Sign in form">
+                <!-- Email Input -->
                 <div class="form-group">
-                    <label for="email">Email Address</label>
+                    <label for="email" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Email Address</label>
                     <input
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="Enter your email address"
+                        class="nest-input"
+                        placeholder="you@example.com"
                         autocomplete="username"
                         aria-describedby="email-hint"
                         required
                     >
-                    <div class="input-hint" id="email-hint">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Use family member email addresses</span>
-                    </div>
                 </div>
 
+                <!-- Password Input -->
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="password-input">
+                    <label for="password" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Password</label>
+                    <div class="password-input" style="position: relative;">
                         <input
                             type="password"
                             id="password"
                             name="password"
+                            class="nest-input"
                             placeholder="Enter your password"
                             autocomplete="current-password"
                             aria-describedby="password-hint"
                             required
+                            style="padding-right: 48px;"
                         >
-                        <button type="button" class="password-toggle" id="password-toggle-btn" aria-label="Toggle password visibility">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-open" aria-hidden="true">
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="password-toggle-btn"
+                            aria-label="Toggle password visibility"
+                            style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px; color: var(--nest-gray);"
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-open">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
                                 <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
                             </svg>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-closed" class="hidden" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-closed" class="hidden">
                                 <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </button>
                     </div>
-                    <div class="input-hint" id="password-hint">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Password: "family" for all accounts</span>
-                    </div>
                 </div>
 
+                <!-- Remember Me -->
                 <div class="form-group">
-                    <label class="checkbox-label">
+                    <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox" id="rememberMe" name="rememberMe">
-                        <span class="checkmark"></span>
-                        <span class="checkbox-text">Remember me for 30 days</span>
+                        <span class="checkbox-text" style="color: var(--text-secondary); font-size: 14px;">Remember me for 30 days</span>
                     </label>
                 </div>
 
-                <button type="submit" class="login-button">
+                <!-- Submit Button -->
+                <button type="submit" class="btn--nest-primary" style="width: 100%; margin-top: 24px; padding: 16px;">
                     <span class="button-text">Sign In</span>
                     <div class="button-loader">
                         <div class="loader-spinner"></div>
                     </div>
-                    <svg class="button-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
                 </button>
 
-                <div class="error-message" id="errorMessage" role="alert" aria-live="polite">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <!-- Error Message -->
+                <div class="error-message" id="errorMessage" role="alert" aria-live="polite" style="display: none; margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; color: #EF4444; font-size: 14px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="display: inline; margin-right: 8px;">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
                         <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
                         <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
                     </svg>
-                    <span>Invalid family code or member selection</span>
+                    <span>Invalid email or password</span>
                 </div>
             </form>
 
-            <div class="login-footer">
-                <div class="new-user-links">
-                    <p class="footer-text">New to Minocha's Organizer?</p>
-                    <div class="signup-links">
-                        <a href="register.html?mode=create" class="signup-link">Create New Family</a>
-                        <span class="separator">or</span>
-                        <a href="register.html?mode=join" class="signup-link">Join Existing Family</a>
-                    </div>
+            <!-- Footer Links -->
+            <div class="login-footer" style="margin-top: 32px; text-align: center;">
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">New to Nest?</p>
+                <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <a href="register.html?mode=create" class="btn--nest-secondary" style="text-decoration: none; padding: 10px 20px; font-size: 14px;">Create New Family</a>
+                    <a href="register.html?mode=join" class="btn--nest-secondary" style="text-decoration: none; padding: 10px 20px; font-size: 14px;">Join Existing Family</a>
                 </div>
             </div>
         </div>
 
-        <!-- Version Info -->
-        <div class="version-info">
-            <span>Minocha's Organizer v1.0.0</span>
-            <span>•</span>
-            <span>Built with ❤️ for families</span>
+        <!-- Footer -->
+        <div class="nest-footer" style="position: fixed; bottom: 20px; left: 0; right: 0;">
+            <span>Nest v1.0.0 • Built with <span class="nest-footer-heart">❤</span> for families</span>
         </div>
     </div>
 
-    <script src="js/api-config.js?v=auth-fix"></script>
-    <script src="js/login-script.js?v=auth-fix"></script>
+    <!-- Scripts -->
+    <script src="js/api-config.js?v=nest-brand"></script>
+    <script src="js/login-script.js?v=nest-brand"></script>
 </body>
 </html>

@@ -1,0 +1,255 @@
+/**
+ * Form Validation Styles
+ * Lightweight CSS for validation error/success states
+ */
+
+/* ==========================================
+   VALIDATION ERROR STATES
+   ========================================== */
+
+.validation-error {
+    border-color: var(--danger-color, #ef4444) !important;
+    background-color: rgba(239, 68, 68, 0.05);
+    animation: shake 0.3s ease-in-out;
+}
+
+.validation-error:focus {
+    outline-color: var(--danger-color, #ef4444);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* ==========================================
+   VALIDATION SUCCESS STATES
+   ========================================== */
+
+.validation-success {
+    border-color: var(--success-color, #10b981) !important;
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.validation-success:focus {
+    outline-color: var(--success-color, #10b981);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* ==========================================
+   ERROR MESSAGES
+   ========================================== */
+
+.validation-error-message {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 0.875rem;
+    color: var(--danger-color, #ef4444);
+    animation: slideDown 0.2s ease-out;
+}
+
+.validation-error-message::before {
+    content: '⚠';
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* In dark mode */
+body.dark-mode .validation-error-message {
+    color: #fca5a5;
+}
+
+body.dark-mode .validation-error {
+    border-color: #dc2626 !important;
+    background-color: rgba(220, 38, 38, 0.1);
+}
+
+body.dark-mode .validation-success {
+    border-color: #059669 !important;
+    background-color: rgba(5, 150, 105, 0.1);
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================
+   FORM GROUP VALIDATION STATES
+   ========================================== */
+
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+    border-color: var(--danger-color, #ef4444);
+}
+
+.form-group.has-success input,
+.form-group.has-success select,
+.form-group.has-success textarea {
+    border-color: var(--success-color, #10b981);
+}
+
+/* ==========================================
+   VALIDATION ICONS (Optional Enhancement)
+   ========================================== */
+
+.validation-success-icon,
+.validation-error-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1.2rem;
+}
+
+.validation-success-icon {
+    color: var(--success-color, #10b981);
+}
+
+.validation-error-icon {
+    color: var(--danger-color, #ef4444);
+}
+
+/* ==========================================
+   FORM-LEVEL ERROR SUMMARY
+   ========================================== */
+
+.validation-summary {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--danger-color, #ef4444);
+    background-color: rgba(239, 68, 68, 0.05);
+    animation: slideDown 0.3s ease-out;
+}
+
+.validation-summary h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--danger-color, #ef4444);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.validation-summary ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: var(--text-primary, #1e293b);
+}
+
+.validation-summary li {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+body.dark-mode .validation-summary {
+    background-color: rgba(220, 38, 38, 0.1);
+    border-left-color: #dc2626;
+}
+
+body.dark-mode .validation-summary h4 {
+    color: #fca5a5;
+}
+
+body.dark-mode .validation-summary ul {
+    color: var(--text-primary, #f1f5f9);
+}
+
+/* ==========================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================== */
+
+[aria-invalid="true"] {
+    border-color: var(--danger-color, #ef4444);
+}
+
+[aria-invalid="false"] {
+    border-color: var(--success-color, #10b981);
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+    .validation-error-message {
+        font-size: 0.8125rem;
+    }
+
+    .validation-summary {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .validation-summary h4 {
+        font-size: 0.9375rem;
+    }
+
+    .validation-summary li {
+        font-size: 0.8125rem;
+    }
+}
+
+/* ==========================================
+   LOADING STATE DURING VALIDATION
+   ========================================== */
+
+.validating {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.validating::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--primary-color, #3b82f6);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nest - Organize Your Family, Beautifully</title>
+    <meta name="description" content="Nest helps you organize your family's tasks, meetings, and life - beautifully and effortlessly.">
+    <link rel="stylesheet" href="css/nest-brand.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/button-components.css">
+    <link rel="stylesheet" href="css/family-settings.css">
+    <link rel="stylesheet" href="css/onboarding-modal.css">
+    <link rel="stylesheet" href="css/validation.css">
+    <script src="js/button-loading.js"></script>
+    <script src="js/validation.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="nest-logo">
+                <img src="images/nest-icon.svg" alt="Nest" class="nest-logo-icon">
+                <span class="nest-logo-text">Nest</span>
+            </div>
+            <div class="header-right">
+                <div class="header-controls">
+                    <div class="view-toggle">
+                        <div class="btn-group">
+                            <button class="btn btn--secondary view-btn active" data-view="todo">Todo List</button>
+                            <button class="btn btn--secondary view-btn" data-view="calendar">Calendar</button>
+                        </div>
+                    </div>
+
+                    <!-- Family Settings -->
+                    <button class="btn btn--ghost btn--icon family-settings-btn" id="family-settings-toggle" title="Family Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                    </button>
+
+                    <!-- Dark Mode Toggle -->
+                    <button class="btn btn--ghost btn--icon dark-mode-btn" id="dark-mode-toggle" title="Toggle dark mode">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="dark-mode-icon">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="m12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                        </svg>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="user-menu">
+                        <button class="btn btn--ghost user-menu-btn" id="user-menu-button">
+                            <div class="user-avatar">
+                                <span id="user-avatar-text">H</span>
+                            </div>
+                            <span class="user-name" id="current-user">Happy</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="chevron-icon">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </button>
+
+                        <div class="user-dropdown" id="user-dropdown">
+                            <div class="user-dropdown-header">
+                                <div class="user-avatar-large">
+                                    <span id="user-avatar-large-text">H</span>
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-display-name" id="user-display-name">Happy</div>
+                                    <div class="user-email" id="user-email">happymanocha@gmail.com</div>
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <div class="dropdown-section">
+                                <button class="btn btn--minimal dropdown-item styles-menu-item" id="styles-menu-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="13.5" cy="6.5" r=".5"/>
+                                        <circle cx="17.5" cy="10.5" r=".5"/>
+                                        <circle cx="8.5" cy="7.5" r=".5"/>
+                                        <circle cx="6.5" cy="11.5" r=".5"/>
+                                        <circle cx="12.5" cy="13.5" r=".5"/>
+                                        <circle cx="16.5" cy="17.5" r=".5"/>
+                                        <circle cx="8.5" cy="15.5" r=".5"/>
+                                        <path d="M21.7 8.02c-.53-.69-1.13-1.33-1.75-1.91L13.5 12.5 21 4.5c.38.34.72.7 1.04 1.08"/>
+                                        <path d="M8.2 21.7c.69-.53 1.33-1.13 1.91-1.75L3.5 13.5 11.5 21c-.34.38-.7.72-1.08 1.04"/>
+                                        <path d="M2.3 15.98c.53.69 1.13 1.33 1.75 1.91L10.5 11.5 3 19.5c-.38-.34-.72-.7-1.04-1.08"/>
+                                        <path d="M15.8 2.3c-.69.53-1.33 1.13-1.91 1.75L20.5 10.5 12.5 3c.34-.38.7-.72 1.08-1.04"/>
+                                    </svg>
+                                    Themes & Styles
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="chevron-down" id="styles-chevron">
+                                        <path d="M7 10l5 5 5-5z"/>
+                                    </svg>
+                                </button>
+
+                                <div class="styles-submenu" id="styles-submenu">
+                                    <div class="submenu-content">
+                                        <div class="styles-section">
+                                            <h4>Themes</h4>
+                                            <div class="theme-options">
+                                                <button class="btn btn--minimal theme-option active" data-theme="modern-blue">
+                                                    <div class="theme-preview modern-blue-preview"></div>
+                                                    Blue
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="warm-orange">
+                                                    <div class="theme-preview warm-orange-preview"></div>
+                                                    Orange
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="forest-green">
+                                                    <div class="theme-preview forest-green-preview"></div>
+                                                    Green
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="elegant-purple">
+                                                    <div class="theme-preview elegant-purple-preview"></div>
+                                                    Purple
+                                                </button>
+                                                <button class="btn btn--minimal theme-option" data-theme="minimalist-gray">
+                                                    <div class="theme-preview minimalist-gray-preview"></div>
+                                                    Gray
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dropdown-divider"></div>
+
+                            <div class="dropdown-section">
+                                <button class="btn btn--minimal dropdown-item logout-item" id="logout-button">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Family Member Selector -->
+        <div class="family-selector">
+            <div class="btn-group btn-group--mobile-stack">
+                <!-- Family member buttons will be dynamically loaded by JavaScript -->
+                <button class="btn btn--secondary family-btn active" data-member="all">All Family</button>
+            </div>
+        </div>
+
+        <!-- Todo View -->
+        <div class="view todo-view active">
+            <div class="todo-container">
+                <div class="add-todo-form">
+                    <div class="form-row">
+                        <select id="item-type">
+                            <option value="task">Task</option>
+                            <option value="meeting">Meeting</option>
+                        </select>
+                        <input type="text" id="todo-text" placeholder="Add a new task...">
+                        <select id="todo-member">
+                            <!-- Options will be dynamically loaded by JavaScript -->
+                        </select>
+                    </div>
+
+                    <!-- Task Fields -->
+                    <div class="form-row task-fields">
+                        <input type="date" id="todo-date">
+                        <input type="time" id="todo-time">
+                    </div>
+
+                    <!-- Meeting Fields -->
+                    <div class="form-row meeting-fields" style="display: none;">
+                        <input type="date" id="meeting-date">
+                        <input type="time" id="meeting-start-time" placeholder="Start time">
+                        <input type="time" id="meeting-end-time" placeholder="End time">
+                    </div>
+
+                    <div class="form-row meeting-fields" style="display: none;">
+                        <textarea id="meeting-description" placeholder="Meeting description/agenda..."></textarea>
+                        <input type="url" id="meeting-link" placeholder="Meeting link (optional)">
+                    </div>
+
+                    <button class="btn btn--primary btn--lg" id="add-todo-btn">Add <span id="add-btn-text">Task</span></button>
+                </div>
+
+                <div class="todo-lists">
+                    <div class="todo-column">
+                        <h3>Pending</h3>
+                        <div class="todo-list" id="pending-todos"></div>
+                    </div>
+                    <div class="todo-column">
+                        <h3>In Progress</h3>
+                        <div class="todo-list" id="progress-todos"></div>
+                    </div>
+                    <div class="todo-column">
+                        <h3>Completed</h3>
+                        <div class="todo-list" id="completed-todos"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="view calendar-view">
+            <div class="calendar-container">
+                <div class="calendar-view-controls">
+                    <div class="calendar-view-buttons">
+                        <div class="btn-group">
+                            <button class="btn btn--secondary calendar-view-btn active" data-view="monthly">Monthly</button>
+                            <button class="btn btn--secondary calendar-view-btn" data-view="weekly">Weekly</button>
+                            <button class="btn btn--secondary calendar-view-btn" data-view="daily">Daily</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="calendar-header">
+                    <button class="btn btn--icon btn--ghost" id="prev-period">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                    </button>
+                    <h2 id="calendar-title">September 2025</h2>
+                    <button class="btn btn--icon btn--ghost" id="next-period">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-weekdays">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div class="calendar-days" id="calendar-days"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Item Modal -->
+        <div class="modal-overlay" id="edit-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="edit-modal-title">Edit Task</h3>
+                    <button class="btn btn--icon btn--minimal modal-close" id="modal-close-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-task-form">
+                        <div class="form-group">
+                            <label for="edit-item-type">Type</label>
+                            <select id="edit-item-type">
+                                <option value="task">Task</option>
+                                <option value="meeting">Meeting</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-todo-text" id="edit-text-label">Task Description</label>
+                            <input type="text" id="edit-todo-text" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-todo-member">Assigned To</label>
+                            <select id="edit-todo-member">
+                                <!-- Options will be dynamically loaded by JavaScript -->
+                            </select>
+                        </div>
+
+                        <!-- Task Fields -->
+                        <div class="edit-task-fields">
+                            <div class="form-group">
+                                <label for="edit-todo-date">Due Date</label>
+                                <input type="date" id="edit-todo-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-todo-time">Due Time</label>
+                                <input type="time" id="edit-todo-time">
+                            </div>
+                        </div>
+
+                        <!-- Meeting Fields -->
+                        <div class="edit-meeting-fields" style="display: none;">
+                            <div class="form-group">
+                                <label for="edit-meeting-date">Meeting Date</label>
+                                <input type="date" id="edit-meeting-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-start-time">Start Time</label>
+                                <input type="time" id="edit-meeting-start-time">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-end-time">End Time</label>
+                                <input type="time" id="edit-meeting-end-time">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-description">Description/Agenda</label>
+                                <textarea id="edit-meeting-description" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-meeting-link">Meeting Link</label>
+                                <input type="url" id="edit-meeting-link" placeholder="https://...">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-todo-status">Status</label>
+                            <select id="edit-todo-status">
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn--secondary" id="modal-cancel-btn">Cancel</button>
+                    <button class="btn btn--danger" id="modal-delete-btn">Delete <span id="delete-btn-text">Task</span></button>
+                    <button class="btn btn--primary" id="modal-save-btn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Family Settings Modal -->
+        <div class="modal-overlay" id="family-settings-modal">
+            <div class="modal-content family-settings-content">
+                <div class="modal-header">
+                    <h3>Family Settings</h3>
+                    <button class="btn btn--icon btn--minimal modal-close" id="family-settings-close-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body family-settings-body">
+                    <!-- Family Info Card -->
+                    <div class="family-info-card">
+                        <div class="family-info-header">
+                            <div class="family-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                                </svg>
+                            </div>
+                            <div class="family-info">
+                                <h4 id="family-name">Loading...</h4>
+                                <span id="family-member-count">0 members</span>
+                            </div>
+                        </div>
+
+                        <!-- Family Code Section -->
+                        <div class="family-code-section">
+                            <div class="family-code-header">
+                                <h5>Family Code</h5>
+                                <span class="family-code-help">Share this code with family members to invite them</span>
+                            </div>
+                            <div class="family-code-display">
+                                <div class="family-code-box">
+                                    <span id="family-code-text">Loading...</span>
+                                    <button class="btn btn--ghost btn--icon copy-code-btn" id="copy-family-code" title="Copy family code">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="family-code-qr" id="family-qr-code">
+                                    <!-- QR code will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Share Options -->
+                        <div class="share-section">
+                            <h5>Invite Family Members</h5>
+                            <div class="share-buttons">
+                                <button class="btn btn--secondary share-btn" id="share-email">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                    </svg>
+                                    Email
+                                </button>
+                                <button class="btn btn--secondary share-btn" id="share-sms">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                                    </svg>
+                                    SMS
+                                </button>
+                                <button class="btn btn--secondary share-btn" id="share-whatsapp">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
+                                    </svg>
+                                    WhatsApp
+                                </button>
+                                <button class="btn btn--secondary share-btn" id="share-copy-link">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                                        <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                                    </svg>
+                                    Copy Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Family Members Section -->
+                    <div class="family-members-section">
+                        <div class="section-header">
+                            <h5>Family Members</h5>
+                            <span class="member-count-badge" id="members-count-badge">0</span>
+                        </div>
+                        <div class="family-members-list" id="family-members-list">
+                            <!-- Family members will be loaded dynamically -->
+                            <div class="loading-members">
+                                <div class="loader-spinner"></div>
+                                <span>Loading family members...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Actions (only shown for family admin) -->
+                    <div class="admin-actions-section" id="admin-actions" style="display: none;">
+                        <div class="section-header">
+                            <h5>Admin Actions</h5>
+                        </div>
+                        <div class="admin-buttons">
+                            <button class="btn btn--outline" id="regenerate-code-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"/>
+                                    <polyline points="23 20 23 14 17 14"/>
+                                    <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
+                                </svg>
+                                Regenerate Family Code
+                            </button>
+                            <button class="btn btn--outline" id="manage-permissions-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                                </svg>
+                                Manage Permissions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Onboarding Modal -->
+        <div class="modal-overlay" id="welcome-onboarding-modal">
+            <div class="modal-content onboarding-content">
+                <div class="onboarding-header">
+                    <div class="welcome-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <h2>Welcome to Minocha's Organizer!</h2>
+                    <p>Let's get you set up with your family organization system.</p>
+                </div>
+
+                <div class="onboarding-body">
+                    <div class="onboarding-options">
+                        <div class="onboarding-option create-family-option" id="onboarding-create-family">
+                            <div class="option-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="16"/>
+                                    <line x1="8" y1="12" x2="16" y2="12"/>
+                                </svg>
+                            </div>
+                            <h3>Create New Family</h3>
+                            <p>Start fresh with your own family organization system. You'll be the admin and can invite others.</p>
+                            <div class="option-features">
+                                <span>✓ You become the admin</span>
+                                <span>✓ Generate family invite code</span>
+                                <span>✓ Full control over settings</span>
+                            </div>
+                        </div>
+
+                        <div class="onboarding-option join-family-option" id="onboarding-join-family">
+                            <div class="option-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                                    <circle cx="8.5" cy="7" r="4"/>
+                                    <path d="M20 8v6"/>
+                                    <path d="M23 11h-6"/>
+                                </svg>
+                            </div>
+                            <h3>Join Existing Family</h3>
+                            <p>Have a family code? Join an existing family that someone has already set up.</p>
+                            <div class="family-code-input-section" style="display: none;">
+                                <div class="form-group">
+                                    <input type="text" id="onboarding-family-code" placeholder="Enter family code (e.g., ABC123)" maxlength="6">
+                                    <button class="btn btn--primary" id="verify-family-code-btn">Verify Code</button>
+                                </div>
+                                <div id="family-preview" class="family-preview" style="display: none;">
+                                    <div class="family-preview-card">
+                                        <h4 id="preview-family-name">Loading...</h4>
+                                        <p id="preview-family-info">Verifying family code...</p>
+                                        <div class="family-preview-members" id="preview-members"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="onboarding-actions">
+                        <button class="btn btn--outline" id="onboarding-skip-btn">Skip for Now</button>
+                        <div class="primary-actions" style="display: none;">
+                            <button class="btn btn--primary btn--lg" id="onboarding-create-btn">Create My Family</button>
+                            <button class="btn btn--primary btn--lg" id="onboarding-join-btn" style="display: none;">Join This Family</button>
+                        </div>
+                    </div>
+
+                    <div class="onboarding-note">
+                        <p><small>💡 You can always change these settings later from Family Settings</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api-config.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

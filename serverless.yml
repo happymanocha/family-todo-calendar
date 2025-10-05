@@ -1,4 +1,4 @@
-service: minocha-organizer-serverless
+service: nest-family-organizer
 
 frameworkVersion: '3'
 

@@ -1,0 +1,279 @@
+/*
+ * Nest Brand Styles
+ * Modern, clean design inspired by Pinkfish.ai
+ */
+
+:root {
+    /* Nest Brand Colors */
+    --nest-primary: #E0005A;
+    --nest-primary-light: #FF4785;
+    --nest-primary-soft: #FFE5F0;
+    --nest-dark: #1A1A1A;
+    --nest-gray: #6B7280;
+    --nest-gray-light: #F3F4F6;
+    --nest-white: #FFFFFF;
+
+    /* Semantic Colors */
+    --primary-color: var(--nest-primary);
+    --secondary-color: var(--nest-primary-light);
+    --accent-color: var(--nest-primary-light);
+    --background-color: #FAFAFA;
+    --surface-color: var(--nest-white);
+    --text-primary: var(--nest-dark);
+    --text-secondary: var(--nest-gray);
+    --border-color: #E5E7EB;
+    --success-color: #10B981;
+    --warning-color: #F59E0B;
+    --danger-color: #EF4444;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    --background-color: #0f172a;
+    --surface-color: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --nest-primary: #FF4785; /* Lighter pink for dark mode */
+    --primary-color: #FF4785;
+}
+
+/* Nest Logo Styling */
+.nest-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--nest-dark);
+}
+
+.nest-logo-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.nest-logo-text {
+    background: linear-gradient(135deg, var(--nest-primary), var(--nest-primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.dark-mode .nest-logo {
+    color: var(--nest-white);
+}
+
+/* Nest Tagline */
+.nest-tagline {
+    color: var(--nest-gray);
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 4px;
+}
+
+body.dark-mode .nest-tagline {
+    color: var(--text-secondary);
+}
+
+/* Hero Section */
+.nest-hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(180deg, var(--nest-primary-soft) 0%, var(--nest-white) 100%);
+    border-radius: 24px;
+    margin-bottom: 40px;
+}
+
+body.dark-mode .nest-hero {
+    background: linear-gradient(180deg, rgba(224, 0, 90, 0.1) 0%, transparent 100%);
+}
+
+.nest-hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--nest-primary), var(--nest-primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nest-hero p {
+    font-size: 20px;
+    color: var(--nest-gray);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Buttons - Nest Style */
+.btn--nest-primary {
+    background: linear-gradient(135deg, var(--nest-primary), var(--nest-primary-light));
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(224, 0, 90, 0.2);
+}
+
+.btn--nest-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(224, 0, 90, 0.3);
+}
+
+.btn--nest-secondary {
+    background: var(--nest-white);
+    color: var(--nest-primary);
+    border: 2px solid var(--nest-primary);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn--nest-secondary:hover {
+    background: var(--nest-primary-soft);
+}
+
+/* Cards - Nest Style */
+.nest-card {
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.nest-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+body.dark-mode .nest-card {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+}
+
+/* Login Page Specific */
+.nest-login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #FFE5F0 0%, #FFFFFF 50%, #FFE5F0 100%);
+}
+
+body.dark-mode .nest-login-container {
+    background: linear-gradient(135deg, rgba(224, 0, 90, 0.1) 0%, var(--background-color) 50%, rgba(224, 0, 90, 0.1) 100%);
+}
+
+.nest-login-card {
+    background: var(--surface-color);
+    border-radius: 24px;
+    padding: 48px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .nest-login-card {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.nest-login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.nest-login-header .nest-logo {
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.nest-login-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.nest-welcome-text {
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Form Inputs - Nest Style */
+.nest-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: var(--surface-color);
+    color: var(--text-primary);
+}
+
+.nest-input:focus {
+    outline: none;
+    border-color: var(--nest-primary);
+    box-shadow: 0 0 0 4px rgba(224, 0, 90, 0.1);
+}
+
+body.dark-mode .nest-input {
+    background: var(--background-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .nest-input:focus {
+    border-color: var(--nest-primary-light);
+    box-shadow: 0 0 0 4px rgba(255, 71, 133, 0.1);
+}
+
+/* Footer */
+.nest-footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.nest-footer-heart {
+    color: var(--nest-primary);
+    display: inline-block;
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nest-hero h1 {
+        font-size: 36px;
+    }
+
+    .nest-hero p {
+        font-size: 18px;
+    }
+
+    .nest-login-card {
+        padding: 32px 24px;
+    }
+}

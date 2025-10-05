@@ -78,11 +78,20 @@ const getTodos = lambdaWrapper(async (event) => {
  * Create a new todo
  */
 const createTodo = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
-    validateRequiredFields(body, ['title', 'assignedTo']);
+    const body = parseBody(event.body);
+
+    console.log('Create todo - Request body:', JSON.stringify(body, null, 2));
+
+    // Validate required fields
+    const validation = validateRequiredFields(body, ['title', 'assignedTo']);
+    if (!validation.isValid) {
+        console.log('Validation failed:', validation);
+        return errorResponse(`Missing required fields: ${validation.missingFields.join(', ')}`, 400, 'VALIDATION_ERROR');
+    }
 
     try {
         const user = getAuthenticatedUser(event);
+        console.log('Creating todo for user:', user.userId);
         const {
             title,
             description,
@@ -100,7 +109,7 @@ const createTodo = lambdaWrapper(async (event) => {
         const todo = {
             id: todoId,
             userId: user.userId,
-            title: title.trim(),
+            title: title?.trim() || '',
             description: description ? description.trim() : '',
             assignedTo,
             dueDate: formatDate(dueDate),
@@ -162,7 +171,7 @@ const getTodo = lambdaWrapper(async (event) => {
  * Update a todo
  */
 const updateTodo = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
+    const body = parseBody(event.body);
 
     try {
         const user = getAuthenticatedUser(event);
@@ -273,7 +282,7 @@ const deleteTodo = lambdaWrapper(async (event) => {
  * Update todo status
  */
 const updateTodoStatus = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
+    const body = parseBody(event.body);
     validateRequiredFields(body, ['status']);
 
     try {
@@ -336,7 +345,7 @@ const updateTodoStatus = lambdaWrapper(async (event) => {
  * Add comment to todo
  */
 const addComment = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
+    const body = parseBody(event.body);
     validateRequiredFields(body, ['comment']);
 
     try {
@@ -587,7 +596,7 @@ const getUpcoming = lambdaWrapper(async (event) => {
  * Bulk update todos
  */
 const bulkUpdate = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
+    const body = parseBody(event.body);
     validateRequiredFields(body, ['todoIds', 'updates']);
 
     try {

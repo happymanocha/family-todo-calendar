@@ -1,0 +1,1699 @@
+openapi: 3.0.3
+info:
+  title: Nest Family Organizer API
+  description: |
+    A comprehensive family organization and task management API built on AWS serverless architecture.
+
+    ## Authentication
+    Most endpoints require authentication via JWT Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer <your-access-token>
+    ```
+
+    ## Response Format
+    All responses follow a consistent structure:
+    ```json
+    {
+      "success": true,
+      "message": "Operation successful",
+      "data": { ... }
+    }
+    ```
+
+    Error responses include:
+    ```json
+    {
+      "success": false,
+      "message": "Error description",
+      "error": "ERROR_CODE",
+      "details": { ... }
+    }
+    ```
+  version: 1.0.0
+  contact:
+    name: Nest API Support
+    email: support@nest-family.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.nest-family.com/dev
+    description: Development server
+  - url: https://api.nest-family.com/prod
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health check and system information
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Families
+    description: Family management operations
+  - name: Todos
+    description: Todo and task management
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained from login or registration
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Operation failed"
+        error:
+          type: string
+          example: "ERROR_CODE"
+        details:
+          type: object
+      required:
+        - success
+        - message
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation successful"
+        data:
+          type: object
+      required:
+        - success
+        - message
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "user_550e8400-e29b-41d4-a716-446655440000"
+        uniqueId:
+          type: string
+          example: "USR001"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        role:
+          type: string
+          enum: [admin, member]
+          example: "member"
+        avatar:
+          type: string
+          example: "J"
+        phone:
+          type: string
+          nullable: true
+          example: "+1234567890"
+        isActive:
+          type: boolean
+          example: true
+        familyId:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Family:
+      type: object
+      properties:
+        familyId:
+          type: string
+          format: uuid
+          example: "fam_650e8400-e29b-41d4-a716-446655440000"
+        familyName:
+          type: string
+          example: "The Smiths"
+        familyCode:
+          type: string
+          example: "SMITH2024"
+          description: Unique 6-character code for joining the family
+        adminUserId:
+          type: string
+          format: uuid
+        description:
+          type: string
+          nullable: true
+        memberCount:
+          type: integer
+          example: 4
+        maxMembers:
+          type: integer
+          example: 10
+        settings:
+          type: object
+          properties:
+            allowMemberInvites:
+              type: boolean
+              example: true
+            requireApproval:
+              type: boolean
+              example: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "todo_750e8400-e29b-41d4-a716-446655440000"
+        userId:
+          type: string
+          format: uuid
+          description: ID of the user who created the todo
+        title:
+          type: string
+          example: "Buy groceries"
+        description:
+          type: string
+          nullable: true
+          example: "Get milk, eggs, and bread"
+        assignedTo:
+          type: string
+          format: uuid
+          description: ID of the user assigned to this todo
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+          example: "2024-12-31"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          example: "medium"
+        category:
+          type: string
+          example: "shopping"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["groceries", "urgent"]
+        status:
+          type: string
+          enum: [pending, in-progress, completed, cancelled]
+          example: "pending"
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          format: uuid
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        isRecurring:
+          type: boolean
+          example: false
+        reminderSet:
+          type: boolean
+          example: false
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        text:
+          type: string
+          example: "I'll pick this up after work"
+        userId:
+          type: string
+          format: uuid
+        userName:
+          type: string
+          example: "John Doe"
+        createdAt:
+          type: string
+          format: date-time
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token (expires in 24 hours)
+        refreshToken:
+          type: string
+          description: JWT refresh token (expires in 7 days)
+        tokenType:
+          type: string
+          example: "Bearer"
+
+    PaginatedTodos:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Todo'
+        pagination:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 100
+            limit:
+              type: integer
+              example: 20
+            offset:
+              type: integer
+              example: 0
+            hasMore:
+              type: boolean
+              example: true
+
+    Statistics:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 50
+        completed:
+          type: integer
+          example: 30
+        pending:
+          type: integer
+          example: 15
+        inProgress:
+          type: integer
+          example: 5
+        cancelled:
+          type: integer
+          example: 0
+        overdue:
+          type: integer
+          example: 3
+        completionRate:
+          type: integer
+          example: 60
+          description: Percentage of completed todos
+        byPriority:
+          type: object
+          properties:
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+        byCategory:
+          type: object
+          additionalProperties:
+            type: integer
+        byAssignee:
+          type: object
+          additionalProperties:
+            type: integer
+        period:
+          type: string
+          example: "30 days"
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns the health status of the API and its services
+      operationId: getHealth
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            example: "healthy"
+                          timestamp:
+                            type: string
+                            format: date-time
+                          version:
+                            type: string
+                            example: "1.0.0"
+                          environment:
+                            type: string
+                            example: "development"
+                          region:
+                            type: string
+                            example: "us-east-1"
+                          uptime:
+                            type: number
+                            example: 12345.67
+                          memory:
+                            type: object
+                            properties:
+                              used:
+                                type: integer
+                                description: Memory used in MB
+                              total:
+                                type: integer
+                                description: Total memory in MB
+                              external:
+                                type: integer
+                                description: External memory in MB
+                          services:
+                            type: object
+                            properties:
+                              dynamodb:
+                                type: string
+                                example: "operational"
+                              lambda:
+                                type: string
+                                example: "operational"
+                              apigateway:
+                                type: string
+                                example: "operational"
+
+  /api/info:
+    get:
+      tags:
+        - Health
+      summary: Get API information
+      description: Returns information about the API, features, and available endpoints
+      operationId: getInfo
+      responses:
+        '200':
+          description: API information retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: "Nest Family Organizer"
+                          description:
+                            type: string
+                          version:
+                            type: string
+                          environment:
+                            type: string
+                          architecture:
+                            type: string
+                            example: "serverless"
+                          services:
+                            type: object
+                          features:
+                            type: array
+                            items:
+                              type: string
+                          apiVersion:
+                            type: string
+                            example: "v1"
+                          endpoints:
+                            type: object
+
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Register a new user and either create a new family or join an existing one
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john.doe@example.com"
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  example: "SecurePass123!"
+                isCreatingFamily:
+                  type: boolean
+                  example: true
+                  description: Set to true if creating a new family
+                familyName:
+                  type: string
+                  example: "The Smiths"
+                  description: Required if isCreatingFamily is true
+                familyCode:
+                  type: string
+                  example: "SMITH2024"
+                  description: Required if joining an existing family
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          accessToken:
+                            type: string
+                          refreshToken:
+                            type: string
+                          tokenType:
+                            type: string
+                            example: "Bearer"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate a user and return JWT tokens
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "john.doe@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "SecurePass123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          tokens:
+                            $ref: '#/components/schemas/TokenPair'
+                          expiresIn:
+                            type: string
+                            example: "24h"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Logout the current user and invalidate tokens
+      operationId: logout
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get a new access token using a refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  description: Valid refresh token
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: Get user profile
+      description: Get the authenticated user's profile information
+      operationId: getProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/validate:
+    post:
+      tags:
+        - Authentication
+      summary: Validate JWT token
+      description: Validate a JWT token and return decoded information
+      operationId: validateToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  description: JWT token to validate
+      responses:
+        '200':
+          description: Token validation result
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          valid:
+                            type: boolean
+                          userId:
+                            type: string
+                          email:
+                            type: string
+                          role:
+                            type: string
+                          exp:
+                            type: integer
+                            description: Expiration timestamp
+
+  /api/auth/family-members:
+    get:
+      tags:
+        - Authentication
+      summary: Get family members
+      description: Get all members of the authenticated user's family
+      operationId: getFamilyMembersAuth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Family members retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/check-permission:
+    post:
+      tags:
+        - Authentication
+      summary: Check user permission
+      description: Check if the authenticated user has a specific permission
+      operationId: checkPermission
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - permission
+              properties:
+                permission:
+                  type: string
+                  enum:
+                    - read_todos
+                    - create_todos
+                    - update_todos
+                    - delete_todos
+                    - manage_users
+                  example: "delete_todos"
+      responses:
+        '200':
+          description: Permission check completed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          hasPermission:
+                            type: boolean
+                          permission:
+                            type: string
+                          userRole:
+                            type: string
+
+  /api/families:
+    post:
+      tags:
+        - Families
+      summary: Create a new family
+      description: Create a new family with the authenticated user as admin
+      operationId: createFamily
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - familyName
+              properties:
+                familyName:
+                  type: string
+                  example: "The Smiths"
+                description:
+                  type: string
+                  example: "Our family organization"
+      responses:
+        '200':
+          description: Family created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          family:
+                            $ref: '#/components/schemas/Family'
+                          inviteData:
+                            type: object
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/families/current:
+    get:
+      tags:
+        - Families
+      summary: Get current user's family
+      description: Get the family information for the authenticated user
+      operationId: getCurrentFamily
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Family retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/Family'
+                          - type: object
+                            properties:
+                              isCurrentUserAdmin:
+                                type: boolean
+                              currentUserId:
+                                type: string
+        '404':
+          description: Family not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/families/{familyId}:
+    get:
+      tags:
+        - Families
+      summary: Get family by ID
+      description: Get detailed information about a specific family
+      operationId: getFamily
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: familyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Family retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Family'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Family not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Families
+      summary: Update family
+      description: Update family information (admin only)
+      operationId: updateFamily
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: familyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                familyName:
+                  type: string
+                description:
+                  type: string
+                settings:
+                  type: object
+      responses:
+        '200':
+          description: Family updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Family'
+        '403':
+          description: Access denied (admin only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/families/code/{familyCode}:
+    get:
+      tags:
+        - Families
+      summary: Get family by code
+      description: Get family information using the family code (for joining)
+      operationId: getFamilyByCode
+      parameters:
+        - name: familyCode
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "SMITH2024"
+      responses:
+        '200':
+          description: Family found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          family:
+                            $ref: '#/components/schemas/Family'
+                          members:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                avatar:
+                                  type: string
+                                role:
+                                  type: string
+                          canJoin:
+                            type: boolean
+        '404':
+          description: Family not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/families/{familyId}/members:
+    get:
+      tags:
+        - Families
+      summary: Get family members
+      description: Get all members of a specific family
+      operationId: getFamilyMembers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: familyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Members retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+
+  /api/families/regenerate-code:
+    post:
+      tags:
+        - Families
+      summary: Regenerate family code
+      description: Generate a new family code (admin only)
+      operationId: regenerateFamilyCode
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Family code regenerated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          familyCode:
+                            type: string
+                          previousCode:
+                            type: string
+                          updatedAt:
+                            type: string
+                            format: date-time
+        '403':
+          description: Access denied (admin only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/families/join:
+    post:
+      tags:
+        - Families
+      summary: Join a family
+      description: Join an existing family using a family code
+      operationId: joinFamily
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - familyCode
+              properties:
+                familyCode:
+                  type: string
+                  example: "SMITH2024"
+      responses:
+        '200':
+          description: Successfully joined family
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          family:
+                            $ref: '#/components/schemas/Family'
+                          memberCount:
+                            type: integer
+                          joinedAt:
+                            type: string
+                            format: date-time
+        '404':
+          description: Family not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Already a member of another family
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/families/{familyId}/invite:
+    post:
+      tags:
+        - Families
+      summary: Generate family invite
+      description: Generate invite data for sharing with others
+      operationId: generateInvite
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: familyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                regenerateCode:
+                  type: boolean
+                  description: Regenerate family code before creating invite (admin only)
+      responses:
+        '200':
+          description: Invite generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+
+  /api/todos:
+    get:
+      tags:
+        - Todos
+      summary: Get todos
+      description: Get todos with filtering and pagination
+      operationId: getTodos
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, completed, cancelled]
+        - name: assignedTo
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: dueDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Todos retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaginatedTodos'
+
+    post:
+      tags:
+        - Todos
+      summary: Create a todo
+      description: Create a new todo item
+      operationId: createTodo
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - assignedTo
+              properties:
+                title:
+                  type: string
+                  example: "Buy groceries"
+                description:
+                  type: string
+                  example: "Get milk, eggs, and bread"
+                assignedTo:
+                  type: string
+                  format: uuid
+                dueDate:
+                  type: string
+                  format: date
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                  default: medium
+                category:
+                  type: string
+                  default: general
+                tags:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  enum: [pending, in-progress, completed, cancelled]
+                  default: pending
+      responses:
+        '201':
+          description: Todo created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Todo'
+
+  /api/todos/{id}:
+    get:
+      tags:
+        - Todos
+      summary: Get a todo
+      description: Get a specific todo by ID
+      operationId: getTodo
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Todo retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Todo'
+        '404':
+          description: Todo not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Todos
+      summary: Update a todo
+      description: Update an existing todo
+      operationId: updateTodo
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                assignedTo:
+                  type: string
+                  format: uuid
+                dueDate:
+                  type: string
+                  format: date
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                category:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  enum: [pending, in-progress, completed, cancelled]
+      responses:
+        '200':
+          description: Todo updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Todo'
+
+    delete:
+      tags:
+        - Todos
+      summary: Delete a todo
+      description: Delete a todo (creator or admin only)
+      operationId: deleteTodo
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Todo deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/todos/{id}/status:
+    patch:
+      tags:
+        - Todos
+      summary: Update todo status
+      description: Update the status of a todo
+      operationId: updateTodoStatus
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [pending, in-progress, completed, cancelled]
+      responses:
+        '200':
+          description: Status updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Todo'
+
+  /api/todos/{id}/comments:
+    post:
+      tags:
+        - Todos
+      summary: Add a comment
+      description: Add a comment to a todo
+      operationId: addComment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - comment
+              properties:
+                comment:
+                  type: string
+                  example: "I'll pick this up after work"
+      responses:
+        '200':
+          description: Comment added successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Todo'
+
+  /api/todos/search:
+    get:
+      tags:
+        - Todos
+      summary: Search todos
+      description: Search todos by query string and filters
+      operationId: searchTodos
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+          description: Search query
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in-progress, completed, cancelled]
+        - name: assignedTo
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high]
+      responses:
+        '200':
+          description: Search completed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          query:
+                            type: string
+                          results:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Todo'
+                          count:
+                            type: integer
+
+  /api/todos/statistics:
+    get:
+      tags:
+        - Todos
+      summary: Get statistics
+      description: Get todo statistics for the authenticated user
+      operationId: getStatistics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: integer
+            default: 30
+          description: Number of days to include in statistics
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Statistics'
+
+  /api/todos/upcoming:
+    get:
+      tags:
+        - Todos
+      summary: Get upcoming todos
+      description: Get todos due in the near future
+      operationId: getUpcoming
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 7
+          description: Number of days to look ahead
+        - name: assignedTo
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Upcoming todos retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          todos:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Todo'
+                          groupedByDate:
+                            type: object
+                            additionalProperties:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/Todo'
+                          period:
+                            type: string
+                          count:
+                            type: integer
+
+  /api/todos/bulk:
+    patch:
+      tags:
+        - Todos
+      summary: Bulk update todos
+      description: Update multiple todos at once
+      operationId: bulkUpdate
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - todoIds
+                - updates
+              properties:
+                todoIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  maxItems: 50
+                updates:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum: [pending, in-progress, completed, cancelled]
+                    priority:
+                      type: string
+                      enum: [low, medium, high]
+                    category:
+                      type: string
+                    assignedTo:
+                      type: string
+                      format: uuid
+      responses:
+        '200':
+          description: Bulk update completed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          updated:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Todo'
+                          errors:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                todoId:
+                                  type: string
+                                error:
+                                  type: string
+                          summary:
+                            type: object
+                            properties:
+                              total:
+                                type: integer
+                              successful:
+                                type: integer
+                              failed:
+                                type: integer

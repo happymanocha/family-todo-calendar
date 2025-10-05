@@ -266,6 +266,33 @@
     color: var(--primary-dark);
 }
 
+/* Member Actions (Admin Controls) */
+.member-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.member-actions .btn--icon {
+    padding: 6px;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+
+.member-actions .btn--icon:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.member-actions .btn--danger {
+    color: var(--danger-color, #ef4444);
+}
+
+.member-actions .btn--danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
 /* Admin Actions Section */
 .admin-actions-section {
     background: var(--surface-light);

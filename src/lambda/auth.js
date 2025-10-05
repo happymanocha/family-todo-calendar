@@ -20,48 +20,6 @@ const {
 
 const dynamoService = new DynamoService();
 
-// Family members configuration (enhanced with unique IDs and additional fields)
-const FAMILY_MEMBERS = {
-    'happymanocha@gmail.com': {
-        id: 'happy', // Backward compatibility ID
-        uniqueId: 'usr-a1b2c3d4-e5f6-7890-abcd-ef1234567890', // Proper UUID
-        name: 'Happy',
-        role: 'admin',
-        avatar: 'H',
-        phone: '+1-234-567-8900',
-        createdAt: '2024-01-01T00:00:00.000Z'
-    },
-    'joelminocha@gmail.com': {
-        id: 'joel', // Backward compatibility ID
-        uniqueId: 'usr-b2c3d4e5-f6g7-8901-bcde-f23456789012', // Proper UUID
-        name: 'Joel',
-        role: 'member',
-        avatar: 'J',
-        phone: '+1-234-567-8901',
-        createdAt: '2024-01-01T00:00:00.000Z'
-    },
-    'upalmonika@gmail.com': {
-        id: 'monika', // Backward compatibility ID
-        uniqueId: 'usr-c3d4e5f6-g7h8-9012-cdef-345678901234', // Proper UUID
-        name: 'Monika',
-        role: 'member',
-        avatar: 'M',
-        phone: '+1-234-567-8902',
-        createdAt: '2024-01-01T00:00:00.000Z'
-    },
-    'kiaanminocha@gmail.com': {
-        id: 'kiaan', // Backward compatibility ID
-        uniqueId: 'usr-d4e5f6g7-h8i9-0123-defg-456789012345', // Proper UUID
-        name: 'Kiaan',
-        role: 'member',
-        avatar: 'K',
-        phone: '+1-234-567-8903',
-        createdAt: '2024-01-01T00:00:00.000Z'
-    }
-};
-
-const DEMO_PASSWORD = 'family'; // In production, this should be hashed per user
-
 /**
  * Generate JWT tokens
  */
@@ -96,60 +54,6 @@ const generateTokens = (user) => {
     };
 };
 
-/**
- * Create or update user in DynamoDB
- */
-const createOrUpdateUser = async (familyMember, email) => {
-    const userId = familyMember.id;
-
-    // Check if user exists
-    let user = await dynamoService.getUser(userId);
-
-    if (!user) {
-        // Create new user
-        user = {
-            id: userId,
-            uniqueId: familyMember.uniqueId,
-            email: email,
-            name: familyMember.name,
-            role: familyMember.role,
-            avatar: familyMember.avatar,
-            phone: familyMember.phone,
-            isActive: true,
-            createdAt: familyMember.createdAt,
-            updatedAt: new Date().toISOString(),
-            loginAttempts: 0,
-            lastLogin: null
-        };
-
-        await dynamoService.putUser(user);
-    } else {
-        // Update existing user with new fields if they don't exist
-        await dynamoService.updateUser(
-            userId,
-            'SET #updatedAt = :updatedAt, #lastLogin = :lastLogin, #uniqueId = if_not_exists(#uniqueId, :uniqueId), #phone = if_not_exists(#phone, :phone)',
-            {
-                ':updatedAt': new Date().toISOString(),
-                ':lastLogin': new Date().toISOString(),
-                ':uniqueId': familyMember.uniqueId,
-                ':phone': familyMember.phone
-            },
-            {
-                '#updatedAt': 'updatedAt',
-                '#lastLogin': 'lastLogin',
-                '#uniqueId': 'uniqueId',
-                '#phone': 'phone'
-            }
-        );
-
-        user.updatedAt = new Date().toISOString();
-        user.lastLogin = new Date().toISOString();
-        user.uniqueId = user.uniqueId || familyMember.uniqueId;
-        user.phone = user.phone || familyMember.phone;
-    }
-
-    return user;
-};
 
 /**
  * Register new user
@@ -323,7 +227,8 @@ const login = lambdaWrapper(async (event) => {
 
     try {
         // Get user from database
-        const user = await dynamoService.getUserByEmail(email.toLowerCase());
+        let user = await dynamoService.getUserByEmail(email.toLowerCase());
+
         if (!user) {
             return errorResponse('Invalid email or password', 401, 'UNAUTHORIZED');
         }
@@ -331,7 +236,6 @@ const login = lambdaWrapper(async (event) => {
         console.log('User found:', user.email);
 
         // Validate password
-        const bcrypt = require('bcryptjs');
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             console.log('Invalid password for user:', email);
@@ -428,7 +332,7 @@ const logout = lambdaWrapper(async (event) => {
  * Refresh token handler
  */
 const refreshToken = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
+    const body = parseBody(event.body);
     validateRequiredFields(body, ['refreshToken']);
 
     try {
@@ -495,7 +399,7 @@ const profile = lambdaWrapper(async (event) => {
  * Validate token handler
  */
 const validateToken = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
+    const body = parseBody(event.body);
     validateRequiredFields(body, ['token']);
 
     try {
@@ -580,7 +484,7 @@ const familyMembers = lambdaWrapper(async (event) => {
  * Check permission handler
  */
 const checkPermission = lambdaWrapper(async (event) => {
-    const body = parseBody(event);
+    const body = parseBody(event.body);
     validateRequiredFields(body, ['permission']);
 
     try {

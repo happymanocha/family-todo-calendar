@@ -1,7 +1,7 @@
 {
-  "name": "family-todo-calendar",
+  "name": "nest-family-organizer",
   "version": "1.0.0",
-  "description": "Complete family organization app with task and meeting management - 5 themes, dark mode, calendar view",
+  "description": "Nest - Organize Your Family, Beautifully. A complete family organization app with tasks, meetings, and calendar management.",
   "main": "server.js",
   "scripts": {
     "start": "NODE_ENV=production node server.js",
@@ -20,12 +20,13 @@
     "aws:sync": "serverless s3sync"
   },
   "keywords": [
+    "nest",
     "family",
-    "todo",
-    "calendar",
     "organizer",
     "tasks",
     "meetings",
+    "calendar",
+    "beautiful",
     "nodejs",
     "express"
   ],
@@ -57,7 +58,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/happymanocha/family-todo-calendar.git"
+    "url": "https://github.com/happymanocha/nest-family-organizer.git"
   },
-  "homepage": "https://github.com/happymanocha/family-todo-calendar#readme"
+  "homepage": "https://github.com/happymanocha/nest-family-organizer#readme"
 }

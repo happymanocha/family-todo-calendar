@@ -34,6 +34,19 @@ class FamilyLogin {
         emailInput.addEventListener('input', () => this.validateForm());
         passwordInput.addEventListener('input', () => this.validateForm());
 
+        // Enhanced real-time validation with formValidator
+        if (window.formValidator) {
+            window.formValidator.attachRealTimeValidation(emailInput, {
+                required: true,
+                email: true
+            }, { debounce: 500, validateOn: ['blur', 'input'] });
+
+            window.formValidator.attachRealTimeValidation(passwordInput, {
+                required: true,
+                minLength: 6
+            }, { debounce: 500, validateOn: ['blur'] });
+        }
+
         // Password toggle event listener
         const passwordToggleBtn = document.getElementById('password-toggle-btn');
         if (passwordToggleBtn) {
@@ -85,16 +98,18 @@ class FamilyLogin {
     validateForm() {
         const email = document.getElementById('email').value.trim().toLowerCase();
         const password = document.getElementById('password').value;
-        const loginButton = document.querySelector('.login-button');
+        const loginButton = document.querySelector('.btn--nest-primary') || document.querySelector('.login-button');
 
         const isValid = email.includes('@') && email.includes('.') && password.length >= 3;
 
         // Update button state
-        if (isValid) {
-            loginButton.style.opacity = '1';
-            loginButton.style.transform = 'translateY(0)';
-        } else {
-            loginButton.style.opacity = '0.7';
+        if (loginButton) {
+            if (isValid) {
+                loginButton.style.opacity = '1';
+                loginButton.style.transform = 'translateY(0)';
+            } else {
+                loginButton.style.opacity = '0.7';
+            }
         }
 
         // Hide error message when user starts typing
@@ -106,15 +121,30 @@ class FamilyLogin {
     async handleLogin(e) {
         e.preventDefault();
 
+        const form = e.target;
+
+        // Client-side validation before API call
+        const validationRules = {
+            email: {
+                required: true,
+                email: true
+            },
+            password: {
+                required: true,
+                minLength: 6
+            }
+        };
+
+        const validationResult = window.formValidator.validateForm(form, validationRules);
+
+        if (!validationResult.isValid) {
+            window.formValidator.showErrors(form, validationResult.errors);
+            return; // Stop submission
+        }
+
         const email = document.getElementById('email').value.trim().toLowerCase();
         const password = document.getElementById('password').value;
         const rememberMe = document.getElementById('rememberMe').checked;
-
-        // Validate inputs
-        if (!this.validateForm()) {
-            this.showError('Please fill in all fields correctly');
-            return;
-        }
 
         // Show loading state
         this.setLoadingState(true);
@@ -125,6 +155,25 @@ class FamilyLogin {
             console.log('🔐 Login: Calling API login...');
             const response = await window.apiClient.login(email, password);
             console.log('🔐 Login: API response:', response);
+
+            // Handle null response (network error or API unavailable)
+            if (!response) {
+                console.log('🔐 Login: No response from API, falling back to local validation');
+                // Fallback to local validation for development
+                if (this.validateCredentials(email, password)) {
+                    const user = this.validUsers[email];
+                    this.createSession(email, user.name, rememberMe);
+                    await this.showSuccessAnimation();
+                    console.log('Login successful (local), redirecting to app');
+                    this.redirectToApp();
+                    return;
+                } else {
+                    this.showError('Invalid email or password');
+                    this.setLoadingState(false);
+                    this.loginInProgress = false;
+                    return;
+                }
+            }
 
             if (response.success) {
                 const user = response.data.user;
@@ -239,55 +288,70 @@ class FamilyLogin {
     }
 
     setLoadingState(loading) {
-        const loginButton = document.querySelector('.login-button');
+        const loginButton = document.querySelector('.btn--nest-primary') || document.querySelector('.login-button');
         const inputs = document.querySelectorAll('input, select');
 
-        if (loading) {
-            loginButton.classList.add('loading');
-            inputs.forEach(input => input.disabled = true);
-        } else {
-            loginButton.classList.remove('loading');
-            inputs.forEach(input => input.disabled = false);
+        if (loginButton) {
+            if (loading) {
+                loginButton.classList.add('loading');
+                inputs.forEach(input => input.disabled = true);
+            } else {
+                loginButton.classList.remove('loading');
+                inputs.forEach(input => input.disabled = false);
+            }
         }
     }
 
     showError(message) {
         const errorElement = document.getElementById('errorMessage');
-        const errorText = errorElement.querySelector('span');
+        if (!errorElement) return;
 
-        errorText.textContent = message;
+        const errorText = errorElement.querySelector('span');
+        if (errorText) {
+            errorText.textContent = message;
+        }
+        errorElement.style.display = 'block';
         errorElement.classList.add('show');
 
         // Add shake animation to login card
-        const loginCard = document.querySelector('.login-card');
-        loginCard.style.animation = 'shake 0.5s ease-in-out';
+        const loginCard = document.querySelector('.nest-login-card') || document.querySelector('.login-card');
+        if (loginCard) {
+            loginCard.style.animation = 'shake 0.5s ease-in-out';
 
-        setTimeout(() => {
-            loginCard.style.animation = '';
-        }, 500);
+            setTimeout(() => {
+                loginCard.style.animation = '';
+            }, 500);
+        }
     }
 
     hideError() {
         const errorElement = document.getElementById('errorMessage');
-        errorElement.classList.remove('show');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+            errorElement.classList.remove('show');
+        }
     }
 
     async showSuccessAnimation() {
-        const loginButton = document.querySelector('.login-button');
-        const loginCard = document.querySelector('.login-card');
+        const loginButton = document.querySelector('.btn--nest-primary') || document.querySelector('.login-button');
+        const loginCard = document.querySelector('.nest-login-card') || document.querySelector('.login-card');
 
-        // Success state
-        loginButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-        loginButton.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Welcome!</span>
-        `;
+        if (loginButton) {
+            // Success state
+            loginButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            loginButton.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Welcome!</span>
+            `;
+        }
 
-        // Card success animation
-        loginCard.style.transform = 'scale(1.02)';
-        loginCard.style.boxShadow = '0 25px 50px -12px rgba(16, 185, 129, 0.25)';
+        if (loginCard) {
+            // Card success animation
+            loginCard.style.transform = 'scale(1.02)';
+            loginCard.style.boxShadow = '0 25px 50px -12px rgba(16, 185, 129, 0.25)';
+        }
 
         await this.delay(800);
     }
@@ -296,7 +360,7 @@ class FamilyLogin {
         console.log('🔄 Login: redirectToApp() called - initiating redirect to main app');
 
         // Smooth transition out
-        const loginContainer = document.querySelector('.login-container');
+        const loginContainer = document.querySelector('.nest-login-container') || document.querySelector('.login-container');
         if (loginContainer) {
             loginContainer.style.transition = 'all 0.5s ease';
             loginContainer.style.opacity = '0';
@@ -304,8 +368,8 @@ class FamilyLogin {
         }
 
         setTimeout(() => {
-            console.log('🔄 Login: Executing redirect to /index.html now...');
-            window.location.href = '/index.html';
+            console.log('🔄 Login: Executing redirect to /dashboard.html now...');
+            window.location.href = '/dashboard.html';
         }, 800);
     }
 

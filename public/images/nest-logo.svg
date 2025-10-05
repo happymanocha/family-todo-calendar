@@ -1,0 +1,28 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Nest outer circle -->
+  <circle cx="60" cy="60" r="55" fill="#FFE5F0" opacity="0.3"/>
+
+  <!-- Nest bowl shape -->
+  <path d="M30 55 Q30 40, 45 35 Q60 30, 75 35 Q90 40, 90 55 L85 75 Q85 85, 60 90 Q35 85, 35 75 Z"
+        fill="url(#nestGradient)"
+        stroke="#E0005A"
+        stroke-width="2"/>
+
+  <!-- Nest inner details (twigs/straw pattern) -->
+  <path d="M40 50 Q50 48, 60 50 Q70 48, 80 50" stroke="#E0005A" stroke-width="1.5" opacity="0.6"/>
+  <path d="M38 58 Q50 56, 60 58 Q70 56, 82 58" stroke="#E0005A" stroke-width="1.5" opacity="0.6"/>
+  <path d="M40 66 Q50 64, 60 66 Q70 64, 80 66" stroke="#E0005A" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Eggs in nest -->
+  <ellipse cx="50" cy="70" rx="8" ry="10" fill="#FFFFFF" stroke="#E0005A" stroke-width="1.5"/>
+  <ellipse cx="65" cy="72" rx="8" ry="10" fill="#FFFFFF" stroke="#E0005A" stroke-width="1.5"/>
+  <ellipse cx="58" cy="65" rx="7" ry="9" fill="#FFFFFF" stroke="#E0005A" stroke-width="1.5"/>
+
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="nestGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF4785;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#E0005A;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+</svg>

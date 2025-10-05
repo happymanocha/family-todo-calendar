@@ -372,3 +372,33 @@ body.dark-mode .share-buttons .btn--ghost:hover {
     background: var(--primary-color);
     border-color: var(--primary-color);
 }
+
+/* Additional Dark Mode Improvements */
+body.dark-mode .modal-content {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+    box-shadow:
+        0 32px 64px rgba(0, 0, 0, 0.5),
+        0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .family-invite-card {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .family-code-display {
+    background: var(--background-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .code-display {
+    color: var(--text-primary);
+    background: var(--surface-color);
+}
+
+body.dark-mode .share-link-container input {
+    background: var(--background-color);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}

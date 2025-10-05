@@ -39,6 +39,7 @@ body.dark-mode {
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --border-color: #334155;
+    --accent-color: #3b82f6; /* Darker blue for better visibility in dark mode */
 }
 
 /* Styles Menu */
@@ -249,10 +250,22 @@ body.dark-mode {
 
 .dark-mode-icon {
     transition: transform 0.3s ease;
+    color: var(--text-primary);
 }
 
 body.dark-mode .dark-mode-icon {
     transform: rotate(180deg);
+    color: var(--text-primary);
+}
+
+body.dark-mode .dark-mode-btn {
+    color: var(--text-primary);
+    background: var(--surface-color) !important;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .dark-mode-btn svg {
+    color: var(--text-primary);
 }
 
 /* User Menu */
@@ -1002,6 +1015,7 @@ body.dark-mode .dark-mode-icon {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     transition: all 0.2s ease;
     cursor: pointer;
+    background: linear-gradient(135deg, #3b82f6, #1e40af); /* Default background if no member class matches */
 }
 
 .calendar-task:hover {
@@ -1221,4 +1235,224 @@ body.minimalist-gray {
     --accent-color: #9ca3af;
     --background-color: #f9fafb;
     background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+}
+
+/* ==========================================
+   DARK MODE ENHANCEMENTS
+   ========================================== */
+
+/* Todo Cards in Dark Mode */
+body.dark-mode .todo-column {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .todo-column h3 {
+    color: var(--text-primary);
+}
+
+body.dark-mode .todo-item {
+    background: var(--surface-color) !important;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .todo-item:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .todo-text {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode .todo-meta {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode .todo-item .todo-meta .todo-member {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .todo-member {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode span.todo-member {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .time-info {
+    color: var(--text-secondary) !important;
+}
+
+/* Buttons in Dark Mode */
+body.dark-mode .btn-primary,
+body.dark-mode .btn-secondary,
+body.dark-mode .btn-outline {
+    color: var(--text-primary);
+}
+
+body.dark-mode .btn-outline {
+    border-color: var(--border-color);
+}
+
+body.dark-mode .btn-outline:hover {
+    background: var(--surface-color);
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .todo-action-btn {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color);
+}
+
+body.dark-mode .todo-action-btn:hover {
+    background: var(--primary-color);
+    color: white !important;
+}
+
+/* Dropdowns in Dark Mode */
+body.dark-mode .styles-dropdown,
+body.dark-mode .user-dropdown {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Input Fields in Dark Mode */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background: var(--surface-color);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+    border-color: var(--primary-color);
+    background: var(--surface-color);
+}
+
+/* Icons in Dark Mode */
+body.dark-mode svg {
+    color: var(--text-primary);
+}
+
+body.dark-mode .icon {
+    color: var(--text-primary);
+}
+
+/* User Menu in Dark Mode */
+body.dark-mode .user-menu-btn {
+    color: var(--text-primary);
+    background: var(--surface-color) !important;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .user-menu-btn:hover {
+    background: var(--background-color) !important;
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .user-menu-btn svg,
+body.dark-mode .user-menu-btn .chevron-icon {
+    color: var(--text-primary);
+}
+
+body.dark-mode .user-name {
+    color: var(--text-primary);
+}
+
+body.dark-mode .user-dropdown {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .dropdown-item {
+    color: var(--text-primary);
+}
+
+body.dark-mode .dropdown-item:hover {
+    background: var(--background-color);
+    color: var(--text-primary);
+}
+
+/* Family Settings & Invite Button in Dark Mode */
+body.dark-mode .family-settings-btn,
+body.dark-mode .btn--ghost {
+    color: var(--text-primary) !important;
+    background: var(--surface-color) !important;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .family-settings-btn:hover,
+body.dark-mode .btn--ghost:hover {
+    background: var(--background-color) !important;
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .family-settings-btn svg,
+body.dark-mode .btn--ghost svg {
+    color: var(--text-primary);
+}
+
+/* Header Controls in Dark Mode */
+body.dark-mode .btn--icon {
+    color: var(--text-primary);
+    background: var(--surface-color) !important;
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .btn--icon:hover {
+    background: var(--background-color) !important;
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .btn--icon svg {
+    color: var(--text-primary);
+}
+/* Toast Notification Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* Toast Styles */
+.toast {
+    font-family: 'Inter', sans-serif;
+}
+
+.toast-close:hover {
+    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 4px;
+}
+
+/* CRITICAL FIX: Todo member label in dark mode - Maximum specificity */
+body.dark-mode .todo-container .todo-column .todo-item .todo-meta span.todo-member {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
 }

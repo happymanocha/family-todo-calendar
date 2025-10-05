@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nest Family Organizer - API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #E0005A, #FF4785);
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .topbar-wrapper {
+            max-width: 1460px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #E0005A;
+            font-size: 24px;
+        }
+
+        .topbar-title {
+            color: white;
+            margin-left: auto;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Override Swagger UI styles to match Nest branding */
+        .swagger-ui .topbar {
+            display: none; /* Hide default Swagger topbar */
+        }
+
+        .swagger-ui .info .title {
+            color: #E0005A;
+        }
+
+        .swagger-ui .opblock.opblock-post {
+            border-color: #E0005A;
+            background: rgba(224, 0, 90, 0.05);
+        }
+
+        .swagger-ui .opblock.opblock-post .opblock-summary-method {
+            background: #E0005A;
+        }
+
+        .swagger-ui .opblock.opblock-get {
+            border-color: #FF4785;
+            background: rgba(255, 71, 133, 0.05);
+        }
+
+        .swagger-ui .opblock.opblock-get .opblock-summary-method {
+            background: #FF4785;
+        }
+
+        .swagger-ui .opblock.opblock-put {
+            border-color: #E0005A;
+            background: rgba(224, 0, 90, 0.05);
+        }
+
+        .swagger-ui .opblock.opblock-put .opblock-summary-method {
+            background: #E0005A;
+        }
+
+        .swagger-ui .opblock.opblock-delete {
+            border-color: #EF4444;
+        }
+
+        .swagger-ui .opblock.opblock-patch {
+            border-color: #F59E0B;
+        }
+
+        .swagger-ui .btn.authorize {
+            background: linear-gradient(135deg, #E0005A, #FF4785);
+            border: none;
+            color: white;
+        }
+
+        .swagger-ui .btn.execute {
+            background: linear-gradient(135deg, #E0005A, #FF4785);
+            border: none;
+            color: white;
+        }
+
+        .swagger-ui .btn.execute:hover {
+            opacity: 0.9;
+        }
+
+        .swagger-ui a {
+            color: #E0005A;
+        }
+
+        .swagger-ui a:hover {
+            color: #FF4785;
+        }
+
+        .info-container {
+            max-width: 1460px;
+            margin: 0 auto;
+            padding: 24px;
+            background: #FFE5F0;
+            border-radius: 12px;
+            margin-top: 24px;
+        }
+
+        .info-header {
+            font-size: 32px;
+            font-weight: 700;
+            color: #E0005A;
+            margin-bottom: 12px;
+        }
+
+        .info-description {
+            color: #6B7280;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: #E0005A;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Nest branded topbar -->
+    <div class="topbar">
+        <div class="topbar-wrapper">
+            <a href="/" class="topbar-logo">
+                <div class="logo-icon">🏠</div>
+                <span>Nest</span>
+            </a>
+            <div class="topbar-title">API Documentation</div>
+        </div>
+    </div>
+
+    <!-- Swagger UI container -->
+    <div id="swagger-ui"></div>
+
+    <!-- Swagger UI Bundle -->
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+
+    <script>
+        window.onload = function() {
+            // Fetch the OpenAPI spec
+            fetch('openapi.yaml')
+                .then(response => response.text())
+                .then(yamlText => {
+                    // Parse YAML to JSON (using a simple approach)
+                    // For production, you might want to use a proper YAML parser
+
+                    // Initialize Swagger UI
+                    const ui = SwaggerUIBundle({
+                        spec: jsyaml.load(yamlText),
+                        dom_id: '#swagger-ui',
+                        deepLinking: true,
+                        presets: [
+                            SwaggerUIBundle.presets.apis,
+                            SwaggerUIStandalonePreset
+                        ],
+                        plugins: [
+                            SwaggerUIBundle.plugins.DownloadUrl
+                        ],
+                        layout: "StandaloneLayout",
+                        defaultModelsExpandDepth: 1,
+                        defaultModelExpandDepth: 3,
+                        docExpansion: 'list',
+                        filter: true,
+                        showExtensions: true,
+                        showCommonExtensions: true,
+                        tryItOutEnabled: true
+                    });
+
+                    window.ui = ui;
+                })
+                .catch(error => {
+                    console.error('Error loading OpenAPI spec:', error);
+                    document.getElementById('swagger-ui').innerHTML = `
+                        <div style="padding: 40px; text-align: center; color: #EF4444;">
+                            <h2>Failed to load API documentation</h2>
+                            <p>Please make sure openapi.yaml is available in the same directory.</p>
+                            <p style="color: #6B7280; font-size: 14px;">${error.message}</p>
+                        </div>
+                    `;
+                });
+        };
+    </script>
+
+    <!-- YAML Parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+</body>
+</html>

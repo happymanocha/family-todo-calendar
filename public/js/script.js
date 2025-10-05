@@ -222,6 +222,9 @@ class FamilyTodoApp {
                 const members = response.data || [];
                 console.log('Loaded family members:', members);
 
+                // Store family members for later use
+                this.familyMembers = members;
+
                 // Check if user has no family (empty members array)
                 if (members.length === 0) {
                     console.log('User has no family - showing onboarding');
@@ -349,99 +352,102 @@ class FamilyTodoApp {
         }
     }
 
-    showError(message) {
-        console.error(message);
+    showToast(message, type = 'error') {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.style.cssText = `
+                position: fixed;
+                top: 24px;
+                right: 24px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                max-width: 400px;
+            `;
+            document.body.appendChild(toastContainer);
+        }
 
-        // Create a more user-friendly error display instead of alert
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-toast';
-        errorDiv.textContent = message;
-        errorDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #f87171;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 300px;
-            font-size: 14px;
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        const bgColors = {
+            error: '#ef4444',
+            success: '#10b981',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+
+        const icons = {
+            error: '❌',
+            success: '✅',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+
+        toast.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px;">${icons[type]}</span>
+                <span style="flex: 1;">${message}</span>
+                <button class="toast-close" style="background: none; border: none; color: white; cursor: pointer; font-size: 18px; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
+            </div>
         `;
 
-        document.body.appendChild(errorDiv);
+        toast.style.cssText = `
+            background: ${bgColors[type]};
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            font-size: 14px;
+            line-height: 1.5;
+            animation: slideIn 0.3s ease-out;
+            min-width: 300px;
+        `;
 
-        // Remove the error after 5 seconds
+        // Add close button functionality
+        const closeBtn = toast.querySelector('.toast-close');
+        closeBtn.addEventListener('click', () => {
+            toast.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        });
+
+        toastContainer.appendChild(toast);
+
+        // Auto remove after 5 seconds
         setTimeout(() => {
-            if (errorDiv.parentNode) {
-                errorDiv.parentNode.removeChild(errorDiv);
+            if (toast.parentNode) {
+                toast.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
             }
         }, 5000);
     }
 
+    showError(message) {
+        console.error(message);
+        this.showToast(message, 'error');
+    }
+
     showSuccess(message) {
         console.log('✅', message);
-
-        // Create success toast
-        const successDiv = document.createElement('div');
-        successDiv.className = 'success-toast';
-        successDiv.textContent = message;
-        successDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 300px;
-            font-size: 14px;
-            animation: slideIn 0.3s ease;
-        `;
-
-        document.body.appendChild(successDiv);
-
-        // Remove the success message after 3 seconds
-        setTimeout(() => {
-            if (successDiv.parentNode) {
-                successDiv.parentNode.removeChild(successDiv);
-            }
-        }, 3000);
+        this.showToast(message, 'success');
     }
 
     showInfo(message) {
         console.log('ℹ️', message);
-
-        // Create info toast
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'info-toast';
-        infoDiv.textContent = message;
-        infoDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #3b82f6;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 300px;
-            font-size: 14px;
-            animation: slideIn 0.3s ease;
-        `;
-
-        document.body.appendChild(infoDiv);
-
-        // Remove the info message after 4 seconds
-        setTimeout(() => {
-            if (infoDiv.parentNode) {
-                infoDiv.parentNode.removeChild(infoDiv);
-            }
-        }, 4000);
+        this.showToast(message, 'info');
     }
 
     setupEventListeners() {
@@ -555,6 +561,33 @@ class FamilyTodoApp {
 
         // Onboarding event listeners
         this.setupOnboardingListeners();
+
+        // Real-time validation for todo form
+        if (window.formValidator) {
+            const todoTextInput = document.getElementById('todo-text');
+            const todoMemberSelect = document.getElementById('todo-member');
+            const meetingLinkInput = document.getElementById('meeting-link');
+
+            if (todoTextInput) {
+                window.formValidator.attachRealTimeValidation(todoTextInput, {
+                    required: true,
+                    minLength: 3,
+                    maxLength: 200
+                }, { debounce: 500, validateOn: ['blur'] });
+            }
+
+            if (todoMemberSelect) {
+                window.formValidator.attachRealTimeValidation(todoMemberSelect, {
+                    required: true
+                }, { debounce: 0, validateOn: ['change', 'blur'] });
+            }
+
+            if (meetingLinkInput) {
+                window.formValidator.attachRealTimeValidation(meetingLinkInput, {
+                    url: true
+                }, { debounce: 500, validateOn: ['blur'] });
+            }
+        }
     }
 
     changeTheme(theme) {
@@ -949,23 +982,49 @@ class FamilyTodoApp {
                 return;
             }
 
+            // Check if current user is admin
+            const currentUser = this.getCurrentUser();
+            const isCurrentUserAdmin = this.currentFamily?.adminUserId === currentUser?.id;
+
             const membersHTML = members.map(member => {
                 const initials = member.displayName ?
                     member.displayName.split(' ').map(n => n[0]).join('').toUpperCase() :
                     member.email[0].toUpperCase();
 
-                const isAdmin = member.isAdmin || false;
+                const isMemberAdmin = member.isAdmin || false;
+                const isCurrentUserMember = member.id === currentUser?.id;
+
+                // Admin controls HTML (only show if current user is admin and not editing themselves)
+                const adminControls = isCurrentUserAdmin && !isCurrentUserMember ? `
+                    <div class="member-actions">
+                        <button class="btn btn--icon btn--ghost" onclick="window.app.editFamilyMember('${member.id}')" title="Edit member">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn--icon btn--ghost btn--danger" onclick="window.app.deleteFamilyMember('${member.id}', '${member.displayName || member.email}')" title="Remove member">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                <line x1="14" y1="11" x2="14" y2="17"/>
+                            </svg>
+                        </button>
+                    </div>
+                ` : '';
 
                 return `
-                    <div class="family-member-item">
+                    <div class="family-member-item" data-member-id="${member.id}">
                         <div class="member-avatar">${initials}</div>
                         <div class="member-info">
-                            <div class="member-name">${member.displayName || member.email}</div>
+                            <div class="member-name">${member.displayName || member.email}${isCurrentUserMember ? ' (You)' : ''}</div>
                             <div class="member-email">${member.email}</div>
                         </div>
-                        <div class="member-role ${isAdmin ? 'admin' : ''}">
-                            ${isAdmin ? '👑 Admin' : '👤 Member'}
+                        <div class="member-role ${isMemberAdmin ? 'admin' : ''}">
+                            ${isMemberAdmin ? '👑 Admin' : '👤 Member'}
                         </div>
+                        ${adminControls}
                     </div>
                 `;
             }).join('');
@@ -982,6 +1041,68 @@ class FamilyTodoApp {
                     </div>
                 `;
             }
+        }
+    }
+
+    // Edit family member (admin only)
+    async editFamilyMember(memberId) {
+        try {
+            // Find the member
+            const member = this.familyMembers.find(m => m.id === memberId);
+            if (!member) {
+                this.showToast('Member not found', 'error');
+                return;
+            }
+
+            // Create edit modal
+            const newName = prompt(`Edit member name for ${member.email}:`, member.displayName || '');
+
+            if (newName === null) return; // User cancelled
+
+            if (newName.trim() === '') {
+                this.showToast('Name cannot be empty', 'error');
+                return;
+            }
+
+            // Update member via API
+            const response = await window.apiClient.put(`/families/${this.currentFamily.familyId}/members/${memberId}`, {
+                displayName: newName.trim()
+            });
+
+            if (response && response.success) {
+                this.showToast('Member updated successfully', 'success');
+                // Reload family members
+                await this.loadFamilyMembers();
+            } else {
+                throw new Error(response?.message || 'Failed to update member');
+            }
+        } catch (error) {
+            console.error('Error editing member:', error);
+            this.showToast(error.message || 'Failed to update member', 'error');
+        }
+    }
+
+    // Delete family member (admin only)
+    async deleteFamilyMember(memberId, memberName) {
+        try {
+            // Confirm deletion
+            const confirmed = confirm(`Are you sure you want to remove ${memberName} from the family?\n\nThis action cannot be undone.`);
+
+            if (!confirmed) return;
+
+            // Delete member via API
+            const response = await window.apiClient.delete(`/families/${this.currentFamily.familyId}/members/${memberId}`);
+
+            if (response && response.success) {
+                this.showToast(`${memberName} has been removed from the family`, 'success');
+                // Reload family members
+                await this.loadFamilyMembers();
+            } else {
+                throw new Error(response?.message || 'Failed to remove member');
+            }
+        } catch (error) {
+            console.error('Error deleting member:', error);
+            this.showToast(error.message || 'Failed to remove member', 'error');
         }
     }
 
@@ -1162,9 +1283,10 @@ class FamilyTodoApp {
         const familyCode = document.getElementById('family-code-text')?.textContent;
         if (!familyCode) return;
 
+        const inviteLink = `${window.location.origin}/register.html?mode=join&familyCode=${familyCode}`;
         const subject = encodeURIComponent('Join our family organizer');
         const body = encodeURIComponent(
-            `Hi!\n\nYou've been invited to join our family organizer. Use the family code below to join:\n\n${familyCode}\n\nVisit: ${window.location.origin}\n\nBest regards!`
+            `Hi!\n\nYou've been invited to join our family organizer. Click the link below to join:\n\n${inviteLink}\n\nOr use family code: ${familyCode}\n\nBest regards!`
         );
 
         window.open(`mailto:?subject=${subject}&body=${body}`);
@@ -1174,8 +1296,9 @@ class FamilyTodoApp {
         const familyCode = document.getElementById('family-code-text')?.textContent;
         if (!familyCode) return;
 
+        const inviteLink = `${window.location.origin}/register.html?mode=join&familyCode=${familyCode}`;
         const message = encodeURIComponent(
-            `Join our family organizer! Use code: ${familyCode} at ${window.location.origin}`
+            `Join our family organizer! Click: ${inviteLink} or use code: ${familyCode}`
         );
 
         window.open(`sms:?body=${message}`);
@@ -1185,8 +1308,9 @@ class FamilyTodoApp {
         const familyCode = document.getElementById('family-code-text')?.textContent;
         if (!familyCode) return;
 
+        const inviteLink = `${window.location.origin}/register.html?mode=join&familyCode=${familyCode}`;
         const message = encodeURIComponent(
-            `Join our family organizer! Use family code: ${familyCode} at ${window.location.origin}`
+            `Join our family organizer! Click: ${inviteLink} or use family code: ${familyCode}`
         );
 
         window.open(`https://wa.me/?text=${message}`);
@@ -1196,7 +1320,7 @@ class FamilyTodoApp {
         const familyCode = document.getElementById('family-code-text')?.textContent;
         if (!familyCode) return;
 
-        const link = `${window.location.origin}/register.html?familyCode=${familyCode}`;
+        const link = `${window.location.origin}/register.html?mode=join&familyCode=${familyCode}`;
 
         try {
             // Try modern clipboard API first
@@ -1600,8 +1724,49 @@ class FamilyTodoApp {
         const text = document.getElementById('todo-text').value.trim();
         const member = document.getElementById('todo-member').value;
 
-        if (!text) {
-            throw new Error('Please enter a task description');
+        // Client-side validation
+        const validationRules = {
+            'todo-text': {
+                required: true,
+                minLength: 3,
+                maxLength: 200
+            },
+            'todo-member': {
+                required: true
+            }
+        };
+
+        if (itemType === 'task') {
+            // Date is required for tasks, time is optional
+            validationRules['todo-date'] = {
+                required: true,
+                futureDate: true
+            };
+        } else {
+            // Meeting validation
+            validationRules['meeting-date'] = {
+                required: true,
+                futureDate: true
+            };
+            validationRules['meeting-start-time'] = {
+                required: true
+            };
+
+            const link = document.getElementById('meeting-link').value;
+            if (link) {
+                validationRules['meeting-link'] = {
+                    url: true
+                };
+            }
+        }
+
+        // Validate form
+        const form = document.querySelector('.add-todo-form');
+        const validationResult = window.formValidator.validateForm(form, validationRules);
+
+        if (!validationResult.isValid) {
+            window.formValidator.showErrors(form, validationResult.errors);
+            throw new Error('Please fix validation errors');
         }
 
         try {
@@ -1671,6 +1836,12 @@ class FamilyTodoApp {
         document.getElementById('meeting-end-time').value = '';
         document.getElementById('meeting-description').value = '';
         document.getElementById('meeting-link').value = '';
+
+        // Clear validation errors
+        const form = document.querySelector('.add-todo-form');
+        if (form && window.formValidator) {
+            window.formValidator.clearAllErrors(form);
+        }
     }
 
     toggleItemType() {
@@ -1748,9 +1919,15 @@ class FamilyTodoApp {
 
     async updateTodoStatus(id, status) {
         try {
-            console.log('API TESTING: Updating todo status via API...', id, status);
+            console.log('🔄 Updating todo status:', { id, status });
+            console.log('📡 API Client available:', !!window.apiClient);
+
+            if (!window.apiClient) {
+                throw new Error('API client not available');
+            }
 
             const response = await window.apiClient.updateTodoStatus(id, status);
+            console.log('📥 Update response:', response);
 
             if (response && response.success) {
                 console.log('API TESTING: Todo status updated successfully');
@@ -1825,6 +2002,15 @@ class FamilyTodoApp {
         });
     }
 
+    getMemberNameById(memberId) {
+        if (!this.familyMembers || this.familyMembers.length === 0) {
+            return this.capitalizeName(memberId);
+        }
+
+        const member = this.familyMembers.find(m => m.id === memberId);
+        return member ? member.name : this.capitalizeName(memberId);
+    }
+
     createTodoElement(todo) {
         const div = document.createElement('div');
         div.className = `todo-item ${todo.status} ${todo.type || 'task'}`;
@@ -1855,6 +2041,9 @@ class FamilyTodoApp {
             timeInfo = `${dueDateStr} ${dueTimeStr}`;
         }
 
+        // Get member name from ID
+        const memberName = this.getMemberNameById(todo.member);
+
         div.innerHTML = `
             <div class="todo-header">
                 <div class="todo-title-area">
@@ -1869,7 +2058,7 @@ class FamilyTodoApp {
             </div>
             ${todo.type === 'meeting' && todo.description ? `<div class="meeting-description">${todo.description}</div>` : ''}
             <div class="todo-meta">
-                <span class="todo-member">${this.capitalizeName(todo.member)}</span>
+                <span class="todo-member">${memberName}</span>
                 <span class="time-info">${timeInfo}</span>
             </div>
             ${todo.type === 'meeting' && todo.link ? `<div class="meeting-link"><a href="${todo.link}" target="_blank" rel="noopener">Join Meeting</a></div>` : ''}
@@ -1902,23 +2091,53 @@ class FamilyTodoApp {
 
         // Enhanced action buttons with loading states
         const actionBtns = div.querySelectorAll('.todo-action-btn[data-new-status]');
+        console.log(`📍 Found ${actionBtns.length} action button(s) for todo:`, todo.id);
+
         actionBtns.forEach(btn => {
             const todoId = btn.getAttribute('data-todo-id');
             const newStatus = btn.getAttribute('data-new-status');
             const buttonText = btn.textContent.trim();
 
-            ButtonLoading.enhance(btn, async () => {
-                return await this.updateTodoStatus(todoId, newStatus);
-            }, {
-                loadingText: buttonText === 'Start' ? 'Starting...' :
-                           buttonText === 'Complete' ? 'Completing...' :
-                           buttonText === 'Reopen' ? 'Reopening...' : 'Updating...',
-                successText: buttonText === 'Start' ? 'Started!' :
-                           buttonText === 'Complete' ? 'Completed!' :
-                           buttonText === 'Reopen' ? 'Reopened!' : 'Updated!',
-                errorText: 'Failed',
-                successDuration: 1200
-            });
+            console.log(`🔘 Setting up button: "${buttonText}" (${todoId} -> ${newStatus})`);
+
+            // Check if ButtonLoading is available
+            if (typeof ButtonLoading !== 'undefined' && ButtonLoading.enhance) {
+                console.log('✅ Using ButtonLoading.enhance');
+                ButtonLoading.enhance(btn, async () => {
+                    console.log(`🎯 Button clicked: ${buttonText}`);
+                    return await this.updateTodoStatus(todoId, newStatus);
+                }, {
+                    loadingText: buttonText === 'Start' ? 'Starting...' :
+                               buttonText === 'Complete' ? 'Completing...' :
+                               buttonText === 'Reopen' ? 'Reopening...' : 'Updating...',
+                    successText: buttonText === 'Start' ? 'Started!' :
+                               buttonText === 'Complete' ? 'Completed!' :
+                               buttonText === 'Reopen' ? 'Reopened!' : 'Updated!',
+                    errorText: 'Failed',
+                    successDuration: 1200
+                });
+            } else {
+                // Fallback if ButtonLoading is not available
+                console.warn('ButtonLoading not available, using fallback');
+                btn.addEventListener('click', async () => {
+                    try {
+                        btn.disabled = true;
+                        btn.textContent = 'Updating...';
+                        await this.updateTodoStatus(todoId, newStatus);
+                        btn.textContent = 'Updated!';
+                        setTimeout(() => {
+                            btn.textContent = buttonText;
+                            btn.disabled = false;
+                        }, 1000);
+                    } catch (error) {
+                        btn.textContent = 'Failed';
+                        setTimeout(() => {
+                            btn.textContent = buttonText;
+                            btn.disabled = false;
+                        }, 1000);
+                    }
+                });
+            }
         });
 
         return div;
@@ -2037,9 +2256,9 @@ class FamilyTodoApp {
                 <div class="calendar-tasks">
                     ${filteredDayTodos.map(todo => `
                         <div class="calendar-task calendar-task-${todo.member} ${todo.status === 'completed' ? 'completed' : ''}"
-                             title="${this.escapeHtml(todo.text)} - ${this.capitalizeName(todo.member)} (${todo.status})">
+                             title="${this.escapeHtml(todo.text)} - ${this.getMemberNameById(todo.member)} (${todo.status})">
                             <div class="task-text">${todo.text.substring(0, 12)}${todo.text.length > 12 ? '...' : ''}</div>
-                            <div class="task-member">${this.capitalizeName(todo.member)}</div>
+                            <div class="task-member">${this.getMemberNameById(todo.member)}</div>
                         </div>
                     `).join('')}
                 </div>
@@ -2088,9 +2307,9 @@ class FamilyTodoApp {
                 <div class="calendar-tasks">
                     ${filteredDayTodos.map(todo => `
                         <div class="calendar-task calendar-task-${todo.member} ${todo.status === 'completed' ? 'completed' : ''}"
-                             title="${this.escapeHtml(todo.text)} - ${this.capitalizeName(todo.member)} (${todo.status})">
+                             title="${this.escapeHtml(todo.text)} - ${this.getMemberNameById(todo.member)} (${todo.status})">
                             <div class="task-text">${todo.text}</div>
-                            <div class="task-member">${this.capitalizeName(todo.member)}</div>
+                            <div class="task-member">${this.getMemberNameById(todo.member)}</div>
                             ${todo.dueTime ? `<div class="task-time">${todo.dueTime}</div>` : ''}
                         </div>
                     `).join('')}
@@ -2141,13 +2360,13 @@ class FamilyTodoApp {
                 ${filteredDayTodos.length === 0 ? '<div class="no-tasks">No tasks or meetings for this day</div>' : ''}
                 ${filteredDayTodos.map(todo => `
                     <div class="calendar-task calendar-task-${todo.member} ${todo.status === 'completed' ? 'completed' : ''}"
-                         title="${this.escapeHtml(todo.text)} - ${this.capitalizeName(todo.member)} (${todo.status})">
+                         title="${this.escapeHtml(todo.text)} - ${this.getMemberNameById(todo.member)} (${todo.status})">
                         <div class="task-header">
                             <div class="task-text">${todo.text}</div>
                             <div class="task-time">${todo.dueTime || todo.startTime || 'No time'}</div>
                         </div>
                         <div class="task-details">
-                            <span class="task-member">${this.capitalizeName(todo.member)}</span>
+                            <span class="task-member">${this.getMemberNameById(todo.member)}</span>
                             <span class="task-type">${todo.type === 'meeting' ? '📅 Meeting' : '✓ Task'}</span>
                         </div>
                         ${todo.description ? `<div class="task-description">${todo.description}</div>` : ''}

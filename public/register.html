@@ -3,39 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Minocha's Organizer</title>
+    <title>Join Nest - Organize Your Family, Beautifully</title>
+    <link rel="stylesheet" href="css/nest-brand.css">
     <link rel="stylesheet" href="css/login-styles.css">
     <link rel="stylesheet" href="css/button-components.css">
+    <link rel="stylesheet" href="css/validation.css">
     <script src="js/button-loading.js"></script>
+    <script src="js/validation.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="login-container">
+    <div class="nest-login-container">
         <!-- Background Animation -->
         <div class="bg-animation">
             <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
-                <div class="shape shape-4"></div>
-                <div class="shape shape-5"></div>
+                <div class="shape shape-1" style="background: linear-gradient(135deg, #FFE5F0, #FF4785);"></div>
+                <div class="shape shape-2" style="background: linear-gradient(135deg, #E0005A, #FF4785);"></div>
+                <div class="shape shape-3" style="background: linear-gradient(135deg, #FFE5F0, #E0005A);"></div>
+                <div class="shape shape-4" style="background: linear-gradient(135deg, #FF4785, #E0005A);"></div>
+                <div class="shape shape-5" style="background: linear-gradient(135deg, #FFE5F0, #FF4785);"></div>
             </div>
         </div>
 
         <!-- Registration Card -->
-        <div class="login-card">
-            <div class="login-header">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <h1>Minocha's Organizer</h1>
+        <div class="nest-login-card">
+            <div class="nest-login-header">
+                <div class="nest-logo">
+                    <img src="images/nest-icon.svg" alt="Nest Logo" class="nest-logo-icon">
+                    <span class="nest-logo-text">Nest</span>
                 </div>
-                <p class="welcome-text" id="page-subtitle">Join your family's organization</p>
+                <h1>Welcome to Nest</h1>
+                <p class="nest-welcome-text" id="page-subtitle">Join your family's organization</p>
             </div>
 
             <form class="login-form" id="registrationForm">
@@ -51,11 +51,12 @@
                 <!-- Family Information Section -->
                 <div class="form-section" id="family-section">
                     <div class="form-group" id="family-name-group">
-                        <label for="familyName">Family Name</label>
+                        <label for="familyName" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Family Name</label>
                         <input
                             type="text"
                             id="familyName"
                             name="familyName"
+                            class="nest-input"
                             placeholder="Enter your family name"
                             required
                         >
@@ -68,11 +69,12 @@
                     </div>
 
                     <div class="form-group" id="family-code-group" style="display: none;">
-                        <label for="familyCode">Family Code</label>
+                        <label for="familyCode" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Family Code</label>
                         <input
                             type="text"
                             id="familyCode"
                             name="familyCode"
+                            class="nest-input"
                             placeholder="Enter 6-character family code"
                             maxlength="6"
                             style="text-transform: uppercase;"
@@ -91,22 +93,24 @@
                     <h4 class="section-title">Your Information</h4>
 
                     <div class="form-group">
-                        <label for="fullName">Full Name</label>
+                        <label for="fullName" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Full Name</label>
                         <input
                             type="text"
                             id="fullName"
                             name="fullName"
+                            class="nest-input"
                             placeholder="Enter your full name"
                             required
                         >
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Email Address</label>
+                        <label for="email" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Email Address</label>
                         <input
                             type="email"
                             id="email"
                             name="email"
+                            class="nest-input"
                             placeholder="Enter your email address"
                             autocomplete="username"
                             required
@@ -114,17 +118,25 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="password-input">
+                        <label for="password" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Password</label>
+                        <div class="password-input" style="position: relative;">
                             <input
                                 type="password"
                                 id="password"
                                 name="password"
+                                class="nest-input"
                                 placeholder="Create a password"
                                 autocomplete="new-password"
                                 required
+                                style="padding-right: 48px;"
                             >
-                            <button type="button" class="password-toggle" id="password-toggle-btn">
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="password-toggle-btn"
+                                aria-label="Toggle password visibility"
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px; color: var(--nest-gray);"
+                            >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="eye-open">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
                                     <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
@@ -142,6 +154,44 @@
                             <span>At least 8 characters recommended</span>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword" style="color: var(--text-primary); font-weight: 500; margin-bottom: 8px; display: block;">Confirm Password</label>
+                        <div class="password-input" style="position: relative;">
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                class="nest-input"
+                                placeholder="Re-enter your password"
+                                autocomplete="new-password"
+                                required
+                                style="padding-right: 48px;"
+                            >
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="confirm-password-toggle-btn"
+                                aria-label="Toggle confirm password visibility"
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px; color: var(--nest-gray);"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="confirm-eye-open">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="confirm-eye-closed" class="hidden">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="input-hint">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Must match the password above</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -152,7 +202,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="login-button">
+                <button type="submit" class="btn--nest-primary" style="width: 100%; margin-top: 24px; padding: 16px;">
                     <span class="button-text" id="submit-text">Create Family</span>
                     <div class="button-loader">
                         <div class="loader-spinner"></div>
@@ -184,11 +234,9 @@
             </div>
         </div>
 
-        <!-- Version Info -->
-        <div class="version-info">
-            <span>Minocha's Organizer v1.0.0</span>
-            <span>•</span>
-            <span>Built with ❤️ for families</span>
+        <!-- Footer -->
+        <div class="nest-footer" style="position: fixed; bottom: 20px; left: 0; right: 0;">
+            <span>Nest v1.0.0 • Built with <span class="nest-footer-heart">❤</span> for families</span>
         </div>
     </div>
 
@@ -264,6 +312,19 @@
                     eyeClosed.classList.toggle('hidden', !isPassword);
                 });
 
+                // Confirm Password toggle
+                const confirmToggleBtn = document.getElementById('confirm-password-toggle-btn');
+                const confirmPasswordInput = document.getElementById('confirmPassword');
+                const confirmEyeOpen = document.getElementById('confirm-eye-open');
+                const confirmEyeClosed = document.getElementById('confirm-eye-closed');
+
+                confirmToggleBtn.addEventListener('click', () => {
+                    const isPassword = confirmPasswordInput.type === 'password';
+                    confirmPasswordInput.type = isPassword ? 'text' : 'password';
+                    confirmEyeOpen.classList.toggle('hidden', isPassword);
+                    confirmEyeClosed.classList.toggle('hidden', !isPassword);
+                });
+
                 // Family code formatting
                 const familyCodeInput = document.getElementById('familyCode');
                 familyCodeInput.addEventListener('input', (e) => {
@@ -275,11 +336,61 @@
                     e.preventDefault();
                     this.handleRegistration();
                 });
+
+                // Real-time validation
+                if (window.formValidator) {
+                    const fullNameInput = document.getElementById('fullName');
+                    const emailInput = document.getElementById('email');
+                    const familyNameInput = document.getElementById('familyName');
+
+                    window.formValidator.attachRealTimeValidation(fullNameInput, {
+                        required: true,
+                        minLength: 2,
+                        maxLength: 50,
+                        alpha: true
+                    }, { debounce: 500, validateOn: ['blur'] });
+
+                    window.formValidator.attachRealTimeValidation(emailInput, {
+                        required: true,
+                        email: true
+                    }, { debounce: 500, validateOn: ['blur', 'input'] });
+
+                    window.formValidator.attachRealTimeValidation(passwordInput, {
+                        required: true,
+                        password: true
+                    }, { debounce: 500, validateOn: ['blur'] });
+
+                    window.formValidator.attachRealTimeValidation(confirmPasswordInput, {
+                        required: true,
+                        match: 'password'
+                    }, { debounce: 500, validateOn: ['blur', 'input'] });
+
+                    window.formValidator.attachRealTimeValidation(familyNameInput, {
+                        required: true,
+                        minLength: 2,
+                        maxLength: 50
+                    }, { debounce: 500, validateOn: ['blur'] });
+
+                    window.formValidator.attachRealTimeValidation(familyCodeInput, {
+                        required: true,
+                        familyCode: true
+                    }, { debounce: 500, validateOn: ['blur'] });
+                }
             }
 
             async handleRegistration() {
-                const submitBtn = document.querySelector('.login-button');
+                const submitBtn = document.querySelector('.btn--nest-primary') || document.querySelector('.login-button');
                 const errorDiv = document.getElementById('errorMessage');
+                const form = document.getElementById('registrationForm');
+
+                // Client-side validation before API call
+                const validationRules = this.getValidationRules();
+                const validationResult = window.formValidator.validateForm(form, validationRules);
+
+                if (!validationResult.isValid) {
+                    window.formValidator.showErrors(form, validationResult.errors);
+                    return; // Stop submission
+                }
 
                 // Show loading state
                 submitBtn.classList.add('loading');
@@ -287,24 +398,56 @@
 
                 try {
                     const formData = this.getFormData();
-
-                    // Validate form
-                    if (!this.validateForm(formData)) {
-                        throw new Error('Please fill in all required fields');
-                    }
-
-                    // TODO: Replace with actual API call
                     console.log('Registration data:', formData);
 
-                    // Simulate API call
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    // Prepare registration data for API
+                    const registrationData = {
+                        name: formData.fullName,
+                        email: formData.email,
+                        password: formData.password
+                    };
 
-                    // Success - redirect to main app
-                    window.location.href = '/index.html';
+                    // Add family information based on mode
+                    if (this.mode === 'create') {
+                        registrationData.isCreatingFamily = true;
+                        registrationData.familyName = formData.familyName;
+                    } else {
+                        registrationData.familyCode = formData.familyCode;
+                    }
+
+                    console.log('Sending registration request:', registrationData);
+
+                    // Call the registration API
+                    const response = await window.apiClient.register(registrationData);
+
+                    console.log('Registration response:', response);
+
+                    if (response && response.success) {
+                        // Store the token and user data
+                        if (response.data) {
+                            if (response.data.accessToken) {
+                                localStorage.setItem('authToken', response.data.accessToken);
+                                console.log('✅ Auth token saved:', response.data.accessToken);
+                            }
+                            if (response.data.user) {
+                                localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+                                console.log('✅ Current user saved:', response.data.user);
+                            }
+                        }
+
+                        // Small delay to ensure localStorage is persisted
+                        setTimeout(() => {
+                            console.log('✅ Redirecting to app...');
+                            // Redirect to dashboard
+                            window.location.href = '/dashboard.html';
+                        }, 100);
+                    } else {
+                        throw new Error(response?.message || 'Registration failed. Please try again.');
+                    }
 
                 } catch (error) {
                     console.error('Registration error:', error);
-                    document.getElementById('errorText').textContent = error.message;
+                    document.getElementById('errorText').textContent = error.message || 'Registration failed. Please try again.';
                     errorDiv.style.display = 'flex';
                 } finally {
                     submitBtn.classList.remove('loading');
@@ -323,24 +466,46 @@
                 };
             }
 
-            validateForm(data) {
-                if (!data.fullName || !data.email || !data.password || !data.terms) {
-                    return false;
+            getValidationRules() {
+                const rules = {
+                    fullName: {
+                        required: true,
+                        minLength: 2,
+                        maxLength: 50,
+                        alpha: true
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        password: true
+                    },
+                    confirmPassword: {
+                        required: true,
+                        match: 'password'
+                    },
+                    terms: {
+                        required: true
+                    }
+                };
+
+                // Add mode-specific validation
+                if (this.mode === 'create') {
+                    rules.familyName = {
+                        required: true,
+                        minLength: 2,
+                        maxLength: 50
+                    };
+                } else {
+                    rules.familyCode = {
+                        required: true,
+                        familyCode: true
+                    };
                 }
 
-                if (this.mode === 'create' && !data.familyName) {
-                    return false;
-                }
-
-                if (this.mode === 'join' && !data.familyCode) {
-                    return false;
-                }
-
-                if (data.password.length < 6) {
-                    throw new Error('Password must be at least 6 characters long');
-                }
-
-                return true;
+                return rules;
             }
         }
 
