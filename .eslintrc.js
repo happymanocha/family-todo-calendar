@@ -41,6 +41,11 @@ module.exports = {
     'no-continue': 'off',
     'no-restricted-syntax': 'off',
     'radix': 'off',
+    'import/no-unresolved': 'off',
+    'import/extensions': 'off',
+    'import/order': 'off',
+    'no-new': 'off',
+    'no-restricted-globals': 'off',
   },
   overrides: [
     {
