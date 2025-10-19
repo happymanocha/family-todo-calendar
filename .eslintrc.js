@@ -16,6 +16,8 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'prefer-destructuring': 'warn',
     'class-methods-use-this': 'off',
+    'indent': 'off', // Allow any indentation style
+    'comma-dangle': 'off', // Allow trailing commas flexibility
   },
   overrides: [
     {
