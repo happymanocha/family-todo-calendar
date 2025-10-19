@@ -35,6 +35,12 @@ module.exports = {
     'operator-linebreak': 'off',
     'implicit-arrow-linebreak': 'off',
     'function-paren-newline': 'off',
+    'prefer-template': 'off',
+    'newline-per-chained-call': 'off',
+    'space-before-function-paren': 'off',
+    'no-continue': 'off',
+    'no-restricted-syntax': 'off',
+    'radix': 'off',
   },
   overrides: [
     {
