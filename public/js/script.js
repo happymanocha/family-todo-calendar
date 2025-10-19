@@ -960,7 +960,7 @@ class FamilyTodoApp {
             `;
 
             const response = await window.apiClient.get('/auth/family-members');
-            const members = response.members || [];
+            const members = response.data || [];
 
             // Update member count
             if (membersCountEl) {
@@ -987,11 +987,11 @@ class FamilyTodoApp {
             const isCurrentUserAdmin = this.currentFamily?.adminUserId === currentUser?.id;
 
             const membersHTML = members.map(member => {
-                const initials = member.displayName ?
-                    member.displayName.split(' ').map(n => n[0]).join('').toUpperCase() :
+                const initials = member.name ?
+                    member.name.split(' ').map(n => n[0]).join('').toUpperCase() :
                     member.email[0].toUpperCase();
 
-                const isMemberAdmin = member.isAdmin || false;
+                const isMemberAdmin = member.role === 'admin';
                 const isCurrentUserMember = member.id === currentUser?.id;
 
                 // Admin controls HTML (only show if current user is admin and not editing themselves)
@@ -1003,7 +1003,7 @@ class FamilyTodoApp {
                                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
                         </button>
-                        <button class="btn btn--icon btn--ghost btn--danger" onclick="window.app.deleteFamilyMember('${member.id}', '${member.displayName || member.email}')" title="Remove member">
+                        <button class="btn btn--icon btn--ghost btn--danger" onclick="window.app.deleteFamilyMember('${member.id}', '${member.name || member.email}')" title="Remove member">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="3 6 5 6 21 6"/>
                                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
@@ -1018,7 +1018,7 @@ class FamilyTodoApp {
                     <div class="family-member-item" data-member-id="${member.id}">
                         <div class="member-avatar">${initials}</div>
                         <div class="member-info">
-                            <div class="member-name">${member.displayName || member.email}${isCurrentUserMember ? ' (You)' : ''}</div>
+                            <div class="member-name">${member.name || member.email}${isCurrentUserMember ? ' (You)' : ''}</div>
                             <div class="member-email">${member.email}</div>
                         </div>
                         <div class="member-role ${isMemberAdmin ? 'admin' : ''}">
@@ -1055,7 +1055,7 @@ class FamilyTodoApp {
             }
 
             // Create edit modal
-            const newName = prompt(`Edit member name for ${member.email}:`, member.displayName || '');
+            const newName = prompt(`Edit member name for ${member.email}:`, member.name || '');
 
             if (newName === null) return; // User cancelled
 
@@ -1066,7 +1066,7 @@ class FamilyTodoApp {
 
             // Update member via API
             const response = await window.apiClient.put(`/families/${this.currentFamily.familyId}/members/${memberId}`, {
-                displayName: newName.trim()
+                name: newName.trim()
             });
 
             if (response && response.success) {
@@ -1572,7 +1572,7 @@ class FamilyTodoApp {
             }
 
             // Create family with user's name
-            const familyName = `${currentUser.displayName || currentUser.email.split('@')[0]}'s Family`;
+            const familyName = `${currentUser.name || currentUser.email.split('@')[0]}'s Family`;
 
             const response = await window.apiClient.post('/families', {
                 familyName: familyName

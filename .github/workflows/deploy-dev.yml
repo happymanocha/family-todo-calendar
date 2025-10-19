@@ -28,10 +28,30 @@ jobs:
         run: npm ci
 
       - name: Run linting
-        run: npm run lint || echo "No lint script found"
+        run: npm run lint
 
       - name: Run unit tests
-        run: npm test || echo "No test script found"
+        run: npm run test:unit
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Security scan
+        run: npm run security:scan
+        continue-on-error: true
+
+      - name: Check code coverage
+        run: npm run test:coverage
+        env:
+          COVERAGE_THRESHOLD: 70
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+        continue-on-error: true
 
   deploy:
     name: Deploy to Development
