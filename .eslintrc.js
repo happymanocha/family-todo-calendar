@@ -44,6 +44,7 @@ module.exports = {
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'import/order': 'off',
+    'import/newline-after-import': 'off',
     'no-new': 'off',
     'no-restricted-globals': 'off',
   },
