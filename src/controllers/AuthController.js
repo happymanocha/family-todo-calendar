@@ -8,6 +8,58 @@ const User = require('../models/User');
 
 class AuthController {
     /**
+     * @desc    Register new user
+     * @route   POST /api/auth/register
+     * @access  Public
+     */
+    async register(req, res) {
+        try {
+            const { email, password, name, role, familyCode, familyName } = req.body;
+
+            // Check if user already exists
+            const existingUser = await User.findByEmail(email);
+            if (existingUser) {
+                return res.status(409).json({
+                    success: false,
+                    message: 'User with this email already exists',
+                    code: 'USER_EXISTS'
+                });
+            }
+
+            // Create new user
+            const user = new User({
+                email: email.toLowerCase(),
+                name,
+                role: role || 'member'
+            });
+
+            // Hash password
+            user.password = await user.hashPassword(password);
+
+            // TODO: Save user to database
+            // For now, we can't persist as we're using hardcoded demo users
+            // This would require DynamoDB integration
+
+            res.status(201).json({
+                success: true,
+                message: 'User registered successfully',
+                data: {
+                    user: user.toJSON(),
+                    note: 'Registration endpoint created. Database persistence requires DynamoDB integration.'
+                }
+            });
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Registration failed',
+                code: 'REGISTRATION_ERROR'
+            });
+        }
+    }
+
+    /**
      * @desc    Login user
      * @route   POST /api/auth/login
      * @access  Public
@@ -23,8 +75,9 @@ class AuthController {
             }
 
             // Generate session data for client-side storage
+            const user = await User.findByEmail(email);
             const sessionData = AuthService.generateSession(
-                User.findByEmail(email),
+                user,
                 rememberMe
             );
 
@@ -114,7 +167,7 @@ class AuthController {
      */
     async getProfile(req, res) {
         try {
-            const user = User.findById(req.user.userId);
+            const user = await User.findById(req.user.userId);
 
             if (!user) {
                 return res.status(404).json({
@@ -163,7 +216,7 @@ class AuthController {
                 return res.status(401).json(result);
             }
 
-            const user = User.findById(result.payload.userId);
+            const user = await User.findById(result.payload.userId);
 
             res.status(200).json({
                 success: true,
@@ -191,7 +244,7 @@ class AuthController {
      */
     async getFamilyMembers(req, res) {
         try {
-            const familyMembers = User.getFamilyMembers();
+            const familyMembers = await User.getFamilyMembers();
 
             res.status(200).json({
                 success: true,

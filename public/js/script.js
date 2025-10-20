@@ -127,20 +127,20 @@ class FamilyTodoApp {
     redirectToLogin() {
         // Only redirect if not already on login or onboarding page
         const currentPath = window.location.pathname;
-        console.log('🔄 REDIRECT TO ONBOARDING TRIGGERED!');
+        console.log('🔄 REDIRECT TO LOGIN TRIGGERED!');
         console.log('🔄 Current path:', currentPath);
 
-        if (!currentPath.includes('login.html') && !currentPath.includes('onboarding.html')) {
-            console.log('🔄 Redirecting to onboarding page...');
+        if (!currentPath.includes('login.html') && !currentPath.includes('onboarding.html') && !currentPath.includes('register.html')) {
+            console.log('🔄 Redirecting to login page...');
             console.log('🔄 Will redirect in 100ms...');
 
             // Small delay to prevent rapid redirects and allow logging
             setTimeout(() => {
-                console.log('🔄 Executing redirect to onboarding now...');
-                window.location.href = '/onboarding.html';
+                console.log('🔄 Executing redirect to login now...');
+                window.location.href = '/login.html';
             }, 100);
         } else {
-            console.log('✅ Already on login or onboarding page, skipping redirect');
+            console.log('✅ Already on login/onboarding/register page, skipping redirect');
         }
     }
 
@@ -261,8 +261,16 @@ class FamilyTodoApp {
             return;
         }
 
-        // Clear existing buttons except "All Family"
-        familySelector.innerHTML = '<button class="btn btn--secondary family-btn active" data-member="all">All Family</button>';
+        // Clear existing buttons
+        familySelector.innerHTML = '';
+
+        // Create "All Family" button
+        const allFamilyButton = document.createElement('button');
+        allFamilyButton.className = 'btn btn--secondary family-btn active';
+        allFamilyButton.setAttribute('data-member', 'all');
+        allFamilyButton.textContent = 'All Family';
+        allFamilyButton.addEventListener('click', (e) => this.selectMember('all'));
+        familySelector.appendChild(allFamilyButton);
 
         // Add buttons for each family member
         members.forEach(member => {
@@ -1676,8 +1684,14 @@ class FamilyTodoApp {
     selectMember(member) {
         this.selectedMember = member;
 
+        // Remove active class from all buttons
         document.querySelectorAll('.family-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`[data-member="${member}"]`).classList.add('active');
+
+        // Add active class to selected button
+        const selectedButton = document.querySelector(`[data-member="${member}"]`);
+        if (selectedButton) {
+            selectedButton.classList.add('active');
+        }
 
         this.renderTodos();
         if (this.currentView === 'calendar') {

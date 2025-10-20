@@ -8,6 +8,7 @@ const router = express.Router();
 const TodoController = require('../controllers/TodoController');
 const { verifyToken } = require('../middleware/auth');
 const { validateBody, validateParams, validateQuery, schemas } = require('../middleware/validation');
+const { apiLimiter } = require('../middleware/rateLimiter');
 
 /**
  * @swagger
@@ -324,7 +325,7 @@ const { validateBody, validateParams, validateQuery, schemas } = require('../mid
  *       401:
  *         description: Unauthorized
  */
-router.get('/', verifyToken, validateQuery(schemas.todoQuery), TodoController.getAllTodos);
+router.get('/', apiLimiter, verifyToken, validateQuery(schemas.todoQuery), TodoController.getAllTodos);
 
 /**
  * @swagger
@@ -355,7 +356,7 @@ router.get('/', verifyToken, validateQuery(schemas.todoQuery), TodoController.ge
  *                 data:
  *                   $ref: '#/components/schemas/TodoStatistics'
  */
-router.get('/statistics', verifyToken, validateQuery(schemas.statisticsQuery), TodoController.getStatistics);
+router.get('/statistics', apiLimiter, verifyToken, validateQuery(schemas.statisticsQuery), TodoController.getStatistics);
 
 /**
  * @swagger
@@ -396,7 +397,7 @@ router.get('/statistics', verifyToken, validateQuery(schemas.statisticsQuery), T
  *                   items:
  *                     $ref: '#/components/schemas/Todo'
  */
-router.get('/upcoming', verifyToken, validateQuery(schemas.upcomingQuery), TodoController.getUpcoming);
+router.get('/upcoming', apiLimiter, verifyToken, validateQuery(schemas.upcomingQuery), TodoController.getUpcoming);
 
 /**
  * @swagger
@@ -419,7 +420,7 @@ router.get('/upcoming', verifyToken, validateQuery(schemas.upcomingQuery), TodoC
  *       400:
  *         description: Search query is required
  */
-router.get('/search', verifyToken, TodoController.searchTodos);
+router.get('/search', apiLimiter, verifyToken, TodoController.searchTodos);
 
 /**
  * @swagger
@@ -456,7 +457,7 @@ router.get('/search', verifyToken, TodoController.searchTodos);
  *       401:
  *         description: Unauthorized
  */
-router.get('/:id', verifyToken, validateParams(schemas.todoId), TodoController.getTodoById);
+router.get('/:id', apiLimiter, verifyToken, validateParams(schemas.todoId), TodoController.getTodoById);
 
 /**
  * @swagger
@@ -491,7 +492,7 @@ router.get('/:id', verifyToken, validateParams(schemas.todoId), TodoController.g
  *       401:
  *         description: Unauthorized
  */
-router.post('/', verifyToken, validateBody(schemas.createTodo), TodoController.createTodo);
+router.post('/', apiLimiter, verifyToken, validateBody(schemas.createTodo), TodoController.createTodo);
 
 /**
  * @swagger
@@ -525,7 +526,7 @@ router.post('/', verifyToken, validateBody(schemas.createTodo), TodoController.c
  *       401:
  *         description: Unauthorized
  */
-router.put('/:id', verifyToken, validateParams(schemas.todoId), validateBody(schemas.updateTodo), TodoController.updateTodo);
+router.put('/:id', apiLimiter, verifyToken, validateParams(schemas.todoId), validateBody(schemas.updateTodo), TodoController.updateTodo);
 
 /**
  * @swagger
@@ -565,7 +566,7 @@ router.put('/:id', verifyToken, validateParams(schemas.todoId), validateBody(sch
  *       401:
  *         description: Unauthorized
  */
-router.patch('/:id/status', verifyToken, validateParams(schemas.todoId), validateBody(schemas.updateStatus), TodoController.updateTodoStatus);
+router.patch('/:id/status', apiLimiter, verifyToken, validateParams(schemas.todoId), validateBody(schemas.updateStatus), TodoController.updateTodoStatus);
 
 /**
  * @swagger
@@ -591,7 +592,7 @@ router.patch('/:id/status', verifyToken, validateParams(schemas.todoId), validat
  *       401:
  *         description: Unauthorized
  */
-router.delete('/:id', verifyToken, validateParams(schemas.todoId), TodoController.deleteTodo);
+router.delete('/:id', apiLimiter, verifyToken, validateParams(schemas.todoId), TodoController.deleteTodo);
 
 /**
  * @swagger
@@ -632,7 +633,7 @@ router.delete('/:id', verifyToken, validateParams(schemas.todoId), TodoControlle
  *       401:
  *         description: Unauthorized
  */
-router.post('/:id/comments', verifyToken, validateParams(schemas.todoId), validateBody(schemas.addComment), TodoController.addComment);
+router.post('/:id/comments', apiLimiter, verifyToken, validateParams(schemas.todoId), validateBody(schemas.addComment), TodoController.addComment);
 
 /**
  * @swagger
@@ -667,6 +668,57 @@ router.post('/:id/comments', verifyToken, validateParams(schemas.todoId), valida
  *       401:
  *         description: Unauthorized
  */
-router.patch('/bulk', verifyToken, TodoController.bulkUpdateTodos);
+router.patch('/bulk', apiLimiter, verifyToken, TodoController.bulkUpdateTodos);
+
+/**
+ * @swagger
+ * /api/todos/bulk/delete:
+ *   delete:
+ *     summary: Bulk delete todos
+ *     tags: [Todos]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - todoIds
+ *             properties:
+ *               todoIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: uuid
+ *                 description: Array of todo IDs to delete
+ *     responses:
+ *       200:
+ *         description: Bulk delete completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     deleted:
+ *                       type: integer
+ *                     failed:
+ *                       type: integer
+ *                     total:
+ *                       type: integer
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ */
+router.delete('/bulk/delete', apiLimiter, verifyToken, TodoController.bulkDeleteTodos);
 
 module.exports = router;

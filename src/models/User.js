@@ -149,9 +149,10 @@ class User {
      * Get all family members
      * @returns {Array} Array of User instances
      */
-    static getFamilyMembers() {
-        return Object.entries(authConfig.familyMembers).map(([email, data]) => {
-            return new User({
+    static async getFamilyMembers() {
+        const members = [];
+        for (const [email, data] of Object.entries(authConfig.familyMembers)) {
+            const user = new User({
                 id: data.id,
                 uniqueId: data.uniqueId,
                 email: email,
@@ -159,10 +160,13 @@ class User {
                 role: data.role,
                 avatar: data.avatar,
                 phone: data.phone,
-                createdAt: data.createdAt,
-                password: 'family' // Default password for demo
+                createdAt: data.createdAt
             });
-        });
+            // Hash the default password
+            user.password = await user.hashPassword(process.env.DEFAULT_PASSWORD || 'Family2024!Secure');
+            members.push(user);
+        }
+        return members;
     }
 
     /**
@@ -170,11 +174,11 @@ class User {
      * @param {string} email User email
      * @returns {User|null} User instance or null
      */
-    static findByEmail(email) {
+    static async findByEmail(email) {
         const memberData = authConfig.familyMembers[email.toLowerCase()];
         if (!memberData) return null;
 
-        return new User({
+        const user = new User({
             id: memberData.id,
             uniqueId: memberData.uniqueId,
             email: email.toLowerCase(),
@@ -182,9 +186,11 @@ class User {
             role: memberData.role,
             avatar: memberData.avatar,
             phone: memberData.phone,
-            createdAt: memberData.createdAt,
-            password: 'family' // Default password for demo
+            createdAt: memberData.createdAt
         });
+        // Hash the default password
+        user.password = await user.hashPassword(process.env.DEFAULT_PASSWORD || 'Family2024!Secure');
+        return user;
     }
 
     /**
@@ -192,14 +198,14 @@ class User {
      * @param {string} id User ID
      * @returns {User|null} User instance or null
      */
-    static findById(id) {
+    static async findById(id) {
         const entry = Object.entries(authConfig.familyMembers)
             .find(([email, data]) => data.id === id);
 
         if (!entry) return null;
 
         const [email, data] = entry;
-        return new User({
+        const user = new User({
             id: data.id,
             uniqueId: data.uniqueId,
             email: email,
@@ -207,9 +213,11 @@ class User {
             role: data.role,
             avatar: data.avatar,
             phone: data.phone,
-            createdAt: data.createdAt,
-            password: 'family' // Default password for demo
+            createdAt: data.createdAt
         });
+        // Hash the default password
+        user.password = await user.hashPassword(process.env.DEFAULT_PASSWORD || 'Family2024!Secure');
+        return user;
     }
 }
 

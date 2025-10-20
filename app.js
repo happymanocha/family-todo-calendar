@@ -3,6 +3,9 @@
  * Express.js application with MVC architecture
  */
 
+// Load environment variables
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -36,7 +39,7 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'"],
             scriptSrcAttr: ["'unsafe-inline'"],
             imgSrc: ["'self'", "data:", "https:", "blob:"],
-            connectSrc: ["'self'"],
+            connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
             frameSrc: ["'self'"]

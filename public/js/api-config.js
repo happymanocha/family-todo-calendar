@@ -5,8 +5,24 @@
 
 class APIClient {
     constructor() {
-        this.baseURL = 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+        // Auto-detect API URL based on environment
+        // If running on localhost, use local API, otherwise use AWS
+        const isLocalhost = window.location.hostname === 'localhost' ||
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === '';
+
+        if (isLocalhost) {
+            // Local development - use local Express server
+            this.baseURL = 'http://localhost:3000/api/v1';
+            console.log('🔧 API: Using LOCAL development server');
+        } else {
+            // Production - use AWS Lambda
+            this.baseURL = 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+            console.log('☁️ API: Using AWS Lambda production server');
+        }
+
         this.token = localStorage.getItem('authToken');
+        console.log(`📡 API Base URL: ${this.baseURL}`);
     }
 
     // Get authorization headers

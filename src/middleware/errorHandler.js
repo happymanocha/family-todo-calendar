@@ -4,6 +4,21 @@
  */
 
 /**
+ * Custom API Error class for operational errors
+ */
+class APIError extends Error {
+    constructor(message, statusCode = 500, code = 'INTERNAL_ERROR', details = null) {
+        super(message);
+        this.name = 'APIError';
+        this.statusCode = statusCode;
+        this.code = code;
+        this.details = details;
+        this.isOperational = true;
+        Error.captureStackTrace(this, this.constructor);
+    }
+}
+
+/**
  * Error logging middleware
  */
 const errorLogger = (error, req, res, next) => {
@@ -53,20 +68,28 @@ const errorHandler = (error, req, res, next) => {
         code = 'INVALID_ID';
     }
 
-    // Don't expose internal error details in production
+    // Build standardized response
     const response = {
         success: false,
         message,
         code,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        path: req.originalUrl || req.url
     };
 
-    // Include error details in development
-    if (process.env.NODE_ENV === 'development') {
-        response.error = {
-            stack: error.stack,
-            details: error
-        };
+    // Add request ID if available
+    if (req.id) {
+        response.requestId = req.id;
+    }
+
+    // Add validation/additional details if present
+    if (error.details) {
+        response.details = error.details;
+    }
+
+    // Include error stack in development
+    if (process.env.NODE_ENV === 'development' && error.stack) {
+        response.stack = error.stack.split('\n').map(line => line.trim());
     }
 
     res.status(statusCode).json(response);
@@ -96,9 +119,43 @@ const asyncHandler = (fn) => {
     };
 };
 
+/**
+ * Common error creators for consistency across the application
+ */
+const errors = {
+    badRequest: (message = 'Bad request', details = null) =>
+        new APIError(message, 400, 'BAD_REQUEST', details),
+
+    unauthorized: (message = 'Unauthorized') =>
+        new APIError(message, 401, 'UNAUTHORIZED'),
+
+    forbidden: (message = 'Forbidden - insufficient permissions') =>
+        new APIError(message, 403, 'FORBIDDEN'),
+
+    notFound: (message = 'Resource not found') =>
+        new APIError(message, 404, 'NOT_FOUND'),
+
+    conflict: (message = 'Resource conflict') =>
+        new APIError(message, 409, 'CONFLICT'),
+
+    unprocessable: (message = 'Unprocessable entity', details = null) =>
+        new APIError(message, 422, 'UNPROCESSABLE_ENTITY', details),
+
+    tooManyRequests: (message = 'Too many requests, please try again later') =>
+        new APIError(message, 429, 'TOO_MANY_REQUESTS'),
+
+    internal: (message = 'Internal server error') =>
+        new APIError(message, 500, 'INTERNAL_ERROR'),
+
+    serviceUnavailable: (message = 'Service temporarily unavailable') =>
+        new APIError(message, 503, 'SERVICE_UNAVAILABLE')
+};
+
 module.exports = {
+    APIError,
     errorLogger,
     errorHandler,
     notFoundHandler,
-    asyncHandler
+    asyncHandler,
+    errors
 };

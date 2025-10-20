@@ -378,6 +378,52 @@ class TodoController {
             });
         }
     }
+
+    /**
+     * @desc    Bulk delete todos
+     * @route   DELETE /api/todos/bulk/delete
+     * @access  Private
+     */
+    async bulkDeleteTodos(req, res) {
+        try {
+            const { todoIds } = req.body;
+            const userId = req.user.userId;
+
+            if (!todoIds || !Array.isArray(todoIds) || todoIds.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Todo IDs array is required',
+                    code: 'TODO_IDS_REQUIRED'
+                });
+            }
+
+            const results = todoIds.map(id => {
+                return TodoService.deleteTodo(id, userId);
+            });
+
+            const successful = results.filter(r => r.success);
+            const failed = results.filter(r => !r.success);
+
+            res.status(200).json({
+                success: true,
+                message: 'Bulk delete completed',
+                data: {
+                    deleted: successful.length,
+                    failed: failed.length,
+                    total: todoIds.length,
+                    failures: failed
+                }
+            });
+
+        } catch (error) {
+            console.error('Bulk delete error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Bulk delete failed',
+                code: 'BULK_DELETE_ERROR'
+            });
+        }
+    }
 }
 
 module.exports = new TodoController();

@@ -21,8 +21,42 @@ app.use(helmet({
     }
 }));
 
-// Enable CORS for all routes
-app.use(cors());
+// Configure CORS with security best practices
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, Postman, curl)
+        if (!origin) return callback(null, true);
+
+        // Define allowed origins from environment or default to localhost
+        const allowedOrigins = process.env.ALLOWED_ORIGINS
+            ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+            : [
+                'http://localhost:3000',
+                'http://localhost:3001',
+                'http://127.0.0.1:3000',
+                'http://127.0.0.1:3001'
+            ];
+
+        // In development, allow all origins
+        if (process.env.NODE_ENV === 'development') {
+            return callback(null, true);
+        }
+
+        // In production, check against allowed origins
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true, // Allow cookies and credentials
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset'],
+    maxAge: 600 // Cache preflight requests for 10 minutes
+};
+
+app.use(cors(corsOptions));
 
 // Enable gzip compression
 app.use(compression());

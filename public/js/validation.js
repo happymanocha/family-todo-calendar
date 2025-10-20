@@ -69,16 +69,38 @@ class FormValidator {
             },
 
             futureDate: (value) => {
-                const inputDate = new Date(value);
+                // Parse date as local date to avoid timezone issues
+                // Input format is YYYY-MM-DD from date input
+                const dateParts = value.split('-');
+                if (dateParts.length !== 3) return false;
+
+                const year = parseInt(dateParts[0]);
+                const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+                const day = parseInt(dateParts[2]);
+
+                // Create date in local timezone
+                const inputDate = new Date(year, month, day);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
+
                 return inputDate >= today;
             },
 
             pastDate: (value) => {
-                const inputDate = new Date(value);
+                // Parse date as local date to avoid timezone issues
+                // Input format is YYYY-MM-DD from date input
+                const dateParts = value.split('-');
+                if (dateParts.length !== 3) return false;
+
+                const year = parseInt(dateParts[0]);
+                const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+                const day = parseInt(dateParts[2]);
+
+                // Create date in local timezone
+                const inputDate = new Date(year, month, day);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
+
                 return inputDate < today;
             },
 
@@ -88,7 +110,8 @@ class FormValidator {
             },
 
             familyCode: (value) => {
-                return /^[A-Z0-9]{6}$/.test(value);
+                // Family code can be 6-12 characters (configurable, default 10)
+                return /^[A-Z0-9]{6,12}$/.test(value);
             },
 
             password: (value) => {
@@ -125,7 +148,7 @@ class FormValidator {
             futureDate: 'Date must be today or in the future',
             pastDate: 'Date must be in the past',
             match: 'Fields do not match',
-            familyCode: 'Family code must be 6 uppercase letters/numbers',
+            familyCode: 'Family code must be 6-12 uppercase letters/numbers',
             password: 'Password must be at least 6 characters',
             strongPassword: 'Password must be at least 8 characters with uppercase, lowercase, and number'
         };

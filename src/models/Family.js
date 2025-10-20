@@ -24,14 +24,21 @@ class Family {
     }
 
     /**
-     * Generate a unique 6-character family code
+     * Generate a unique 10-character family code
+     * Format: XXX-XXX-XXXX for better readability
      * @returns {string} Family code
      */
     generateFamilyCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous chars: I, O, 0, 1
         let result = '';
-        for (let i = 0; i < 6; i++) {
+        const length = parseInt(process.env.FAMILY_CODE_LENGTH) || 10;
+
+        for (let i = 0; i < length; i++) {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
+            // Add hyphens for readability: XXX-XXX-XXXX
+            if (length === 10 && (i === 2 || i === 5)) {
+                result += '-';
+            }
         }
         return result;
     }

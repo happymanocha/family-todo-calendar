@@ -1,0 +1,428 @@
+/**
+ * Split Screen Authentication Design
+ * Chaos to Harmony Theme
+ */
+
+/* Main Container */
+.auth-split-container {
+    display: flex;
+    min-height: 100vh;
+    background: #ffffff;
+}
+
+/* Left Side - Story Animation */
+.auth-story-side {
+    flex: 1;
+    background: linear-gradient(135deg, #E0005A 0%, #FF4785 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    color: white;
+}
+
+/* Animated Background Pattern */
+.story-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+}
+
+.story-background::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 35px,
+            rgba(255, 255, 255, 0.1) 35px,
+            rgba(255, 255, 255, 0.1) 70px
+        );
+    animation: patternMove 20s linear infinite;
+}
+
+@keyframes patternMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+/* Story Content */
+.story-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+}
+
+.story-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.2;
+    order: 2;
+}
+
+.story-subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    margin: 0;
+    opacity: 0.9;
+    order: 3;
+}
+
+/* Chaos to Harmony Animation Container */
+.transformation-animation {
+    width: 100%;
+    max-width: 550px;
+    height: 550px;
+    position: relative;
+    order: 1;
+}
+
+/* Scene Container */
+.scene {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    padding: 40px;
+}
+
+.scene.active {
+    opacity: 1;
+}
+
+/* Scene Labels */
+.scene-label {
+    font-size: 24px;
+    font-weight: 800;
+    color: white;
+    text-align: center;
+    padding: 12px 32px;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+}
+
+.chaos-label {
+    background: rgba(239, 68, 68, 0.25);
+    border: 2px solid rgba(239, 68, 68, 0.4);
+}
+
+.harmony-label {
+    background: rgba(16, 185, 129, 0.25);
+    border: 2px solid rgba(16, 185, 129, 0.4);
+}
+
+/* Chaos Scene */
+.chaos-scene {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.chaos-item {
+    width: 90px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    animation: chaosFloat 2s ease-in-out infinite;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+.chaos-item:nth-child(1) { animation-delay: 0s; animation-duration: 1.8s; }
+.chaos-item:nth-child(2) { animation-delay: 0.2s; animation-duration: 2.2s; }
+.chaos-item:nth-child(3) { animation-delay: 0.4s; animation-duration: 2s; }
+.chaos-item:nth-child(4) { animation-delay: 0.6s; animation-duration: 1.9s; }
+.chaos-item:nth-child(5) { animation-delay: 0.8s; animation-duration: 2.1s; }
+.chaos-item:nth-child(6) { animation-delay: 1s; animation-duration: 2.3s; }
+.chaos-item:nth-child(7) { animation-delay: 1.2s; animation-duration: 2.4s; }
+.chaos-item:nth-child(8) { animation-delay: 1.4s; animation-duration: 1.7s; }
+
+@keyframes chaosFloat {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate(15px, -15px) rotate(8deg);
+    }
+    50% {
+        transform: translate(-10px, 10px) rotate(-5deg);
+    }
+    75% {
+        transform: translate(10px, 15px) rotate(6deg);
+    }
+}
+
+/* Harmony Scene */
+.harmony-scene {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.harmony-circle {
+    width: 380px;
+    height: 380px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 4px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.harmony-center {
+    width: 110px;
+    height: 110px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    }
+}
+
+.harmony-orbit {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+    animation: orbit 10s linear infinite;
+}
+
+.harmony-orbit:nth-child(2) { animation-delay: 0s; }
+.harmony-orbit:nth-child(3) { animation-delay: -2.5s; }
+.harmony-orbit:nth-child(4) { animation-delay: -5s; }
+.harmony-orbit:nth-child(5) { animation-delay: -7.5s; }
+
+@keyframes orbit {
+    0% {
+        transform: rotate(0deg) translateX(155px) rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg) translateX(155px) rotate(-360deg);
+    }
+}
+
+/* Features List */
+.story-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 16px;
+}
+
+.story-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.story-feature-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+/* Right Side - Form */
+.auth-form-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    background: #ffffff;
+    position: relative;
+}
+
+.auth-form-container {
+    width: 100%;
+    max-width: 460px;
+}
+
+.auth-form-header {
+    margin-bottom: 40px;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.auth-logo-icon {
+    width: 48px;
+    height: 48px;
+}
+
+.auth-logo-text {
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #E0005A, #FF4785);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.auth-description {
+    font-size: 16px;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .auth-split-container {
+        flex-direction: column;
+    }
+
+    .auth-story-side {
+        min-height: 50vh;
+        padding: 40px 24px;
+    }
+
+    .story-title {
+        font-size: 36px;
+    }
+
+    .story-subtitle {
+        font-size: 18px;
+    }
+
+    .transformation-animation {
+        height: 300px;
+        max-width: 300px;
+    }
+
+    .harmony-circle {
+        width: 220px;
+        height: 220px;
+    }
+
+    .auth-form-side {
+        padding: 40px 24px;
+    }
+}
+
+@media (max-width: 640px) {
+    .auth-story-side {
+        padding: 32px 20px;
+    }
+
+    .story-title {
+        font-size: 28px;
+    }
+
+    .story-subtitle {
+        font-size: 16px;
+        margin-bottom: 32px;
+    }
+
+    .transformation-animation {
+        height: 250px;
+        max-width: 250px;
+        margin-bottom: 32px;
+    }
+
+    .chaos-item {
+        width: 45px;
+        height: 45px;
+        font-size: 22px;
+    }
+
+    .harmony-circle {
+        width: 180px;
+        height: 180px;
+    }
+
+    .harmony-center {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
+
+    .harmony-orbit {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .auth-form-side {
+        padding: 32px 20px;
+    }
+
+    .auth-title {
+        font-size: 24px;
+    }
+
+    .story-features {
+        gap: 12px;
+    }
+
+    .story-feature {
+        font-size: 14px;
+        padding: 10px;
+    }
+}

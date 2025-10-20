@@ -5,108 +5,1171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nest - Organize Your Family, Beautifully</title>
     <meta name="description" content="Nest is the beautiful family organizer that brings everyone together. Manage tasks, schedule meetings, and coordinate family life - all in one elegant app.">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="css/nest-brand.css">
-    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/button-components.css">
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Hero Split Screen Adaptation */
+        .hero-split-container {
+            display: flex;
+            min-height: 100vh;
+            background: #ffffff;
+        }
+
+        /* Left Side - Story Animation (different from login/register) */
+        .hero-story-side {
+            flex: 1;
+            background: linear-gradient(135deg, #E0005A 0%, #FF4785 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            color: white;
+        }
+
+        /* Background pattern container */
+        .story-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+        }
+
+        /* Different background pattern for hero */
+        .hero-story-side .story-background::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background:
+                repeating-linear-gradient(
+                    60deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(255, 255, 255, 0.08) 40px,
+                    rgba(255, 255, 255, 0.08) 80px
+                );
+            animation: patternMove 25s linear infinite;
+        }
+
+        @keyframes patternMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Story content layout */
+        .story-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .story-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.2;
+            order: 2;
+        }
+
+        .story-subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            margin: 0;
+            opacity: 0.9;
+            order: 3;
+        }
+
+        .transformation-animation {
+            width: 100%;
+            max-width: 550px;
+            height: 550px;
+            position: relative;
+            order: 1;
+        }
+
+        /* Scene base - shared for both chaos and harmony */
+        .scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .scene.active {
+            opacity: 1;
+        }
+
+        /* Busy Family Scene (Chaos) - Cartoon Style */
+        .busy-scene {
+            gap: 35px;
+        }
+
+        .chaos-house {
+            width: 200px;
+            height: 180px;
+            position: relative;
+            animation: houseShake 0.5s ease-in-out infinite;
+        }
+
+        .chaos-house::before {
+            content: '🏚️';
+            font-size: 140px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: grayscale(0.3) opacity(0.8);
+        }
+
+        @keyframes houseShake {
+            0%, 100% { transform: rotate(-1deg); }
+            50% { transform: rotate(1deg); }
+        }
+
+        .busy-people-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            position: relative;
+        }
+
+        .busy-person {
+            width: 110px;
+            height: 110px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            animation: busyStress 1.5s ease-in-out infinite;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            position: relative;
+            border: 4px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .busy-person::after {
+            content: '💭';
+            position: absolute;
+            font-size: 38px;
+            top: -20px;
+            right: -20px;
+            animation: thoughtBubble 2s ease-in-out infinite;
+        }
+
+        .busy-person:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .busy-person:nth-child(1)::after { content: '📊'; font-size: 32px; }
+
+        .busy-person:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        .busy-person:nth-child(2)::after { content: '🥘'; font-size: 32px; }
+
+        .busy-person:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        .busy-person:nth-child(3)::after { content: '🎮'; font-size: 32px; }
+
+        .busy-person:nth-child(4) {
+            animation-delay: 0.9s;
+        }
+        .busy-person:nth-child(4)::after { content: '🍼'; font-size: 32px; }
+
+        @keyframes busyStress {
+            0%, 100% {
+                transform: scale(1) rotate(-4deg);
+            }
+            50% {
+                transform: scale(1.12) rotate(4deg);
+            }
+        }
+
+        @keyframes thoughtBubble {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-8px) scale(1.15);
+                opacity: 0.8;
+            }
+        }
+
+        /* Chaos indicators */
+        .chaos-indicators {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .chaos-icon {
+            position: absolute;
+            font-size: 40px;
+            animation: floatAround 3s ease-in-out infinite;
+        }
+
+        .chaos-icon:nth-child(1) {
+            top: 5%;
+            left: 8%;
+            animation-delay: 0s;
+        }
+
+        .chaos-icon:nth-child(2) {
+            top: 10%;
+            right: 10%;
+            animation-delay: 0.5s;
+        }
+
+        .chaos-icon:nth-child(3) {
+            bottom: 30%;
+            left: 5%;
+            animation-delay: 1s;
+        }
+
+        .chaos-icon:nth-child(4) {
+            bottom: 35%;
+            right: 8%;
+            animation-delay: 1.5s;
+        }
+
+        .chaos-icon:nth-child(5) {
+            top: 50%;
+            left: 2%;
+            animation-delay: 2s;
+        }
+
+        .scene-label {
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            text-align: center;
+            padding: 12px 32px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            margin-top: 20px;
+        }
+
+        .chaos-label {
+            background: rgba(239, 68, 68, 0.25);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .harmony-label {
+            background: rgba(16, 185, 129, 0.25);
+            border: 2px solid rgba(16, 185, 129, 0.4);
+        }
+
+        @keyframes floatAround {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translate(15px, -15px) rotate(180deg);
+                opacity: 0.9;
+            }
+        }
+
+        /* Organized Family Scene (Harmony) - Cartoon Style */
+        .organized-scene {
+            gap: 35px;
+        }
+
+        .happy-house {
+            width: 220px;
+            height: 200px;
+            position: relative;
+            animation: happyBounce 2s ease-in-out infinite;
+        }
+
+        .happy-house::before {
+            content: '🏡';
+            font-size: 160px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: drop-shadow(0 12px 30px rgba(16, 185, 129, 0.3));
+        }
+
+        .happy-house::after {
+            content: '💚';
+            font-size: 50px;
+            position: absolute;
+            top: -20px;
+            right: -15px;
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes happyBounce {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+            }
+            50% {
+                transform: translateY(-8px) scale(1.03);
+            }
+        }
+
+        @keyframes heartBeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            25% {
+                transform: scale(1.2);
+            }
+            50% {
+                transform: scale(1);
+            }
+        }
+
+        .happy-people-row {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            position: relative;
+        }
+
+        .happy-person {
+            width: 105px;
+            height: 105px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.2);
+            position: relative;
+            border: 4px solid rgba(16, 185, 129, 0.3);
+            animation: happyFloat 3s ease-in-out infinite;
+        }
+
+        .happy-person::before {
+            content: '😊';
+            position: absolute;
+            font-size: 26px;
+            top: -12px;
+            right: -12px;
+            background: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .happy-person::after {
+            position: absolute;
+            font-size: 30px;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: activityBounce 2s ease-in-out infinite;
+        }
+
+        .happy-person:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .happy-person:nth-child(1)::after {
+            content: '✅';
+        }
+
+        .happy-person:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        .happy-person:nth-child(2)::after {
+            content: '✅';
+        }
+
+        .happy-person:nth-child(3) {
+            animation-delay: 1s;
+        }
+        .happy-person:nth-child(3)::after {
+            content: '✅';
+        }
+
+        .happy-person:nth-child(4) {
+            animation-delay: 1.5s;
+        }
+        .happy-person:nth-child(4)::after {
+            content: '✅';
+        }
+
+        @keyframes happyFloat {
+            0%, 100% {
+                transform: translateY(0px) rotate(-2deg);
+            }
+            50% {
+                transform: translateY(-12px) rotate(2deg);
+            }
+        }
+
+        @keyframes activityBounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0px) scale(1);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-5px) scale(1.15);
+            }
+        }
+
+        /* Harmony indicators */
+        .harmony-indicators {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .harmony-icon {
+            position: absolute;
+            font-size: 42px;
+            animation: gentleFloat 4s ease-in-out infinite;
+        }
+
+        .harmony-icon:nth-child(1) {
+            top: 8%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .harmony-icon:nth-child(2) {
+            top: 12%;
+            right: 8%;
+            animation-delay: 1s;
+        }
+
+        .harmony-icon:nth-child(3) {
+            bottom: 25%;
+            left: 6%;
+            animation-delay: 2s;
+        }
+
+        .harmony-icon:nth-child(4) {
+            bottom: 30%;
+            right: 7%;
+            animation-delay: 3s;
+        }
+
+        .harmony-icon:nth-child(5) {
+            top: 50%;
+            right: 3%;
+            animation-delay: 4s;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-15px) rotate(10deg) scale(1.1);
+                opacity: 1;
+            }
+        }
+
+
+        /* Right Side - Hero Content */
+        .hero-content-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px 60px;
+            background: #ffffff;
+        }
+
+        .hero-nav {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 50%;
+            padding: 24px 60px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb;
+            z-index: 10;
+        }
+
+        .hero-main-content {
+            max-width: 600px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(224, 0, 90, 0.1), rgba(255, 71, 133, 0.1));
+            color: #E0005A;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+
+        .hero-main-title {
+            font-size: 56px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #E0005A, #FF4785);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-main-subtitle {
+            font-size: 20px;
+            color: #6b7280;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .hero-trust {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-split-container {
+                flex-direction: column;
+            }
+
+            .hero-story-side {
+                min-height: 70vh;
+                padding: 60px 24px 40px;
+            }
+
+            .hero-content-side {
+                padding: 60px 24px;
+            }
+
+            .hero-nav {
+                left: 0;
+                padding: 20px 24px;
+            }
+
+            .hero-main-title {
+                font-size: 42px;
+            }
+
+            .transformation-animation {
+                height: 480px;
+            }
+
+            .story-title {
+                font-size: 36px;
+            }
+
+            .story-subtitle {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero-story-side {
+                padding: 80px 20px 32px;
+                min-height: 65vh;
+            }
+
+            .hero-content-side {
+                padding: 40px 20px;
+            }
+
+            .hero-nav {
+                padding: 16px 20px;
+                gap: 8px;
+            }
+
+            .hero-main-title {
+                font-size: 32px;
+            }
+
+            .hero-main-subtitle {
+                font-size: 18px;
+            }
+
+            .transformation-animation {
+                height: 420px;
+                max-width: 90%;
+            }
+
+            .story-title {
+                font-size: 28px;
+            }
+
+            .story-subtitle {
+                font-size: 15px;
+            }
+
+            .busy-person {
+                width: 85px;
+                height: 85px;
+                font-size: 38px;
+            }
+
+            .happy-person {
+                width: 82px;
+                height: 82px;
+                font-size: 38px;
+            }
+
+            .chaos-house::before,
+            .happy-house::before {
+                font-size: 110px;
+            }
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: var(--nest-dark);
+            color: white;
+            padding: 60px 24px 24px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 80px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand .nest-logo {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nest-logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #E0005A, #FF4785);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-tagline {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 80px;
+        }
+
+        .footer-column h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-column a {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nest-footer-heart {
+            color: #E0005A;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(224, 0, 90, 0.1);
+            color: var(--nest-primary);
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: #6b7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .feature-card {
+            padding: 32px;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: var(--nest-primary);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .feature-card p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #6b7280;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 100px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, transparent 0%, rgba(224, 0, 90, 0.05) 50%, transparent 100%);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .testimonial-card {
+            padding: 32px;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .testimonial-card.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonial-stars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-text {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #1a1a1a;
+            margin-bottom: 24px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .author-role {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* CTA Section */
+        .cta {
+            max-width: 1200px;
+            margin: 0 auto 100px;
+            padding: 0 24px;
+        }
+
+        .cta-content {
+            background: linear-gradient(135deg, var(--nest-primary), #FF4785);
+            border-radius: 32px;
+            padding: 80px 48px;
+            text-align: center;
+            color: white;
+        }
+
+        .cta-content h2 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .cta-content p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn--cta-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 32px;
+            background: white;
+            color: var(--nest-primary);
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn--cta-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn--cta-secondary {
+            padding: 18px 32px;
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn--cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Nest Brand Button Styles */
+        .btn--nest-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #E0005A, #FF4785);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(224, 0, 90, 0.25);
+            cursor: pointer;
+        }
+
+        .btn--nest-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(224, 0, 90, 0.35);
+        }
+
+        .btn--nest-primary svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn--nest-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 28px;
+            background: white;
+            color: #E0005A;
+            border: 2px solid #E0005A;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn--nest-secondary:hover {
+            background: rgba(224, 0, 90, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .btn--nest-secondary svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .features-grid,
+            .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 36px;
+            }
+
+            .features-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-content h2 {
+                font-size: 32px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 32px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-container">
-            <div class="nest-logo">
-                <img src="images/nest-logo.svg" alt="Nest Logo" class="nest-logo-icon-large">
-                <span class="nest-logo-text">Nest</span>
+    <!-- Hero Split Screen -->
+    <section class="hero-split-container">
+        <!-- Left Side - Story Animation -->
+        <div class="hero-story-side">
+            <div class="story-background"></div>
+
+            <div class="story-content">
+                <!-- Animated Transformation - HERO -->
+                <div class="transformation-animation">
+                    <!-- Busy Scene -->
+                    <div class="scene busy-scene active" id="busyScene">
+                        <div class="chaos-indicators">
+                            <div class="chaos-icon">💥</div>
+                            <div class="chaos-icon">⚡</div>
+                            <div class="chaos-icon">💨</div>
+                            <div class="chaos-icon">😵</div>
+                            <div class="chaos-icon">🔥</div>
+                        </div>
+                        <div class="busy-people-grid">
+                            <div class="busy-person">🧑‍💼</div>
+                            <div class="busy-person">👩‍🍳</div>
+                            <div class="busy-person">🧒</div>
+                            <div class="busy-person">👶</div>
+                        </div>
+                        <div class="chaos-house"></div>
+                        <div class="scene-label chaos-label">Chaos & Stress</div>
+                    </div>
+
+                    <!-- Organized Scene -->
+                    <div class="scene organized-scene" id="organizedScene">
+                        <div class="harmony-indicators">
+                            <div class="harmony-icon">🌈</div>
+                            <div class="harmony-icon">🎉</div>
+                            <div class="harmony-icon">✨</div>
+                            <div class="harmony-icon">🌟</div>
+                            <div class="harmony-icon">💐</div>
+                        </div>
+                        <div class="happy-people-row">
+                            <div class="happy-person">🧑‍💼</div>
+                            <div class="happy-person">👩‍🍳</div>
+                            <div class="happy-person">🧒</div>
+                            <div class="happy-person">👶</div>
+                        </div>
+                        <div class="happy-house"></div>
+                        <div class="scene-label harmony-label">Beautiful Harmony</div>
+                    </div>
+                </div>
+
+                <h1 class="story-title">Chaos → Harmony</h1>
+                <p class="story-subtitle">Transform your busy family life</p>
             </div>
-            <div class="nav-links">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#testimonials" class="nav-link">Testimonials</a>
+        </div>
+
+        <!-- Right Side - Hero Content -->
+        <div class="hero-content-side">
+            <!-- Navigation -->
+            <div class="hero-nav">
                 <a href="login.html" class="btn btn--nest-secondary">Sign In</a>
                 <a href="register.html?mode=create" class="btn btn--nest-primary">Get Started</a>
             </div>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-background">
-            <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
-                <div class="shape shape-4"></div>
-                <div class="shape shape-5"></div>
-            </div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-badge">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <span>Family Organization Made Simple</span>
-            </div>
-            <h1 class="hero-title">Organize Your Family, <span class="gradient-text">Beautifully</span></h1>
-            <p class="hero-subtitle">Bring everyone together with Nest - the elegant family organizer that makes coordination effortless. Tasks, meetings, and memories, all in one place.</p>
-            <div class="hero-cta">
-                <a href="register.html?mode=create" class="btn btn--hero-primary">
-                    <span>Start Your Family</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14m-7-7l7 7-7 7"/>
+            <div class="hero-main-content">
+                <div class="hero-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
-                </a>
-                <a href="register.html?mode=join" class="btn btn--hero-secondary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-                    </svg>
-                    <span>Join a Family</span>
-                </a>
-            </div>
-            <p class="hero-trust">Trusted by families worldwide • Free to start • No credit card required</p>
-        </div>
-        <div class="hero-image">
-            <div class="hero-preview">
-                <div class="preview-header">
-                    <div class="preview-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                    <div class="preview-title">Family Dashboard</div>
+                    <span>Family Organization Made Simple</span>
                 </div>
-                <div class="preview-content">
-                    <div class="preview-card animate-slide-up" style="animation-delay: 0.1s">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #E0005A, #FF4785)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="card-text">
-                            <div class="card-title">Family Meeting</div>
-                            <div class="card-subtitle">Tomorrow at 6:00 PM</div>
-                        </div>
-                    </div>
-                    <div class="preview-card animate-slide-up" style="animation-delay: 0.2s">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #10B981, #059669)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                                <path d="M9 11l3 3L22 4"/>
-                            </svg>
-                        </div>
-                        <div class="card-text">
-                            <div class="card-title">Grocery Shopping</div>
-                            <div class="card-subtitle">Completed by Mom</div>
-                        </div>
-                    </div>
-                    <div class="preview-card animate-slide-up" style="animation-delay: 0.3s">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                                <path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
-                            </svg>
-                        </div>
-                        <div class="card-text">
-                            <div class="card-title">Doctor Appointment</div>
-                            <div class="card-subtitle">Friday at 3:30 PM</div>
-                        </div>
-                    </div>
+
+                <h1 class="hero-main-title">
+                    Organize Your Family, <span class="gradient-text">Beautifully</span>
+                </h1>
+
+                <p class="hero-main-subtitle">
+                    Bring everyone together with Nest - the elegant family organizer that makes coordination effortless. Tasks, meetings, and memories, all in one place.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="register.html?mode=create" class="btn btn--nest-primary" style="padding: 16px 32px; font-size: 16px;">
+                        <span>Start Your Family</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14m-7-7l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    <a href="register.html?mode=join" class="btn btn--nest-secondary" style="padding: 16px 32px; font-size: 16px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                        <span>Join a Family</span>
+                    </a>
                 </div>
+
+                <p class="hero-trust">Trusted by families worldwide • Free to start • No credit card required</p>
             </div>
         </div>
     </section>
@@ -317,6 +1380,27 @@
     </footer>
 
     <script>
+        // Animate between busy and organized scenes
+        function animateTransformation() {
+            const busyScene = document.getElementById('busyScene');
+            const organizedScene = document.getElementById('organizedScene');
+
+            setInterval(() => {
+                if (busyScene.classList.contains('active')) {
+                    busyScene.classList.remove('active');
+                    organizedScene.classList.add('active');
+                } else {
+                    organizedScene.classList.remove('active');
+                    busyScene.classList.add('active');
+                }
+            }, 4000);
+        }
+
+        // Start animation when page loads
+        window.addEventListener('load', () => {
+            setTimeout(animateTransformation, 2000);
+        });
+
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

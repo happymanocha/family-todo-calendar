@@ -8,6 +8,7 @@ const router = express.Router();
 const AuthController = require('../controllers/AuthController');
 const { verifyToken } = require('../middleware/auth');
 const { validateBody, schemas } = require('../middleware/validation');
+const { authLimiter, strictLimiter, createAccountLimiter } = require('../middleware/rateLimiter');
 
 /**
  * @swagger
@@ -105,6 +106,57 @@ const { validateBody, schemas } = require('../middleware/validation');
 
 /**
  * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register new user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - confirmPassword
+ *               - name
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *                 description: Must contain uppercase, lowercase, number, and special character
+ *               confirmPassword:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 100
+ *               role:
+ *                 type: string
+ *                 enum: [admin, member]
+ *                 default: member
+ *               familyCode:
+ *                 type: string
+ *                 description: Join existing family (optional)
+ *               familyName:
+ *                 type: string
+ *                 description: Create new family (required if no familyCode)
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       409:
+ *         description: User already exists
+ *       400:
+ *         description: Validation error
+ */
+router.post('/register', createAccountLimiter, validateBody(schemas.register), AuthController.register);
+
+/**
+ * @swagger
  * /api/auth/login:
  *   post:
  *     summary: Login user
@@ -127,7 +179,7 @@ const { validateBody, schemas } = require('../middleware/validation');
  *       400:
  *         description: Validation error
  */
-router.post('/login', validateBody(schemas.login), AuthController.login);
+router.post('/login', authLimiter, validateBody(schemas.login), AuthController.login);
 
 /**
  * @swagger
@@ -152,7 +204,7 @@ router.post('/login', validateBody(schemas.login), AuthController.login);
  *       401:
  *         description: Invalid refresh token
  */
-router.post('/refresh', validateBody(schemas.refreshToken), AuthController.refreshToken);
+router.post('/refresh', authLimiter, validateBody(schemas.refreshToken), AuthController.refreshToken);
 
 /**
  * @swagger
@@ -222,7 +274,7 @@ router.get('/profile', verifyToken, AuthController.getProfile);
  *       401:
  *         description: Invalid token
  */
-router.post('/validate', AuthController.validateToken);
+router.post('/validate', authLimiter, AuthController.validateToken);
 
 /**
  * @swagger

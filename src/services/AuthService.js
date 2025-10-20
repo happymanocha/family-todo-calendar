@@ -6,6 +6,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authConfig = require('../config/auth');
+const tokenBlacklist = require('./TokenBlacklist');
 
 class AuthService {
     /**
@@ -17,7 +18,7 @@ class AuthService {
     async authenticate(email, password) {
         try {
             // Find user by email
-            const user = User.findByEmail(email);
+            const user = await User.findByEmail(email);
             if (!user) {
                 return {
                     success: false,
@@ -35,9 +36,8 @@ class AuthService {
                 };
             }
 
-            // For demo purposes, we're using plain text password comparison
-            // In production, this would use bcrypt
-            const isPasswordValid = password === 'family';
+            // Verify password using bcrypt
+            const isPasswordValid = await user.comparePassword(password, user.password);
 
             if (!isPasswordValid) {
                 user.incrementLoginAttempts();
@@ -115,6 +115,15 @@ class AuthService {
      */
     verifyToken(token) {
         try {
+            // Check if token is blacklisted
+            if (tokenBlacklist.isBlacklisted(token)) {
+                return {
+                    success: false,
+                    message: 'Token has been revoked',
+                    code: 'TOKEN_REVOKED'
+                };
+            }
+
             const decoded = jwt.verify(token, authConfig.jwt.secret);
             return {
                 success: true,
@@ -124,6 +133,7 @@ class AuthService {
             return {
                 success: false,
                 message: 'Invalid or expired token',
+                code: 'INVALID_TOKEN',
                 error: error.message
             };
         }
@@ -137,7 +147,7 @@ class AuthService {
     async refreshToken(refreshToken) {
         try {
             const decoded = jwt.verify(refreshToken, authConfig.jwt.secret);
-            const user = User.findById(decoded.userId);
+            const user = await User.findById(decoded.userId);
 
             if (!user) {
                 return {
@@ -170,12 +180,25 @@ class AuthService {
      * @returns {Object} Logout result
      */
     logout(token) {
-        // In a real application, you would add the token to a blacklist
-        // For now, we'll just return success
-        return {
-            success: true,
-            message: 'Logout successful'
-        };
+        try {
+            // Verify token first to get expiration
+            const decoded = jwt.verify(token, authConfig.jwt.secret);
+
+            // Add token to blacklist with its expiration time
+            tokenBlacklist.addToken(token, decoded.exp);
+
+            return {
+                success: true,
+                message: 'Logout successful. Token has been revoked.'
+            };
+        } catch (error) {
+            // Even if token is invalid/expired, still return success
+            // User wants to logout anyway
+            return {
+                success: true,
+                message: 'Logout successful'
+            };
+        }
     }
 
     /**
@@ -183,13 +206,13 @@ class AuthService {
      * @param {string} token JWT token
      * @returns {Object} User data
      */
-    getCurrentUser(token) {
+    async getCurrentUser(token) {
         const verification = this.verifyToken(token);
         if (!verification.success) {
             return null;
         }
 
-        const user = User.findById(verification.payload.userId);
+        const user = await User.findById(verification.payload.userId);
         return user ? user.toJSON() : null;
     }
 

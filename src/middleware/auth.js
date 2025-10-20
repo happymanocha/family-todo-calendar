@@ -129,33 +129,73 @@ const requirePermission = (permission) => {
 /**
  * Resource ownership middleware
  * Checks if user owns the resource or has admin role
+ * @param {Function} resourceGetter Optional function to get resource for ownership check
  */
-const requireOwnership = (req, res, next) => {
-    if (!req.user) {
-        return res.status(401).json({
-            success: false,
-            message: 'Authentication required',
-            code: 'AUTH_REQUIRED'
-        });
-    }
+const requireOwnership = (resourceGetter = null) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Authentication required',
+                code: 'AUTH_REQUIRED'
+            });
+        }
 
-    // Admin can access any resource
-    if (req.user.role === 'admin') {
-        return next();
-    }
+        // Admin can access any resource
+        if (req.user.role === 'admin') {
+            return next();
+        }
 
-    // Check if user owns the resource
-    const resourceUserId = req.params.userId || req.body.userId || req.body.assignedTo;
+        // If custom resource getter provided, use it
+        if (resourceGetter && typeof resourceGetter === 'function') {
+            try {
+                const resource = resourceGetter(req);
+                if (!resource) {
+                    return res.status(404).json({
+                        success: false,
+                        message: 'Resource not found',
+                        code: 'RESOURCE_NOT_FOUND'
+                    });
+                }
 
-    if (resourceUserId && resourceUserId !== req.user.userId) {
-        return res.status(403).json({
-            success: false,
-            message: 'Access denied to this resource',
-            code: 'ACCESS_DENIED'
-        });
-    }
+                const isOwner = resource.createdBy === req.user.userId ||
+                                resource.assignedTo === req.user.userId ||
+                                resource.userId === req.user.userId;
 
-    next();
+                if (!isOwner) {
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Access denied to this resource',
+                        code: 'ACCESS_DENIED'
+                    });
+                }
+
+                return next();
+            } catch (error) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Authorization check failed',
+                    code: 'AUTH_CHECK_ERROR'
+                });
+            }
+        }
+
+        // Default behavior: check common user ID fields
+        const resourceUserId = req.params.userId ||
+                               req.body.userId ||
+                               req.body.assignedTo ||
+                               req.body.createdBy;
+
+        if (resourceUserId && resourceUserId !== req.user.userId) {
+            return res.status(403).json({
+                success: false,
+                message: 'Access denied to this resource',
+                code: 'ACCESS_DENIED'
+            });
+        }
+
+        next();
+    };
 };
 
 module.exports = {
