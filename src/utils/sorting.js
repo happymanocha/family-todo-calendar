@@ -55,9 +55,8 @@ const parseSortParam = (sortParam) => {
         if (field.startsWith('-')) {
             fieldName = field.substring(1);
             order = 'desc';
-        }
-        // Handle field:order format
-        else if (field.includes(':')) {
+        } else if (field.includes(':')) {
+            // Handle field:order format
             const parts = field.split(':');
             fieldName = parts[0].trim();
             order = normalizeSortOrder(parts[1]);
@@ -69,36 +68,6 @@ const parseSortParam = (sortParam) => {
     }
 
     return sorts;
-};
-
-/**
- * Sort array of objects by multiple fields
- * @param {Array} items Array to sort
- * @param {Array} sortFields Array of {field, order} objects
- * @returns {Array} Sorted array
- */
-const sortByFields = (items, sortFields) => {
-    if (!Array.isArray(items) || items.length === 0) {
-        return items;
-    }
-
-    if (!sortFields || sortFields.length === 0) {
-        return items;
-    }
-
-    return [...items].sort((a, b) => {
-        for (const { field, order } of sortFields) {
-            const aVal = getNestedValue(a, field);
-            const bVal = getNestedValue(b, field);
-
-            const comparison = compareValues(aVal, bVal);
-
-            if (comparison !== 0) {
-                return order === 'desc' ? -comparison : comparison;
-            }
-        }
-        return 0;
-    });
 };
 
 /**
@@ -138,7 +107,8 @@ const compareValues = (a, b) => {
 
     // Handle booleans
     if (typeof a === 'boolean' && typeof b === 'boolean') {
-        return a === b ? 0 : a ? 1 : -1;
+        if (a === b) return 0;
+        return a ? 1 : -1;
     }
 
     // Handle strings (case-insensitive)
@@ -148,6 +118,36 @@ const compareValues = (a, b) => {
     if (aStr < bStr) return -1;
     if (aStr > bStr) return 1;
     return 0;
+};
+
+/**
+ * Sort array of objects by multiple fields
+ * @param {Array} items Array to sort
+ * @param {Array} sortFields Array of {field, order} objects
+ * @returns {Array} Sorted array
+ */
+const sortByFields = (items, sortFields) => {
+    if (!Array.isArray(items) || items.length === 0) {
+        return items;
+    }
+
+    if (!sortFields || sortFields.length === 0) {
+        return items;
+    }
+
+    return [...items].sort((a, b) => {
+        for (const { field, order } of sortFields) {
+            const aVal = getNestedValue(a, field);
+            const bVal = getNestedValue(b, field);
+
+            const comparison = compareValues(aVal, bVal);
+
+            if (comparison !== 0) {
+                return order === 'desc' ? -comparison : comparison;
+            }
+        }
+        return 0;
+    });
 };
 
 /**

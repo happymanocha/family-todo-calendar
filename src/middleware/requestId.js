@@ -58,9 +58,10 @@ const requestIdMiddleware = (options = {}) => {
 
         // Intercept res.json to add requestId to all JSON responses
         const originalJson = res.json.bind(res);
-        res.json = function(body) {
+        res.json = function responseJsonWithRequestId(body) {
             if (body && typeof body === 'object' && !body.requestId) {
-                body.requestId = requestId;
+                const enhancedBody = { ...body, requestId };
+                return originalJson(enhancedBody);
             }
             return originalJson(body);
         };

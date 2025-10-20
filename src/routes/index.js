@@ -33,7 +33,7 @@ router.get('/health', (req, res) => {
 // API information endpoint
 router.get('/info', (req, res) => {
     res.status(200).json({
-        name: "Nest Family Organizer API",
+        name: 'Nest Family Organizer API',
         description: 'Complete family organization API with task and meeting management',
         version: '1.0.0',
         apiVersion: req.apiVersion || 'v1',

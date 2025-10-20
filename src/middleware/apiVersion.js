@@ -149,12 +149,16 @@ const deprecationWarning = (version, sunsetDate = null, replacementVersion = nul
             const originalJson = res.json.bind(res);
             res.json = (body) => {
                 if (body && typeof body === 'object') {
-                    body._deprecation = {
-                        message: `API version ${version} is deprecated`,
-                        sunsetDate,
-                        upgradeToVersion: replacementVersion,
-                        currentVersion: version
+                    const enhancedBody = {
+                        ...body,
+                        _deprecation: {
+                            message: `API version ${version} is deprecated`,
+                            sunsetDate,
+                            upgradeToVersion: replacementVersion,
+                            currentVersion: version
+                        }
                     };
+                    return originalJson(enhancedBody);
                 }
                 return originalJson(body);
             };
