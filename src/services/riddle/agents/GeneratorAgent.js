@@ -11,7 +11,7 @@ const { RiddleOutputSchema } = require('../schemas/riddleSchemas');
 class GeneratorAgent {
   constructor() {
     this.model = new ChatAnthropic({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-5',
       temperature: 0.8, // Higher creativity
       maxTokens: 800,
       anthropicApiKey: process.env.ANTHROPIC_API_KEY,

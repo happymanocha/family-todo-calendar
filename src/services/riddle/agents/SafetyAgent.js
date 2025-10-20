@@ -11,7 +11,7 @@ const { SafetyReviewSchema } = require('../schemas/riddleSchemas');
 class SafetyAgent {
   constructor() {
     this.model = new ChatAnthropic({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-5',
       temperature: 0.3, // Lower temperature for consistent judgment
       maxTokens: 500,
       anthropicApiKey: process.env.ANTHROPIC_API_KEY,
