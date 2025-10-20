@@ -10,21 +10,23 @@ const router = express.Router();
 const authRoutes = require('../auth');
 const todoRoutes = require('../todos');
 const familyRoutes = require('../families');
+const riddleRoutes = require('../riddles');
 
 // Health check for v1
 router.get('/health', (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'API v1 is healthy',
-        version: 'v1',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
-    });
+  res.status(200).json({
+    success: true,
+    message: 'API v1 is healthy',
+    version: 'v1',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+  });
 });
 
 // Mount v1 route modules
 router.use('/auth', authRoutes);
 router.use('/todos', todoRoutes);
 router.use('/families', familyRoutes);
+router.use('/riddles', riddleRoutes);
 
 module.exports = router;
