@@ -17,7 +17,7 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'prefer-destructuring': 'off',
     'class-methods-use-this': 'off',
-    'indent': 'off',
+    indent: 'off',
     'comma-dangle': 'off',
     'eol-last': 'off',
     'padded-blocks': 'off',
@@ -40,7 +40,7 @@ module.exports = {
     'space-before-function-paren': 'off',
     'no-continue': 'off',
     'no-restricted-syntax': 'off',
-    'radix': 'off',
+    radix: 'off',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
     'import/order': 'off',
@@ -53,6 +53,19 @@ module.exports = {
       files: ['**/__tests__/**/*.js', '**/*.test.js'],
       rules: {
         'no-unused-expressions': 'off',
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['src/services/riddle/agents/**/*.js', 'src/services/riddle/**/*.js'],
+      rules: {
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['src/controllers/**/*.js', 'src/config/**/*.js'],
+      rules: {
+        'no-console': 'off',
       },
     },
   ],
