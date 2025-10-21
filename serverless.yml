@@ -13,6 +13,7 @@ provider:
     FAMILIES_TABLE: ${self:service}-families-${self:provider.stage}
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     JWT_SECRET: ${env:JWT_SECRET, 'your-secret-key-here'}
+    ANTHROPIC_API_KEY: ${env:ANTHROPIC_API_KEY, ''}
     NODE_ENV: ${self:provider.stage}
   iam:
     role:

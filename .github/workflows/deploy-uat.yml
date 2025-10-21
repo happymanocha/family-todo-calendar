@@ -74,6 +74,8 @@ jobs:
 
       - name: Deploy to AWS
         run: serverless deploy --stage uat --verbose
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Get deployment info
         id: deploy-info

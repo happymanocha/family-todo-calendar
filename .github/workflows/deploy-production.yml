@@ -110,6 +110,7 @@ jobs:
       - name: Deploy to AWS (Production)
         run: serverless deploy --stage prod --verbose
         env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ENABLE_MONITORING: true
           ENABLE_ALERTING: true
 

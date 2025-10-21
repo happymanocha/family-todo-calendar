@@ -87,6 +87,7 @@ jobs:
         run: serverless deploy --stage dev --verbose
         env:
           JWT_SECRET: ${{ secrets.DEV_JWT_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Get deployment info
         id: deploy-info
