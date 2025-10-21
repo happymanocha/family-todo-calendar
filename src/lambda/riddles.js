@@ -4,7 +4,13 @@
  */
 
 const RiddleController = require('../controllers/RiddleController');
-const { lambdaWrapper, getAuthenticatedUser, parseBody } = require('../utils/lambda-utils');
+const {
+  lambdaWrapper,
+  getAuthenticatedUser,
+  parseBody,
+  successResponse,
+  errorResponse,
+} = require('../utils/lambda-utils');
 
 /**
  * Wrapper to convert Express-style controller to Lambda handler
@@ -25,7 +31,7 @@ const wrapController = (controllerMethod) => {
 
     // Mock Express response object
     let statusCode = 200;
-    let responseBody = {};
+    let responseData = null;
 
     const res = {
       status: (code) => {
@@ -33,7 +39,7 @@ const wrapController = (controllerMethod) => {
         return res;
       },
       json: (data) => {
-        responseBody = data;
+        responseData = data;
         return res;
       },
     };
@@ -48,11 +54,19 @@ const wrapController = (controllerMethod) => {
     // Call the controller
     await controllerMethod(req, res, next);
 
-    // Return Lambda response
-    return {
+    // Return appropriate response based on status code
+    if (statusCode >= 200 && statusCode < 300) {
+      return successResponse(
+        responseData?.data || responseData,
+        responseData?.message || 'Success',
+        statusCode
+      );
+    }
+    return errorResponse(
+      responseData?.message || 'Error',
       statusCode,
-      body: responseBody,
-    };
+      responseData?.code || 'ERROR'
+    );
   });
 };
 
