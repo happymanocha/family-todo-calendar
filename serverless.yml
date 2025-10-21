@@ -11,8 +11,10 @@ provider:
     TODOS_TABLE: ${self:service}-todos-${self:provider.stage}
     USERS_TABLE: ${self:service}-users-${self:provider.stage}
     FAMILIES_TABLE: ${self:service}-families-${self:provider.stage}
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
     JWT_SECRET: ${env:JWT_SECRET, 'your-secret-key-here'}
     NODE_ENV: ${self:provider.stage}
+    AWS_REGION: ${self:provider.region}
   iam:
     role:
       statements:
@@ -30,6 +32,7 @@ provider:
             - Fn::GetAtt: [TodosTable, Arn]
             - Fn::GetAtt: [UsersTable, Arn]
             - Fn::GetAtt: [FamiliesTable, Arn]
+            - Fn::GetAtt: [MainTable, Arn]
             - Fn::Join:
               - '/'
               - - Fn::GetAtt: [TodosTable, Arn]
@@ -41,6 +44,10 @@ provider:
             - Fn::Join:
               - '/'
               - - Fn::GetAtt: [FamiliesTable, Arn]
+                - 'index/*'
+            - Fn::Join:
+              - '/'
+              - - Fn::GetAtt: [MainTable, Arn]
                 - 'index/*'
 
 package:
@@ -298,6 +305,39 @@ functions:
           method: patch
           cors: true
 
+  # Riddle endpoints
+  getTodaysRiddle:
+    handler: src/lambda/riddles.getTodaysRiddle
+    events:
+      - http:
+          path: /api/v1/riddles/today
+          method: get
+          cors: true
+
+  revealAnswer:
+    handler: src/lambda/riddles.revealAnswer
+    events:
+      - http:
+          path: /api/v1/riddles/answer
+          method: get
+          cors: true
+
+  getHint:
+    handler: src/lambda/riddles.getHint
+    events:
+      - http:
+          path: /api/v1/riddles/hint/{hintNumber}
+          method: get
+          cors: true
+
+  markRiddleSolved:
+    handler: src/lambda/riddles.markSolved
+    events:
+      - http:
+          path: /api/v1/riddles/solve
+          method: post
+          cors: true
+
 resources:
   Resources:
     # DynamoDB Tables
@@ -415,6 +455,26 @@ resources:
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
+
+    # Main DynamoDB table for single-table design (used by riddles)
+    MainTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: TTL
+          Enabled: true
 
     # S3 Bucket for static website hosting
     WebsiteBucket:
