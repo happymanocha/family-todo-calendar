@@ -1,0 +1,319 @@
+/* Riddle Widget Styles */
+.riddle-widget {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    width: 320px;
+    background: var(--surface-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.riddle-widget.collapsed {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.riddle-widget.hidden {
+    display: none;
+}
+
+/* Header */
+.riddle-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.riddle-widget.collapsed .riddle-header {
+    border-radius: 50%;
+    padding: 18px;
+    justify-content: center;
+}
+
+.riddle-title {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.riddle-widget.collapsed .riddle-title {
+    font-size: 24px;
+}
+
+.riddle-widget.collapsed .riddle-title-text {
+    display: none;
+}
+
+.riddle-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.riddle-widget.collapsed .riddle-toggle {
+    display: none;
+}
+
+.riddle-toggle:hover {
+    transform: scale(1.1);
+}
+
+.riddle-toggle svg {
+    transition: transform 0.3s ease;
+}
+
+.riddle-widget:not(.collapsed) .riddle-toggle.expanded svg {
+    transform: rotate(180deg);
+}
+
+/* Body */
+.riddle-body {
+    padding: 20px;
+}
+
+.riddle-widget.collapsed .riddle-body {
+    display: none;
+}
+
+/* Flash Card */
+.riddle-card {
+    background: var(--background-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    border: 2px solid var(--border-color);
+}
+
+.riddle-question {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.riddle-category {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 11px;
+    padding: 4px 10px;
+    background: var(--accent-color);
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.riddle-answer-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+}
+
+.riddle-answer {
+    font-size: 14px;
+    color: var(--success-color);
+    font-weight: 600;
+    display: none;
+}
+
+.riddle-answer.revealed {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hints Section */
+.riddle-hints {
+    margin-bottom: 16px;
+}
+
+.riddle-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 10px 12px;
+    background: var(--surface-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: none;
+    border-left: 3px solid var(--warning-color);
+}
+
+.riddle-hint.revealed {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Buttons */
+.riddle-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.riddle-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.riddle-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.riddle-btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.riddle-btn-primary:hover:not(:disabled) {
+    background: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.riddle-btn-secondary {
+    background: var(--background-color);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.riddle-btn-secondary:hover:not(:disabled) {
+    background: var(--surface-color);
+    border-color: var(--primary-color);
+}
+
+.riddle-btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.riddle-btn-success:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Hint Counter */
+.hint-counter {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+/* Loading State */
+.riddle-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.riddle-spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error State */
+.riddle-error {
+    text-align: center;
+    padding: 20px;
+    color: var(--danger-color);
+    font-size: 13px;
+}
+
+/* Dark Mode */
+body.dark-mode .riddle-widget {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .riddle-card {
+    background: var(--background-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .riddle-hint {
+    background: var(--background-color);
+}
+
+body.dark-mode .riddle-btn-secondary {
+    background: var(--surface-color);
+    color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .riddle-widget {
+        right: 10px;
+        top: 80px;
+        width: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .riddle-widget {
+        position: relative;
+        width: 100%;
+        right: 0;
+        top: 0;
+        margin-bottom: 20px;
+    }
+}
