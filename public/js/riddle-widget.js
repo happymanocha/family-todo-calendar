@@ -23,7 +23,7 @@ class RiddleWidget {
       this.attachEventListeners();
     } catch (error) {
       console.error('[RiddleWidget] Initialization failed:', error);
-      this.handleError(error);
+      this.renderError(error.message || 'Failed to load riddle');
     }
   }
 
