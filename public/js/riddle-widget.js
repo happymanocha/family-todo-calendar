@@ -37,7 +37,7 @@ class RiddleWidget {
       const API_BASE_URL =
         window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
           ? 'http://localhost:3000/api/v1'
-          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api/v1';
 
       const response = await fetch(`${API_BASE_URL}/riddles/today`, {
         headers: {
@@ -281,7 +281,7 @@ class RiddleWidget {
       const API_BASE_URL =
         window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
           ? 'http://localhost:3000/api/v1'
-          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api/v1';
 
       const response = await fetch(`${API_BASE_URL}/riddles/solve`, {
         method: 'POST',
@@ -323,7 +323,7 @@ class RiddleWidget {
       const API_BASE_URL =
         window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
           ? 'http://localhost:3000/api/v1'
-          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api/v1';
 
       await fetch(`${API_BASE_URL}/riddles/hint/${hintNumber}`, {
         method: 'GET',

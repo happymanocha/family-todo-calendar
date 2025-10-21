@@ -4,18 +4,23 @@
  */
 
 const RiddleController = require('../controllers/RiddleController');
+const { lambdaWrapper, getAuthenticatedUser, parseBody } = require('../utils/lambda-utils');
 
 /**
  * Wrapper to convert Express-style controller to Lambda handler
  */
 const wrapController = (controllerMethod) => {
-  return async (event) => {
+  return lambdaWrapper(async (event) => {
+    // Get authenticated user
+    const user = getAuthenticatedUser(event);
+
     // Mock Express request object
     const req = {
-      user: event.requestContext.authorizer || {},
+      user,
       params: event.pathParameters || {},
-      body: event.body ? JSON.parse(event.body) : {},
+      body: parseBody(event.body),
       headers: event.headers || {},
+      query: event.queryStringParameters || {},
     };
 
     // Mock Express response object
@@ -36,11 +41,7 @@ const wrapController = (controllerMethod) => {
     // Mock Express next function
     const next = (error) => {
       if (error) {
-        statusCode = error.statusCode || 500;
-        responseBody = {
-          success: false,
-          message: error.message || 'Internal server error',
-        };
+        throw error;
       }
     };
 
@@ -50,14 +51,9 @@ const wrapController = (controllerMethod) => {
     // Return Lambda response
     return {
       statusCode,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify(responseBody),
+      body: responseBody,
     };
-  };
+  });
 };
 
 /**
