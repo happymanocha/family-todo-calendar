@@ -4,7 +4,6 @@
  */
 
 /* eslint-env browser */
-/* global API_CONFIG */
 /* eslint-disable no-console */
 
 class RiddleWidget {
@@ -13,6 +12,7 @@ class RiddleWidget {
     this.hintsRevealed = 0;
     this.answerRevealed = false;
     this.isCollapsed = this.loadCollapsedState();
+    this.maxHints = 1; // Only 1 hint available
     this.init();
   }
 
@@ -29,12 +29,17 @@ class RiddleWidget {
 
   async fetchRiddle() {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         throw new Error('Not authenticated');
       }
 
-      const response = await fetch(`${API_CONFIG.BASE_URL}/riddles/today`, {
+      const API_BASE_URL =
+        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3000/api/v1'
+          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+
+      const response = await fetch(`${API_BASE_URL}/riddles/today`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -110,18 +115,12 @@ class RiddleWidget {
 
         <div class="riddle-hints">
           <div class="riddle-hint" id="hint-1" data-hint="1">
-            <strong>Hint 1:</strong> ${this.riddleData.hint1}
-          </div>
-          <div class="riddle-hint" id="hint-2" data-hint="2">
-            <strong>Hint 2:</strong> ${this.riddleData.hint2}
-          </div>
-          <div class="riddle-hint" id="hint-3" data-hint="3">
-            <strong>Hint 3:</strong> ${this.riddleData.hint3}
+            <strong>Hint:</strong> ${this.riddleData.hint1}
           </div>
         </div>
 
         <div class="hint-counter" id="hint-counter">
-          Hints revealed: ${this.hintsRevealed}/3
+          Hints revealed: ${this.hintsRevealed}/${this.maxHints}
         </div>
 
         <div class="riddle-actions">
@@ -234,7 +233,7 @@ class RiddleWidget {
   }
 
   showNextHint() {
-    if (this.hintsRevealed >= 3) {
+    if (this.hintsRevealed >= this.maxHints) {
       return;
     }
 
@@ -248,11 +247,11 @@ class RiddleWidget {
     this.saveState();
 
     // Disable button if all hints revealed
-    if (this.hintsRevealed >= 3) {
+    if (this.hintsRevealed >= this.maxHints) {
       const btn = document.getElementById('get-hint-btn');
       if (btn) {
         btn.disabled = true;
-        btn.textContent = '✓ All Hints Revealed';
+        btn.textContent = '✓ Hint Revealed';
       }
     }
 
@@ -278,8 +277,13 @@ class RiddleWidget {
 
   async markSolved() {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_CONFIG.BASE_URL}/riddles/solve`, {
+      const token = localStorage.getItem('authToken');
+      const API_BASE_URL =
+        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3000/api/v1'
+          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+
+      const response = await fetch(`${API_BASE_URL}/riddles/solve`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -309,23 +313,34 @@ class RiddleWidget {
   }
 
   async trackHintViewed(hintNumber) {
+    // Only track hints that exist (we only have 1 hint now)
+    if (hintNumber > this.maxHints) {
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('token');
-      await fetch(`${API_CONFIG.BASE_URL}/riddles/hint/${hintNumber}`, {
+      const token = localStorage.getItem('authToken');
+      const API_BASE_URL =
+        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3000/api/v1'
+          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+
+      await fetch(`${API_BASE_URL}/riddles/hint/${hintNumber}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
     } catch (error) {
-      console.error('[RiddleWidget] Failed to track hint:', error);
+      // Silently fail - hint tracking is not critical
+      console.debug('[RiddleWidget] Hint tracking skipped:', error.message);
     }
   }
 
   updateHintCounter() {
     const counter = document.getElementById('hint-counter');
     if (counter) {
-      counter.textContent = `Hints revealed: ${this.hintsRevealed}/3`;
+      counter.textContent = `Hints revealed: ${this.hintsRevealed}/${this.maxHints}`;
     }
   }
 
@@ -373,11 +388,11 @@ class RiddleWidget {
       }
       this.hintsRevealed = state.hintsRevealed;
 
-      if (this.hintsRevealed >= 3) {
+      if (this.hintsRevealed >= this.maxHints) {
         const btn = document.getElementById('get-hint-btn');
         if (btn) {
           btn.disabled = true;
-          btn.textContent = '✓ All Hints Revealed';
+          btn.textContent = '✓ Hint Revealed';
         }
       }
 
@@ -439,9 +454,14 @@ class RiddleWidget {
 
 // Initialize widget when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[RiddleWidget] DOM loaded, checking authentication...');
   // Check if user is authenticated
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
+  console.log('[RiddleWidget] Auth token present:', !!token);
   if (token) {
+    console.log('[RiddleWidget] Initializing widget...');
     new RiddleWidget();
+  } else {
+    console.log('[RiddleWidget] No auth token found, widget will not initialize');
   }
 });

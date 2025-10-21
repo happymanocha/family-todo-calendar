@@ -16,7 +16,9 @@ class RiddleController {
       const userId = req.user.userId || req.user.id;
 
       // Check if riddle exists
-      let riddle = await Riddle.getToday(familyId);
+      // In dev/localdev: returns null unless solved (forces new generation)
+      // In production: returns existing riddle for today (24-hour frequency)
+      let riddle = await Riddle.getToday(familyId, userId);
 
       if (!riddle) {
         // Generate new riddle
@@ -54,6 +56,10 @@ class RiddleController {
         success: true,
         data: {
           riddle: riddle.riddle,
+          answer: riddle.answer,
+          hint1: riddle.hint1,
+          hint2: riddle.hint2,
+          hint3: riddle.hint3,
           category: riddle.category,
           difficulty: riddle.difficulty,
           date: riddle.date,
