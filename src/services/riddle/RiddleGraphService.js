@@ -255,12 +255,12 @@ class RiddleGraphService {
       // Failed to generate
       console.error('❌ Failed to generate valid riddle');
       console.error(`Error: ${finalState.error}`);
-      console.error(`Feedback: ${finalState.feedback.join('; ')}`);
+      console.error(`Feedback: ${finalState.feedback?.join('; ') || 'No feedback available'}`);
 
       throw new Error(
         finalState.error ||
           `Failed to generate valid riddle after ${finalState.attempt} attempts. ` +
-            `Feedback: ${finalState.feedback.slice(-1)[0] || 'Unknown reason'}`
+            `Feedback: ${finalState.feedback?.slice(-1)[0] || 'Unknown reason'}`
       );
     } catch (error) {
       console.error('[Graph] Generation failed:', error.message);
