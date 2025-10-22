@@ -308,6 +308,7 @@ functions:
   # Riddle endpoints
   getTodaysRiddle:
     handler: src/lambda/riddles.getTodaysRiddle
+    timeout: 60
     events:
       - http:
           path: /api/v1/riddles/today
