@@ -52,6 +52,8 @@ tags:
     description: Family management operations
   - name: Todos
     description: Todo and task management
+  - name: Riddles
+    description: Daily AI-generated riddles for family engagement
 
 components:
   securitySchemes:
@@ -346,6 +348,51 @@ components:
         period:
           type: string
           example: "30 days"
+
+    Riddle:
+      type: object
+      properties:
+        riddle:
+          type: string
+          example: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?"
+          description: The riddle question
+        answer:
+          type: string
+          example: "A map"
+          description: The answer to the riddle
+        hint1:
+          type: string
+          example: "Think about something you use for navigation"
+          description: First hint
+        hint2:
+          type: string
+          nullable: true
+          example: "It's a representation, not the real thing"
+          description: Second hint (may not be available)
+        hint3:
+          type: string
+          nullable: true
+          example: "You can fold it and put it in your pocket"
+          description: Third hint (may not be available)
+        category:
+          type: string
+          example: "Logic"
+          description: Category of the riddle (e.g., Logic, Wordplay, Math)
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 6
+          description: Difficulty rating from 1 (easiest) to 10 (hardest)
+        date:
+          type: string
+          format: date
+          example: "2025-10-22"
+          description: The date this riddle is for
+        solvedByYou:
+          type: boolean
+          example: false
+          description: Whether the current user has marked this riddle as solved
 
 paths:
   /api/health:
@@ -1697,3 +1744,171 @@ paths:
                                 type: integer
                               failed:
                                 type: integer
+
+  /api/v1/riddles/today:
+    get:
+      tags:
+        - Riddles
+      summary: Get today's riddle
+      description: |
+        Get the riddle for today. If no riddle exists for today, a new one will be generated using AI.
+        The riddle is generated using a multi-agent LangGraph workflow powered by Claude Sonnet 4.5.
+
+        **Behavior by Environment:**
+        - **Development/Staging**: Always generates a new riddle (unless already solved)
+        - **Production**: Returns the same riddle for 24 hours
+
+        **Note**: This endpoint may take up to 60 seconds to respond when generating a new riddle.
+      operationId: getTodaysRiddle
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Riddle retrieved or generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        oneOf:
+                          - $ref: '#/components/schemas/Riddle'
+                          - type: 'null'
+                            description: Returned in production when riddle generation fails (graceful degradation)
+        '500':
+          description: Riddle generation failed (development/staging only)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      environment:
+                        type: string
+                        example: "development"
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/riddles/answer:
+    get:
+      tags:
+        - Riddles
+      summary: Reveal the answer
+      description: Get the answer to today's riddle without marking it as solved
+      operationId: revealAnswer
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Answer revealed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          answer:
+                            type: string
+                            example: "A map"
+        '404':
+          description: No riddle found for today
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/riddles/hint/{hintNumber}:
+    get:
+      tags:
+        - Riddles
+      summary: Get a hint
+      description: Get a specific hint for today's riddle (hint numbers 1-3)
+      operationId: getHint
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: hintNumber
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 3
+          description: The hint number to retrieve (1, 2, or 3)
+          example: 1
+      responses:
+        '200':
+          description: Hint retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          hint:
+                            type: string
+                            nullable: true
+                            example: "Think about something you use for navigation"
+                            description: The requested hint (may be null if that hint doesn't exist)
+        '404':
+          description: No riddle found for today
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/riddles/solve:
+    post:
+      tags:
+        - Riddles
+      summary: Mark riddle as solved
+      description: Mark today's riddle as solved by the current user. This tracks which users have successfully solved the riddle.
+      operationId: markRiddleSolved
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Riddle marked as solved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Congratulations!"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
