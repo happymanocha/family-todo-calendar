@@ -34,23 +34,13 @@ class RiddleWidget {
         throw new Error('Not authenticated');
       }
 
-      const API_BASE_URL =
-        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? 'http://localhost:3000/api/v1'
-          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api/v1';
+      // Use global apiClient for consistent API URL management
+      const result = await window.apiClient.getTodaysRiddle();
 
-      const response = await fetch(`${API_BASE_URL}/riddles/today`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch riddle: ${response.status}`);
+      // Handle null response (network error or auth error)
+      if (result === null) {
+        throw new Error('Failed to fetch riddle');
       }
-
-      const result = await response.json();
 
       // Handle production environment where widget hides silently
       if (result.success && result.data === null) {
@@ -277,22 +267,17 @@ class RiddleWidget {
 
   async markSolved() {
     try {
-      const token = localStorage.getItem('authToken');
-      const API_BASE_URL =
-        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? 'http://localhost:3000/api/v1'
-          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api/v1';
+      // Use global apiClient for consistent API URL management
+      const result = await window.apiClient.markRiddleSolved();
 
-      const response = await fetch(`${API_BASE_URL}/riddles/solve`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      console.log('[RiddleWidget] Mark solved response:', result);
 
-      if (!response.ok) {
-        throw new Error('Failed to mark as solved');
+      if (!result) {
+        throw new Error('No response from server (possible network error or authentication issue)');
+      }
+
+      if (!result.success) {
+        throw new Error(result.message || 'Server returned unsuccessful response');
       }
 
       const btn = document.getElementById('mark-solved-btn');
@@ -308,7 +293,7 @@ class RiddleWidget {
       this.showToast('Great job! Riddle marked as solved! 🎉');
     } catch (error) {
       console.error('[RiddleWidget] Failed to mark solved:', error);
-      this.showToast('Failed to mark as solved', 'error');
+      this.showToast('Failed to mark as solved: ' + error.message, 'error');
     }
   }
 
@@ -319,18 +304,8 @@ class RiddleWidget {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
-      const API_BASE_URL =
-        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? 'http://localhost:3000/api/v1'
-          : 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api/v1';
-
-      await fetch(`${API_BASE_URL}/riddles/hint/${hintNumber}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Use global apiClient for consistent API URL management
+      await window.apiClient.getRiddleHint(hintNumber);
     } catch (error) {
       // Silently fail - hint tracking is not critical
       console.debug('[RiddleWidget] Hint tracking skipped:', error.message);

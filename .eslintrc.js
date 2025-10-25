@@ -68,5 +68,16 @@ module.exports = {
         'no-console': 'off',
       },
     },
+    {
+      files: ['public/**/*.js'],
+      env: {
+        browser: true,
+        node: false,
+      },
+      rules: {
+        'no-console': 'off',
+        'no-undef': 'off',
+      },
+    },
   ],
 };
