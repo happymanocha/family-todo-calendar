@@ -291,6 +291,27 @@ class RiddleWidget {
 
       // Show success feedback
       this.showToast('Great job! Riddle marked as solved! 🎉');
+
+      // Wait 2 seconds, then fetch a new riddle
+      setTimeout(async () => {
+        console.log('[RiddleWidget] Fetching new riddle after solve...');
+
+        // Clear saved state to allow new riddle
+        localStorage.removeItem('riddleWidgetState');
+
+        // Show loading state
+        this.renderLoading();
+
+        try {
+          await this.fetchRiddle();
+          this.render();
+          this.attachEventListeners();
+          this.showToast('New riddle loaded! 🎯', 'success');
+        } catch (error) {
+          console.error('[RiddleWidget] Failed to load new riddle:', error);
+          this.renderError(error.message || 'Failed to load new riddle');
+        }
+      }, 2000);
     } catch (error) {
       console.error('[RiddleWidget] Failed to mark solved:', error);
       this.showToast('Failed to mark as solved: ' + error.message, 'error');
