@@ -9,256 +9,254 @@ const authConfig = require('../config/auth');
 const tokenBlacklist = require('./TokenBlacklist');
 
 class AuthService {
-    /**
-     * Authenticate user with email and password
-     * @param {string} email User email
-     * @param {string} password User password
-     * @returns {Promise<Object>} Authentication result
-     */
-    async authenticate(email, password) {
-        try {
-            // Find user by email
-            const user = await User.findByEmail(email);
-            if (!user) {
-                return {
-                    success: false,
-                    message: 'Invalid email or password',
-                    code: 'INVALID_CREDENTIALS'
-                };
-            }
-
-            // Check if user is locked
-            if (user.isLocked()) {
-                return {
-                    success: false,
-                    message: 'Account is temporarily locked due to too many failed login attempts',
-                    code: 'ACCOUNT_LOCKED'
-                };
-            }
-
-            // Verify password using bcrypt
-            const isPasswordValid = await user.comparePassword(password, user.password);
-
-            if (!isPasswordValid) {
-                user.incrementLoginAttempts();
-                return {
-                    success: false,
-                    message: 'Invalid email or password',
-                    code: 'INVALID_CREDENTIALS'
-                };
-            }
-
-            // Reset login attempts on successful login
-            user.resetLoginAttempts();
-
-            // Generate tokens
-            const tokens = this.generateTokens(user);
-
-            return {
-                success: true,
-                message: 'Authentication successful',
-                user: user.toJSON(),
-                tokens,
-                expiresIn: authConfig.jwt.expiresIn
-            };
-
-        } catch (error) {
-            console.error('Authentication error:', error);
-            return {
-                success: false,
-                message: 'Authentication failed',
-                code: 'AUTH_ERROR'
-            };
-        }
-    }
-
-    /**
-     * Generate JWT tokens for user
-     * @param {User} user User instance
-     * @returns {Object} Generated tokens
-     */
-    generateTokens(user) {
-        const payload = {
-            userId: user.id,
-            uniqueId: user.uniqueId,
-            email: user.email,
-            name: user.name,
-            role: user.role
-        };
-
-        const accessToken = jwt.sign(
-            payload,
-            authConfig.jwt.secret,
-            { expiresIn: authConfig.jwt.expiresIn }
-        );
-
-        const refreshToken = jwt.sign(
-            {
-                userId: user.id,
-                uniqueId: user.uniqueId
-            },
-            authConfig.jwt.secret,
-            { expiresIn: authConfig.jwt.refreshExpiresIn }
-        );
-
+  /**
+   * Authenticate user with email and password
+   * @param {string} email User email
+   * @param {string} password User password
+   * @returns {Promise<Object>} Authentication result
+   */
+  async authenticate(email, password) {
+    try {
+      // Find user by email
+      const user = await User.findByEmail(email);
+      if (!user) {
         return {
-            accessToken,
-            refreshToken,
-            tokenType: 'Bearer'
+          success: false,
+          message: 'Invalid email or password',
+          code: 'INVALID_CREDENTIALS',
         };
-    }
+      }
 
-    /**
-     * Verify JWT token
-     * @param {string} token JWT token
-     * @returns {Object} Verification result
-     */
-    verifyToken(token) {
-        try {
-            // Check if token is blacklisted
-            if (tokenBlacklist.isBlacklisted(token)) {
-                return {
-                    success: false,
-                    message: 'Token has been revoked',
-                    code: 'TOKEN_REVOKED'
-                };
-            }
-
-            const decoded = jwt.verify(token, authConfig.jwt.secret);
-            return {
-                success: true,
-                payload: decoded
-            };
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Invalid or expired token',
-                code: 'INVALID_TOKEN',
-                error: error.message
-            };
-        }
-    }
-
-    /**
-     * Refresh access token
-     * @param {string} refreshToken Refresh token
-     * @returns {Promise<Object>} Refresh result
-     */
-    async refreshToken(refreshToken) {
-        try {
-            const decoded = jwt.verify(refreshToken, authConfig.jwt.secret);
-            const user = await User.findById(decoded.userId);
-
-            if (!user) {
-                return {
-                    success: false,
-                    message: 'User not found',
-                    code: 'USER_NOT_FOUND'
-                };
-            }
-
-            const tokens = this.generateTokens(user);
-
-            return {
-                success: true,
-                user: user.toJSON(),
-                tokens
-            };
-
-        } catch (error) {
-            return {
-                success: false,
-                message: 'Invalid refresh token',
-                code: 'INVALID_REFRESH_TOKEN'
-            };
-        }
-    }
-
-    /**
-     * Logout user (invalidate tokens)
-     * @param {string} token JWT token
-     * @returns {Object} Logout result
-     */
-    logout(token) {
-        try {
-            // Verify token first to get expiration
-            const decoded = jwt.verify(token, authConfig.jwt.secret);
-
-            // Add token to blacklist with its expiration time
-            tokenBlacklist.addToken(token, decoded.exp);
-
-            return {
-                success: true,
-                message: 'Logout successful. Token has been revoked.'
-            };
-        } catch (error) {
-            // Even if token is invalid/expired, still return success
-            // User wants to logout anyway
-            return {
-                success: true,
-                message: 'Logout successful'
-            };
-        }
-    }
-
-    /**
-     * Get current user from token
-     * @param {string} token JWT token
-     * @returns {Object} User data
-     */
-    async getCurrentUser(token) {
-        const verification = this.verifyToken(token);
-        if (!verification.success) {
-            return null;
-        }
-
-        const user = await User.findById(verification.payload.userId);
-        return user ? user.toJSON() : null;
-    }
-
-    /**
-     * Check if user has permission
-     * @param {Object} user User object
-     * @param {string} permission Required permission
-     * @returns {boolean} Permission status
-     */
-    hasPermission(user, permission) {
-        // Simple role-based permission system
-        const permissions = {
-            admin: ['create', 'read', 'update', 'delete', 'manage_users'],
-            member: ['create', 'read', 'update', 'delete']
-        };
-
-        const userPermissions = permissions[user.role] || [];
-        return userPermissions.includes(permission);
-    }
-
-    /**
-     * Generate session for client-side storage
-     * @param {User} user User instance
-     * @param {boolean} rememberMe Remember me option
-     * @returns {Object} Session data
-     */
-    generateSession(user, rememberMe = false) {
-        const expiresIn = rememberMe
-            ? authConfig.session.rememberMeExpiry
-            : authConfig.session.defaultExpiry;
-
+      // Check if user is locked
+      if (user.isLocked()) {
         return {
-            sessionData: {
-                email: user.email,
-                memberName: user.id,
-                loginTime: new Date().toISOString(),
-                expiresIn
-            },
-            expirationTime: Date.now() + expiresIn,
-            userInfo: {
-                currentFamilyMember: user.id,
-                currentUserEmail: user.email,
-                familyCode: 'FAMILY'
-            }
+          success: false,
+          message: 'Account is temporarily locked due to too many failed login attempts',
+          code: 'ACCOUNT_LOCKED',
         };
+      }
+
+      // Verify password using bcrypt
+      const isPasswordValid = await user.comparePassword(password, user.password);
+
+      if (!isPasswordValid) {
+        user.incrementLoginAttempts();
+        return {
+          success: false,
+          message: 'Invalid email or password',
+          code: 'INVALID_CREDENTIALS',
+        };
+      }
+
+      // Reset login attempts on successful login
+      user.resetLoginAttempts();
+
+      // Generate tokens
+      const tokens = this.generateTokens(user);
+
+      return {
+        success: true,
+        message: 'Authentication successful',
+        user: user.toJSON(),
+        tokens,
+        expiresIn: authConfig.jwt.expiresIn,
+      };
+    } catch (error) {
+      console.error('Authentication error:', error);
+      return {
+        success: false,
+        message: 'Authentication failed',
+        code: 'AUTH_ERROR',
+      };
     }
+  }
+
+  /**
+   * Generate JWT tokens for user
+   * @param {User} user User instance
+   * @returns {Object} Generated tokens
+   */
+  generateTokens(user) {
+    const payload = {
+      userId: user.id,
+      uniqueId: user.uniqueId,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      familyId: user.familyId,
+    };
+
+    const accessToken = jwt.sign(payload, authConfig.jwt.secret, {
+      expiresIn: authConfig.jwt.expiresIn,
+    });
+
+    const refreshToken = jwt.sign(
+      {
+        userId: user.id,
+        uniqueId: user.uniqueId,
+        familyId: user.familyId,
+      },
+      authConfig.jwt.secret,
+      { expiresIn: authConfig.jwt.refreshExpiresIn }
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+      tokenType: 'Bearer',
+    };
+  }
+
+  /**
+   * Verify JWT token
+   * @param {string} token JWT token
+   * @returns {Object} Verification result
+   */
+  verifyToken(token) {
+    try {
+      // Check if token is blacklisted
+      if (tokenBlacklist.isBlacklisted(token)) {
+        return {
+          success: false,
+          message: 'Token has been revoked',
+          code: 'TOKEN_REVOKED',
+        };
+      }
+
+      const decoded = jwt.verify(token, authConfig.jwt.secret);
+      return {
+        success: true,
+        payload: decoded,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Invalid or expired token',
+        code: 'INVALID_TOKEN',
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Refresh access token
+   * @param {string} refreshToken Refresh token
+   * @returns {Promise<Object>} Refresh result
+   */
+  async refreshToken(refreshToken) {
+    try {
+      const decoded = jwt.verify(refreshToken, authConfig.jwt.secret);
+      const user = await User.findById(decoded.userId);
+
+      if (!user) {
+        return {
+          success: false,
+          message: 'User not found',
+          code: 'USER_NOT_FOUND',
+        };
+      }
+
+      const tokens = this.generateTokens(user);
+
+      return {
+        success: true,
+        user: user.toJSON(),
+        tokens,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Invalid refresh token',
+        code: 'INVALID_REFRESH_TOKEN',
+      };
+    }
+  }
+
+  /**
+   * Logout user (invalidate tokens)
+   * @param {string} token JWT token
+   * @returns {Object} Logout result
+   */
+  logout(token) {
+    try {
+      // Verify token first to get expiration
+      const decoded = jwt.verify(token, authConfig.jwt.secret);
+
+      // Add token to blacklist with its expiration time
+      tokenBlacklist.addToken(token, decoded.exp);
+
+      return {
+        success: true,
+        message: 'Logout successful. Token has been revoked.',
+      };
+    } catch (error) {
+      // Even if token is invalid/expired, still return success
+      // User wants to logout anyway
+      return {
+        success: true,
+        message: 'Logout successful',
+      };
+    }
+  }
+
+  /**
+   * Get current user from token
+   * @param {string} token JWT token
+   * @returns {Object} User data
+   */
+  async getCurrentUser(token) {
+    const verification = this.verifyToken(token);
+    if (!verification.success) {
+      return null;
+    }
+
+    const user = await User.findById(verification.payload.userId);
+    return user ? user.toJSON() : null;
+  }
+
+  /**
+   * Check if user has permission
+   * @param {Object} user User object
+   * @param {string} permission Required permission
+   * @returns {boolean} Permission status
+   */
+  hasPermission(user, permission) {
+    // Simple role-based permission system
+    const permissions = {
+      admin: ['create', 'read', 'update', 'delete', 'manage_users'],
+      member: ['create', 'read', 'update', 'delete'],
+    };
+
+    const userPermissions = permissions[user.role] || [];
+    return userPermissions.includes(permission);
+  }
+
+  /**
+   * Generate session for client-side storage
+   * @param {User} user User instance
+   * @param {boolean} rememberMe Remember me option
+   * @returns {Object} Session data
+   */
+  generateSession(user, rememberMe = false) {
+    const expiresIn = rememberMe
+      ? authConfig.session.rememberMeExpiry
+      : authConfig.session.defaultExpiry;
+
+    return {
+      sessionData: {
+        email: user.email,
+        memberName: user.id,
+        loginTime: new Date().toISOString(),
+        expiresIn,
+      },
+      expirationTime: Date.now() + expiresIn,
+      userInfo: {
+        currentFamilyMember: user.id,
+        currentUserEmail: user.email,
+        familyCode: 'FAMILY',
+      },
+    };
+  }
 }
 
 module.exports = new AuthService();
