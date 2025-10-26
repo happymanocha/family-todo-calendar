@@ -130,6 +130,12 @@ class RiddleController {
 
       await Riddle.markSolved(familyId, userId);
 
+      // Delete the riddle so a new one can be generated on next request
+      await Riddle.deleteToday(familyId);
+      console.log(
+        '[RiddleController] Riddle deleted after solving - new riddle will be generated on next request'
+      );
+
       return res.status(200).json({
         success: true,
         message: 'Congratulations!',

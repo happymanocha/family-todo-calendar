@@ -195,6 +195,33 @@ class Riddle {
       })
     );
   }
+
+  /**
+   * Delete today's riddle to allow generation of a new one
+   */
+  static async deleteToday(familyId) {
+    const today = new Date().toISOString().split('T')[0];
+    const PK = `FAMILY#${familyId}`;
+    const SK = `RIDDLE#${today}`;
+
+    if (isLocalDev) {
+      // Local development: delete from in-memory storage
+      const key = `${PK}#${SK}`;
+      localStore.delete(key);
+      console.log(`[Riddle] Deleted local riddle: ${key}`);
+      return;
+    }
+
+    // Production: delete from DynamoDB
+    const { DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+    await docClient.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: { PK, SK },
+      })
+    );
+    console.log(`[Riddle] Deleted DynamoDB riddle: ${PK} ${SK}`);
+  }
 }
 
 module.exports = Riddle;
