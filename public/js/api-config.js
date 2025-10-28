@@ -18,7 +18,7 @@ class APIClient {
       console.log('🔧 API: Using LOCAL development server');
     } else {
       // Production - use AWS Lambda
-      this.baseURL = 'https://4yqv4blrvj.execute-api.us-east-1.amazonaws.com/dev/api';
+      this.baseURL = 'https://2jb9fi83s4.execute-api.us-east-1.amazonaws.com/dev/api';
       console.log('☁️ API: Using AWS Lambda production server');
     }
 
@@ -95,12 +95,17 @@ class APIClient {
   // Authentication methods
   async login(email, password) {
     console.log('🔐 API: Making login request...');
+    console.log('🔐 API: Email:', email);
+    console.log('🔐 API: Request URL:', `${this.baseURL}/auth/login`);
+
     const response = await this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
 
     console.log('🔐 API: Login response received:', response);
+    console.log('🔐 API: Response type:', typeof response);
+    console.log('🔐 API: Response keys:', response ? Object.keys(response) : 'null');
 
     if (
       response &&
@@ -110,12 +115,20 @@ class APIClient {
       response.data.tokens.accessToken
     ) {
       this.token = response.data.tokens.accessToken;
-      console.log('🔐 API: Saving token to localStorage:', this.token);
+      console.log('🔐 API: ✅ Token found in response:', this.token.substring(0, 20) + '...');
+      console.log('🔐 API: Saving token to localStorage...');
       localStorage.setItem('authToken', this.token);
       localStorage.setItem('currentUser', JSON.stringify(response.data.user));
-      console.log('🔐 API: Token saved. Verifying:', localStorage.getItem('authToken'));
+      const savedToken = localStorage.getItem('authToken');
+      console.log(
+        '🔐 API: ✅ Token saved successfully. Verification:',
+        savedToken ? savedToken.substring(0, 20) + '...' : 'FAILED'
+      );
     } else {
-      console.log('🔐 API: No token in response or login failed:', response);
+      console.log('🔐 API: ❌ No token in response or login failed');
+      console.log('🔐 API: Response success:', response?.success);
+      console.log('🔐 API: Response data:', response?.data);
+      console.log('🔐 API: Response message:', response?.message);
     }
 
     return response;
@@ -132,34 +145,61 @@ class APIClient {
   }
 
   async validateToken() {
+    console.log('🔍 API: validateToken() called');
+    console.log(
+      '🔍 API: Current token in apiClient:',
+      this.token ? this.token.substring(0, 30) + '...' : 'NONE'
+    );
+    console.log(
+      '🔍 API: Token from localStorage:',
+      localStorage.getItem('authToken')
+        ? localStorage.getItem('authToken').substring(0, 30) + '...'
+        : 'NONE'
+    );
+
     if (!this.token) {
-      console.log('No token to validate');
+      console.log('🔍 API: ❌ No token to validate');
       return false;
     }
 
     try {
+      console.log('🔍 API: Making validate request to /auth/validate...');
+      console.log('🔍 API: Full URL:', `${this.baseURL}/auth/validate`);
+
       const response = await this.request('/auth/validate', {
         method: 'POST',
         body: JSON.stringify({ token: this.token }),
       });
 
-      console.log('Token validation response:', response);
+      console.log('🔍 API: Token validation response:', response);
+      console.log('🔍 API: Response type:', typeof response);
+      console.log('🔍 API: Response success:', response?.success);
 
       // Handle null response (auth error handled by request method)
       if (response === null) {
+        console.log('🔍 API: ❌ Response is null, validation failed');
         return false;
       }
 
-      return response && response.success;
+      const isValid = response && response.success;
+      console.log('🔍 API: Token validation result:', isValid ? '✅ VALID' : '❌ INVALID');
+      return isValid;
     } catch (error) {
-      console.error('Token validation error:', error);
+      console.error('🔍 API: ❌ Token validation error:', error);
       this.clearAuth();
       return false;
     }
   }
 
   async getProfile() {
-    return await this.request('/auth/profile');
+    return await this.request('/v1/profile');
+  }
+
+  async updateProfile(profileData) {
+    return await this.request('/v1/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
   }
 
   clearAuth() {

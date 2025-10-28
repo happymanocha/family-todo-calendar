@@ -110,6 +110,23 @@ functions:
           method: get
           cors: true
 
+  # V1 Profile endpoints
+  getProfile:
+    handler: src/lambda/auth.profile
+    events:
+      - http:
+          path: /api/v1/profile
+          method: get
+          cors: true
+
+  updateProfile:
+    handler: src/lambda/auth.updateProfile
+    events:
+      - http:
+          path: /api/v1/profile
+          method: put
+          cors: true
+
   validateToken:
     handler: src/lambda/auth.validateToken
     events:

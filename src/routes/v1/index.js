@@ -11,6 +11,7 @@ const authRoutes = require('../auth');
 const todoRoutes = require('../todos');
 const familyRoutes = require('../families');
 const riddleRoutes = require('../riddles');
+const profileRoutes = require('../profile');
 
 // Health check for v1
 router.get('/health', (req, res) => {
@@ -28,5 +29,6 @@ router.use('/auth', authRoutes);
 router.use('/todos', todoRoutes);
 router.use('/families', familyRoutes);
 router.use('/riddles', riddleRoutes);
+router.use('/profile', profileRoutes);
 
 module.exports = router;
